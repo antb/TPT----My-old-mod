@@ -25,7 +25,7 @@
 #endif
 #include <string.h>
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
 #include <windows.h>
 #else
 #include <unistd.h>
@@ -41,7 +41,7 @@
 
 static char *exe_name(void)
 {
-#if defined WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
     char *name= (char *)malloc(64), max=64, res;
     while((res = (char)GetModuleFileName(NULL, name, max)) >= max)
     {
@@ -83,7 +83,7 @@ static char *exe_name(void)
 int update_start(char *data, int len)
 {
     char *self=exe_name(), *temp;
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
     char *p;
 #endif
     FILE *f;
@@ -92,7 +92,7 @@ int update_start(char *data, int len)
     if(!self)
         return 1;
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
     temp = malloc(strlen(self)+12);
     strcpy(temp, self);
     p = temp + strlen(temp) - 4;
@@ -160,7 +160,7 @@ fail:
 
 int update_finish(void)
 {
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
     char *temp, *self=exe_name(), *p;
     int timeout = 60, err;
 
@@ -195,7 +195,7 @@ int update_finish(void)
 
 void update_cleanup(void)
 {
-#ifdef WIN32
+#if defined(WIN32) && !defined(__MINGW32__)
     update_finish();
 #endif
 }

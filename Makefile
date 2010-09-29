@@ -19,7 +19,6 @@ powder-debug: $(SOURCES)
 powder-sse3: $(SOURCES)
 	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN32
 	strip $@
-	mv $@ build
 powder-sse2: $(SOURCES)
 	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE2) $(SOURCES) -DLIN32
 	strip $@
@@ -37,8 +36,8 @@ powder-64-sse2: $(SOURCES)
 	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE2) $(SOURCES) -DLIN64
 	strip $@
 
-powder-res.o: powder-res.rc powder.ico
-	i586-mingw32msvc-windres powder-res.rc powder-res.o
+powder-res.o: src/Resources/powder-res.rc src/Resources/powder.ico
+	i586-mingw32msvc-windres src/Resources/powder-res.rc src/Resources/powder-res.o
 
 powder-sse3.exe: $(SOURCES) powder-res.o
 	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
