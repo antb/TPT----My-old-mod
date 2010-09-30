@@ -487,9 +487,6 @@ int nearest_part(int ci, int t)
 void update_particles_i(pixel *vid, int start, int inc)
 {
     int i, j, x, y, t, nx, ny, r, a, s, rt, fe, nt, lpv, nearp, pavg;
-	uint16_t tempu1, tempu2;
-	int16_t temps1, temps2;
-	float tempf1, tempf2;
     float mv, dx, dy, ix, iy, lx, ly, d, pp;
     float pt = R_TEMP;
     float c_heat = 0.0f;
@@ -1077,7 +1074,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
 								continue;
-							if((r&0xFF)==PT_SPRK || ((parts[i].temp>=(273.15+700.0f)) && 1>(rand()%20)))
+							if((r&0xFF)==PT_SPRK || (r&0xFF)==PT_FIRE || (r&0xFF)==PT_PLSM || ((parts[i].temp>=(273.15+700.0f)) && 1>(rand()%20)))
 							{
 								if(parts[i].life>40) {
 									parts[i].life = 39;
@@ -1108,7 +1105,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
 								continue;
-							if((r&0xFF)==PT_SPRK || (parts[i].temp>=(273.15+400.0f)) && 1>(rand()%15))
+							if((r&0xFF)==PT_SPRK || (r&0xFF)==PT_FIRE || (r&0xFF)==PT_PLSM || (parts[i].temp>=(273.15+400.0f)) && 1>(rand()%15))
 							{
 								if(parts[i].life>40) {
 									parts[i].life = 39;

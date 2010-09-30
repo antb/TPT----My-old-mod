@@ -303,7 +303,7 @@ static part_state pstates[PT_NUM] =
     /* CNCT */ {ST_SOLID,	PT_NONE, 0.0f,		PT_LAVA, 1123.0f,	PT_NONE, 0.0f,		PT_NONE, 0.0f},
     /* DSTW */ {ST_LIQUID,	PT_ICEI, 273.15f,	PT_NONE, 0.0f,		PT_WTRV, 373.0f,	PT_NONE, 0.0f},
     /* SALT */ {ST_SOLID,	PT_NONE, 0.0f,		PT_LAVA, 1173.0f,	PT_NONE, 0.0f,		PT_NONE, 0.0f},
-    /* SLTW */ {ST_LIQUID,	PT_ICEI, 233.0f,	PT_NONE, 0.0f,		PT_WTRV, 483.0f,	PT_NONE, 0.0f},
+    /* SLTW */ {ST_LIQUID,	PT_ICEI, 233.0f,	PT_NONE, 0.0f,		PT_WTRV, 393.0f,	PT_NONE, 0.0f},
     /* DMND */ {ST_SOLID,	PT_NONE, 0.0f,		PT_NONE, 0.0f,		PT_NONE, 0.0f,		PT_NONE, 0.0f},
     /* BMTL */ {ST_SOLID,	PT_NONE, 0.0f,		PT_LAVA, 1273.0f,	PT_NONE, 0.0f,		PT_NONE, 0.0f},
     /* BRMT */ {ST_SOLID,	PT_NONE, 0.0f,		PT_LAVA, 1273.0f,	PT_NONE, 0.0f,		PT_NONE, 0.0f},
