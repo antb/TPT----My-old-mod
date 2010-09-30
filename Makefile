@@ -4,7 +4,7 @@ CFLAGS := -Wall -std=c99 -D_POSIX_C_SOURCE=200112L -Iincludes/
 OFLAGS := -O3 -ffast-math -ftree-vectorize -funsafe-math-optimizations
 LFLAGS := -lSDL -lm -lbz2 
 MFLAGS_SSE3 := -march=native -DX86 -DX86_SSE3 -msse3
-MFLAGS_SSE2 := -march=native-DX86 -DX86_SSE2 -msse2
+MFLAGS_SSE2 := -march=native -DX86 -DX86_SSE2 -msse2
 MFLAGS_SSE := -march=native -DX86 -DX86_SSE
 FLAGS_DBUG := -Wall -std=c99 -D_POSIX_C_SOURCE=200112L -pg -O2 -march=k8 -DX86 -DX86_SSE3 -msse3 -lSDL -lm -lbz2
 COMPILER := gcc
@@ -52,7 +52,7 @@ powder-sse.exe: $(SOURCES) powder-res.o
 	strip $@
 	chmod 0644 $@
 
-winfarm: powder-sse.exe powder-sse2.exe powder3-sse.exe
+winfarm: powder-sse.exe powder-sse2.exe powder-sse3.exe
 
 powder-x: $(SOURCES)
 	gcc -o $@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS) $(SOURCES) -lSDLmain -DMACOSX -DPIX32BGRA -arch x86_64 -framework Cocoa -ggdb
