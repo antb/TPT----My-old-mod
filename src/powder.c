@@ -1549,7 +1549,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                                 if(rt==PT_FIRE||rt==PT_PLSM||rt==PT_THDR)
                                 {
                                     parts[i].tmp = 1;
-                                    parts[i].life = rand()%50+120;
+                                    parts[i].life = rand()%50+60;
                                 }
                             }
                 }
@@ -1557,7 +1557,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     if(parts[i].life==0) {
                         parts[i].tmp=2;
                     } else {
-                        float newVel = parts[i].life/50;
+                        float newVel = parts[i].life/25;
                         parts[i].flags = parts[i].flags&0xFFFFFFFE;
                         if((pmap[(int)(ly-newVel)][(int)lx]&0xFF)==PT_NONE) {
                             parts[i].vy = -newVel;
@@ -1567,6 +1567,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     }
                 }
                 else if(parts[i].tmp==2) {
+					int col = rand()%200+4;
                     for(nx=-2; nx<3; nx++) {
                         for(ny=-2; ny<3; ny++) {
                             if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
@@ -1579,7 +1580,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                                 if(parts[r>>8].type==PT_FIRW) {
                                     parts[r>>8].vx = (rand()%3-1)*tmul;
                                     parts[r>>8].vy = (rand()%3-1)*tmul;
-                                    parts[r>>8].tmp = 3;
+                                    parts[r>>8].tmp = col;//3;
                                     parts[r>>8].life = rand()%100+100;
                                     parts[r>>8].temp = 6000.0f;
                                 }
@@ -1588,7 +1589,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     }
                     pv[y/CELL][x/CELL] += 20;
                     kill_part(i);
-                } else if(parts[i].tmp==3) {
+                } else if(parts[i].tmp>=3) {
                     if(parts[i].life<=0) {
                         kill_part(i);
                     }
