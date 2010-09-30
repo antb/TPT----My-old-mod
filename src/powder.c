@@ -252,6 +252,7 @@ _inline int create_part(int p, int x, int y, int t)
     	parts[i].life = 150;
     }
     End Testing*/
+#include "ab-life.inc"
     if(t==PT_FUSE) {
         parts[i].life = 50;
         parts[i].tmp = 50;
