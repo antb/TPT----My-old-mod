@@ -23,6 +23,7 @@
 #ifndef MACOSX
 #include <malloc.h>
 #endif
+
 #include <string.h>
 
 #if defined(WIN32) && !defined(__MINGW32__)
@@ -31,13 +32,14 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #endif
+
 #ifdef MACOSX
 #include <mach-o/dyld.h>
 #include <errno.h>
 #include <sys/param.h>
 #endif
 
-#include <update.h>
+#include "update.h"
 
 static char *exe_name(void)
 {

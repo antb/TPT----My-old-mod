@@ -12,6 +12,12 @@
 #define PT_RADI 85
 #define PT_RADO 86
 #define PT_GROW 87
-#define PT_LEAD 89
+#define PT_LEAD 88
+#define PT_RNEO 89
+#define PT_GNEO 90
+#define PT_BNEO 91
+#define PT_CNEO 92
+#define PT_YNEO 93
+#define PT_MNEO 94
 
-#define PT_NUM  90
+#define PT_NUM  95

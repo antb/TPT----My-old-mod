@@ -194,3 +194,41 @@ if(t==PT_YEST || t==PT_DYST)
             }
 }
 
+
+//Neons
+if(t==PT_RNEO || t==PT_GNEO || t==PT_BNEO || t==PT_CNEO || t==PT_YNEO || t==PT_MNEO)
+{
+    for(nx=-1; nx<2; nx++)
+        for(ny=-1; ny<2; ny++)
+            if(x+nx>=0 && y+ny>0 &&
+                    x+nx<XRES && y+ny<YRES && (nx || ny))
+            {
+                r = pmap[y+ny][x+nx];
+                if((r>>8)>=NPART || !r)
+                    continue;
+                rt = parts[r>>8].type;
+                if(rt==PT_SPRK)
+                {
+                    if(parts[r>>8].ctype==PT_PSCN)
+                    {
+                        parts[i].life = 10;
+                    }
+                    else if(parts[r>>8].ctype==PT_NSCN)
+                    {
+                        parts[i].life = 9;
+                    }
+                }
+                if(rt==PT_RNEO || rt==PT_GNEO || rt==PT_BNEO || rt==PT_CNEO || rt==PT_YNEO || rt==PT_MNEO)
+                {
+                    if(parts[i].life==10&&parts[r>>8].life<10&&parts[r>>8].life>0)
+                    {
+                        parts[i].life = 9;
+                    }
+                    else if(parts[i].life==0&&parts[r>>8].life==10)
+                    {
+                        parts[i].life = 10;
+                    }
+                }
+            }
+}
+
