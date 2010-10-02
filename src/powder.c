@@ -45,7 +45,11 @@ static int eval_move(int pt, int nx, int ny, unsigned *rr)
 	if(rr)
 		*rr = r;
 
-	if((pt==PT_PHOT||pt=PT_MUPT)&&((r&0xFF)==PT_GLAS||(r&0xFF)==PT_PHOT||(r&0xFF)==PT_MUPT||(r&0xFF)==PT_CLNE||((r&0xFF)==PT_LCRY||((r&0xFF)==PT_PCLN&&parts[r>>8].life > 5)))) //AntB Edit
+    if((pt==PT_PHOT&&pt==PT_MUPT( //AntB Edit
+		(r&0xFF)==PT_GLAS || (r&0xFF)==PT_PHOT || (r&0xFF)==PT_MUPT || //AntB Edit
+		(r&0xFF)==PT_CLNE || (r&0xFF)==PT_PCLN ||
+		(r&0xFF)==PT_WATR || (r&0xFF)==PT_DSTW || (r&0xFF)==PT_SLTW ||
+		((r&0xFF)==PT_LCRY&&parts[r>>8].life > 5)))
 		return 2;
 
 	if(pt==PT_STKM)	//Stick man's head shouldn't collide
