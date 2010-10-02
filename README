@@ -1,0 +1,8 @@
+AntB's TPT Fork
+
+Git Key:
+MINOR:  Small update, will only update binaries if theres a bugfix.
+MAJOR:  BIIIG update, usually after a sucessful MERGE or I've added a new
+        element. All binaries will be updated.
+MERGE:  Merging in progress. Probably won't even compile.
+        
