@@ -675,8 +675,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if(parts[i].life && t!=PT_ACID	&& t!=PT_COAL && t!=PT_WOOD && t!=PT_NBLE && t!=PT_SWCH && t!=PT_STKM && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL)
 			{
 				if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||
-					parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||	//Neons
-					parts[i].type==PT_CNEO||parts[i].type==PT_YNEO||parts[i].type==PT_MNEO)))	//Neons
+					parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_YNEO||parts[i].type==PT_MNEO)))	//Neons
 					parts[i].life--;
 				if(parts[i].life<=0 && t!=PT_METL && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR &&
 					t!=PT_EMIT && t!=PT_SUWR && t!=PT_LEAD &&	//AntB Edit
@@ -694,7 +693,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 						t = PT_METL;
 					parts[i].type = t;
 					parts[i].life = 4;
-					if(t == PT_WATR || t == PT_LEAD) // AntB Edit
+					if(t == PT_WATR)
 						parts[i].life = 64;
 					if(t == PT_SLTW)
 						parts[i].life = 54;
