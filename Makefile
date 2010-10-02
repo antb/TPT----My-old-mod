@@ -53,6 +53,13 @@ powder-sse.exe: $(SOURCES) powder-res.o
 	chmod 0644 $@
 
 winfarm: powder-sse.exe powder-sse2.exe powder-sse3.exe
+	mv *.exe Releases
+linfarm: powder-sse powder-sse2 powder-sse3
+	mv *sse* Releases
+	cp ./Releases/*sse3 ./
+farm: winfarm linfarm
+	mv powder* ./Releases
+	cp ./Releases/*sse3 ./
 
 powder-x: $(SOURCES)
 	gcc -o $@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS) $(SOURCES) -lSDLmain -DMACOSX -DPIX32BGRA -arch x86_64 -framework Cocoa -ggdb

@@ -17,7 +17,7 @@
 #define PT_GNEO 90
 #define PT_BNEO 91
 #define PT_CNEO 92
-#define PT_YNEO 93
-#define PT_MNEO 94
+#define PT_MNEO 93
+#define PT_YNEO 94
 
 #define PT_NUM  95

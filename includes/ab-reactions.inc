@@ -74,13 +74,14 @@ if(t==PT_RADI)
                 r = pmap[y+ny][x+nx];
                 if((r>>8)>=NPART || !r)
                     continue;
-                parts[i].life -= (rand()/(RAND_MAX/2)+1)*(rand()/(RAND_MAX/2)+1);
-                if(parts[i].life <= 50)
+                if(10>rand()/(RAND_MAX/1000))
+                    parts[i].life--;
+                if(parts[i].life <= 0)
                 {
                     kill_part(i);
                     create_part(-1,x,y,PT_RADO);
                     if(10>rand()/(RAND_MAX/1000))
-                        create_part(r>>8,x+nx,y+ny,PT_NEUT);
+                        create_part(r,x+nx,y+ny,PT_NEUT);
                 }
             }
       }

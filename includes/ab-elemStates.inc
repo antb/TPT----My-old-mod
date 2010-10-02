@@ -18,6 +18,6 @@
 /* Green   */ {ST_GAS,   PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f},
 /* Blue    */ {ST_GAS,   PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f},
 /* Cyan    */ {ST_GAS,   PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f},
-/* Yellow  */ {ST_GAS,   PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f},
 /* Magenta */ {ST_GAS,   PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f},
+/* Yellow  */ {ST_GAS,   PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f,  PT_NONE, 0.0f},
 
