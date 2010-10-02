@@ -83,10 +83,10 @@ int try_move(int i, int x, int y, int nx, int ny)
 	if(!e) {
 		if(!legacy_enable) {
 			if((r >> 8) < PT_NUM)
-				 |				parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, MAX_TEMP);;
-		 }
-		 return 0;
-	 }	
+				|				parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, MAX_TEMP);;
+		}
+		return 0;
+	}	
 	if(e == 2)
 		return 1;
  
@@ -95,7 +95,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 	if((bmap[y/CELL][x/CELL]==12 && !emap[y/CELL][x/CELL]) && (bmap[ny/CELL][nx/CELL]!=12 && !emap[ny/CELL][nx/CELL]))
 		return 0;
 
-	 if(r && (r>>8)<NPART && ptypes[r&0xFF].falldown!=2 && bmap[y/CELL][x/CELL]==3)
+	if(r && (r>>8)<NPART && ptypes[r&0xFF].falldown!=2 && bmap[y/CELL][x/CELL]==3)
 		return 0;
 
 	if((r&0xFF)==PT_VOID)
@@ -131,7 +131,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 	return 1;
 }
 
-#define SURF_RANGE	 10
+#define SURF_RANGE	10
 #define NORMAL_MIN_EST 3
 #define NORMAL_INTERP	20
 #define NORMAL_FRAC	16
@@ -140,13 +140,13 @@ int try_move(int i, int x, int y, int nx, int ny)
 static unsigned direction_to_map(float dx, float dy)
 {
 	return (dx >= 0) |
-			 (((dx + dy) >= 0) << 1) |	 /*	567	*/
-			 ((dy >= 0) << 2) |			/*	4+0	*/
-			 (((dy - dx) >= 0) << 3) |	 /*	321	*/
-			 ((dx <= 0) << 4) |
-			 (((dx + dy) <= 0) << 5) |
-			 ((dy <= 0) << 6) |
-			 (((dy - dx) <= 0) << 7);
+			(((dx + dy) >= 0) << 1) |	/*	567	*/
+			((dy >= 0) << 2) |			/*	4+0	*/
+			(((dy - dx) >= 0) << 3) |	/*	321	*/
+			((dx <= 0) << 4) |
+			(((dx + dy) <= 0) << 5) |
+			((dy <= 0) << 6) |
+			(((dy - dx) <= 0) << 7);
 }
 
 static int is_blocking(int t, int x, int y)
@@ -353,23 +353,23 @@ _inline int create_part(int p, int x, int y, int t)
 	if(t==PT_SPRK)
 	{
 		if((pmap[y][x]&0xFF)!=PT_METL &&
-			 (pmap[y][x]&0xFF)!=PT_PSCN &&
-			 (pmap[y][x]&0xFF)!=PT_NSCN &&
-			 (pmap[y][x]&0xFF)!=PT_NTCT &&
-			 (pmap[y][x]&0xFF)!=PT_PTCT &&
-			 (pmap[y][x]&0xFF)!=PT_WATR &&
-			 (pmap[y][x]&0xFF)!=PT_SLTW &&
-			 (pmap[y][x]&0xFF)!=PT_BMTL &&
-			 (pmap[y][x]&0xFF)!=PT_RBDM &&
-			 (pmap[y][x]&0xFF)!=PT_LRBD &&
-			 (pmap[y][x]&0xFF)!=PT_ETRD &&
-			 (pmap[y][x]&0xFF)!=PT_BRMT &&
-			 (pmap[y][x]&0xFF)!=PT_NBLE &&
-			 (pmap[y][x]&0xFF)!=PT_INWR &&
-			 (pmap[y][x]&0xFF)!=PT_EMIT && //Start AntB Edit
-			 (pmap[y][x]&0xFF)!=PT_SUWR &&
-			 (pmap[y][x]&0xFF)!=PT_LEAD	//Stop AntB Edit 
-			 )
+			(pmap[y][x]&0xFF)!=PT_PSCN &&
+			(pmap[y][x]&0xFF)!=PT_NSCN &&
+			(pmap[y][x]&0xFF)!=PT_NTCT &&
+			(pmap[y][x]&0xFF)!=PT_PTCT &&
+			(pmap[y][x]&0xFF)!=PT_WATR &&
+			(pmap[y][x]&0xFF)!=PT_SLTW &&
+			(pmap[y][x]&0xFF)!=PT_BMTL &&
+			(pmap[y][x]&0xFF)!=PT_RBDM &&
+			(pmap[y][x]&0xFF)!=PT_LRBD &&
+			(pmap[y][x]&0xFF)!=PT_ETRD &&
+			(pmap[y][x]&0xFF)!=PT_BRMT &&
+			(pmap[y][x]&0xFF)!=PT_NBLE &&
+			(pmap[y][x]&0xFF)!=PT_INWR &&
+			(pmap[y][x]&0xFF)!=PT_EMIT && //Start AntB Edit
+			(pmap[y][x]&0xFF)!=PT_SUWR &&
+			(pmap[y][x]&0xFF)!=PT_LEAD	//Stop AntB Edit 
+			)
 			return -1;
 		parts[pmap[y][x]>>8].type = PT_SPRK;
 		parts[pmap[y][x]>>8].life = 4;
@@ -579,30 +579,30 @@ void set_emap(int x, int y)
 	// fill children
 
 	if(y>1 && x1==x2 &&
-		 is_wire(x1-1, y-1) && is_wire(x1, y-1) && is_wire(x1+1, y-1) &&
-		 !is_wire(x1-1, y-2) && is_wire(x1, y-2) && !is_wire(x1+1, y-2))
+		is_wire(x1-1, y-1) && is_wire(x1, y-1) && is_wire(x1+1, y-1) &&
+		!is_wire(x1-1, y-2) && is_wire(x1, y-2) && !is_wire(x1+1, y-2))
 		set_emap(x1, y-2);
 	else if(y>0)
 		for(x=x1; x<=x2; x++)
 			if(is_wire_off(x, y-1))
 			{
 				if(x==x1 || x==x2 || y>=YRES/CELL-1 ||
-					 is_wire(x-1, y-1) || is_wire(x+1, y-1) ||
-					 is_wire(x-1, y+1) || !is_wire(x, y+1) || is_wire(x+1, y+1))
+					is_wire(x-1, y-1) || is_wire(x+1, y-1) ||
+					is_wire(x-1, y+1) || !is_wire(x, y+1) || is_wire(x+1, y+1))
 					set_emap(x, y-1);
 			}
 
 	if(y<YRES/CELL-2 && x1==x2 &&
-		 is_wire(x1-1, y+1) && is_wire(x1, y+1) && is_wire(x1+1, y+1) &&
-		 !is_wire(x1-1, y+2) && is_wire(x1, y+2) && !is_wire(x1+1, y+2))
+		is_wire(x1-1, y+1) && is_wire(x1, y+1) && is_wire(x1+1, y+1) &&
+		!is_wire(x1-1, y+2) && is_wire(x1, y+2) && !is_wire(x1+1, y+2))
 		set_emap(x1, y+2);
 	else if(y<YRES/CELL-1)
 		for(x=x1; x<=x2; x++)
 			if(is_wire_off(x, y+1))
 			{
 				if(x==x1 || x==x2 || y<0 ||
-					 is_wire(x-1, y+1) || is_wire(x+1, y+1) ||
-					 is_wire(x-1, y-1) || !is_wire(x, y-1) || is_wire(x+1, y-1))
+					is_wire(x-1, y+1) || is_wire(x+1, y+1) ||
+					is_wire(x-1, y-1) || !is_wire(x, y-1) || is_wire(x+1, y-1))
 					set_emap(x, y+1);
 			}
 }
@@ -675,8 +675,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if(parts[i].life && t!=PT_ACID	&& t!=PT_COAL && t!=PT_WOOD && t!=PT_NBLE && t!=PT_SWCH && t!=PT_STKM && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL)
 			{
 				if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||
-					 parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||	 //Neons
-					 parts[i].type==PT_CNEO||parts[i].type==PT_YNEO||parts[i].type==PT_MNEO)))	//Neons
+					parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||	//Neons
+					parts[i].type==PT_CNEO||parts[i].type==PT_YNEO||parts[i].type==PT_MNEO)))	//Neons
 					parts[i].life--;
 				if(parts[i].life<=0 && t!=PT_METL && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR &&
 					t!=PT_EMIT && t!=PT_SUWR && t!=PT_LEAD &&	//AntB Edit
@@ -712,15 +712,15 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 
 			if(x<0 || y<0 || x>=XRES || y>=YRES ||
-				 ((bmap[y/CELL][x/CELL]==1 ||
-				 bmap[y/CELL][x/CELL]==8 ||
-				 bmap[y/CELL][x/CELL]==9 ||
-				 (bmap[y/CELL][x/CELL]==2) ||
-				 (bmap[y/CELL][x/CELL]==3 && ptypes[t].falldown!=2) ||
-				 (bmap[y/CELL][x/CELL]==10 && ptypes[t].falldown!=1) ||
-				 (bmap[y/CELL][x/CELL]==13 && ptypes[t].falldown!=0 && parts[i].type!=PT_FIRE && parts[i].type!=PT_SMKE) ||
-				 (bmap[y/CELL][x/CELL]==6 && (t==PT_METL || t==PT_SPRK)) ||
-				 (bmap[y/CELL][x/CELL]==7 && !emap[y/CELL][x/CELL])) && (t!=PT_STKM)))
+				((bmap[y/CELL][x/CELL]==1 ||
+				bmap[y/CELL][x/CELL]==8 ||
+				bmap[y/CELL][x/CELL]==9 ||
+				(bmap[y/CELL][x/CELL]==2) ||
+				(bmap[y/CELL][x/CELL]==3 && ptypes[t].falldown!=2) ||
+				(bmap[y/CELL][x/CELL]==10 && ptypes[t].falldown!=1) ||
+				(bmap[y/CELL][x/CELL]==13 && ptypes[t].falldown!=0 && parts[i].type!=PT_FIRE && parts[i].type!=PT_SMKE) ||
+				(bmap[y/CELL][x/CELL]==6 && (t==PT_METL || t==PT_SPRK)) ||
+				(bmap[y/CELL][x/CELL]==7 && !emap[y/CELL][x/CELL])) && (t!=PT_STKM)))
 			{
 				kill_part(i);
 				continue;
@@ -837,8 +837,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 			for(nx=-1; nx<2; nx++)
 				for(ny=-1; ny<2; ny++)
 					if(x+nx>=0 && y+ny>0 &&
-						 x+nx<XRES && y+ny<YRES &&
-						 (!bmap[(y+ny)/CELL][(x+nx)/CELL] || bmap[(y+ny)/CELL][(x+nx)/CELL]==5))
+						x+nx<XRES && y+ny<YRES &&
+						(!bmap[(y+ny)/CELL][(x+nx)/CELL] || bmap[(y+ny)/CELL][(x+nx)/CELL]==5))
 					{
 						if(!pmap[y+ny][x+nx])
 							a = 1;
@@ -1040,7 +1040,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			}
 
 			if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_RBDM || t==PT_LRBD || t==PT_BRMT || t==PT_PSCN || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_BMTL || t==PT_SPRK|| t == PT_NBLE || t==PT_INWR ||
-				 t==PT_EMIT || t==PT_SUWR || t==PT_LEAD) //AntB Edit
+				t==PT_EMIT || t==PT_SUWR || t==PT_LEAD) //AntB Edit
 			{
 				nx = x % CELL;
 				if(nx == 0)
@@ -1059,7 +1059,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				if(nx>=0 && ny>=0 && nx<XRES/CELL && ny<YRES/CELL)
 				{
 					if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_RBDM || t==PT_LRBD || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_PSCN || t==PT_BRMT || t==PT_BMTL||t==PT_NBLE || t==PT_INWR ||
-						 t==PT_EMIT || t==PT_SUWR || t==PT_LEAD) //AntB Edit
+						t==PT_EMIT || t==PT_SUWR || t==PT_LEAD) //AntB Edit
 					{
 						if(emap[ny][nx]==12 && !parts[i].life)
 						{
@@ -1085,7 +1085,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1119,7 +1119,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1168,7 +1168,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1196,7 +1196,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1237,7 +1237,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1268,7 +1268,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1286,7 +1286,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1302,7 +1302,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1354,7 +1354,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1389,7 +1389,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1416,7 +1416,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1446,7 +1446,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1494,7 +1494,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-1; nx<2; nx++)
 					for(ny=-1; ny<2; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1556,7 +1556,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=0; nx<1; nx++)
 					for(ny=0; ny<1; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1768,7 +1768,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1790,7 +1790,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1819,7 +1819,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				for(nx=-2; nx<3; nx++)
 					for(ny=-2; ny<3; ny++)
 						if(x+nx>=0 && y+ny>0 &&
-							 x+nx<XRES && y+ny<YRES && (nx || ny))
+							x+nx<XRES && y+ny<YRES && (nx || ny))
 						{
 							r = pmap[y+ny][x+nx];
 							if((r>>8)>=NPART || !r)
@@ -1828,8 +1828,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 								continue;
 							rt = parts[r>>8].type;
 							if((a || ptypes[rt].explosive) && ((rt!=PT_RBDM && rt!=PT_LRBD && rt!=PT_INSL && rt!=PT_RBRI && rt!=PT_SWCH) || t!=PT_SPRK) && //AntB Edit
-								 (t!=PT_LAVA || parts[i].life>0 || (rt!=PT_STNE && rt!=PT_PSCN && rt!=PT_NSCN && rt!=PT_NTCT && rt!=PT_PTCT && rt!=PT_METL && rt!=PT_ETRD && rt!=PT_BMTL && rt!=PT_BRMT && rt!=PT_SWCH && rt!=PT_INWR)) &&
-								 ptypes[rt].flammable && (ptypes[rt].flammable + (int)(pv[(y+ny)/CELL][(x+nx)/CELL]*10.0f))>(rand()%1000))
+								(t!=PT_LAVA || parts[i].life>0 || (rt!=PT_STNE && rt!=PT_PSCN && rt!=PT_NSCN && rt!=PT_NTCT && rt!=PT_PTCT && rt!=PT_METL && rt!=PT_ETRD && rt!=PT_BMTL && rt!=PT_BRMT && rt!=PT_SWCH && rt!=PT_INWR)) &&
+								ptypes[rt].flammable && (ptypes[rt].flammable + (int)(pv[(y+ny)/CELL][(x+nx)/CELL]*10.0f))>(rand()%1000))
 							{
 								parts[r>>8].type = PT_FIRE;
 								parts[r>>8].temp = ptypes[PT_FIRE].heat + (ptypes[rt].flammable/2);
@@ -1843,7 +1843,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 							if(legacy_enable)
 							{
 								if(t!=PT_SPRK && ptypes[rt].meltable	&& ((rt!=PT_RBDM && rt!=PT_LRBD) || t!=PT_SPRK) && ((t!=PT_FIRE&&t!=PT_PLSM) || (rt!=PT_METL && rt!=PT_ETRD && rt!=PT_PSCN && rt!=PT_NSCN && rt!=PT_NTCT && rt!=PT_PTCT && rt!=PT_BMTL && rt!=PT_BRMT && rt!=PT_SALT && rt!=PT_INWR)) &&
-									 ptypes[rt].meltable*lpv>(rand()%1000))
+									ptypes[rt].meltable*lpv>(rand()%1000))
 								{
 									if(t!=PT_LAVA || parts[i].life>0)
 									{
@@ -1917,7 +1917,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 								if(t==PT_SPRK && (rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_NBLE||
 													rt==PT_EMIT||rt==PT_SUWR) //AntB Edit
 												&& parts[r>>8].life==0 &&
-									 (parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
+									(parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
 								{
 									if(!(rt==PT_PSCN&&parts[i].ctype==PT_NSCN)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN&&parts[i].temp>=373.0f)&&parts[i].ctype==PT_NTCT)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN&&parts[i].temp<=373.0f)&&parts[i].ctype==PT_PTCT)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN)&&parts[i].ctype==PT_INWR) && pavg != PT_INSL && pavg != PT_RBRI &&!(parts[i].ctype==PT_SWCH&&(rt==PT_PSCN||rt==PT_NSCN)) ) //AntB Edit
 									{
@@ -1929,7 +1929,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 									}
 								}
 								if(t==PT_SPRK && rt==PT_NTCT && parts[r>>8].life==0 &&
-									 (parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
+									(parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
 								{
 									if((parts[i].ctype==PT_NSCN||parts[i].ctype==PT_NTCT||(parts[i].ctype==PT_PSCN&&parts[r>>8].temp>373.0f))&&(pavg != PT_INSL && pavg != PT_RBRI)) //AntB Edit
 									{
@@ -1939,7 +1939,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 									}
 								}
 								if(t==PT_SPRK && rt==PT_PTCT && parts[r>>8].life==0 &&
-									 (parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
+									(parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
 								{
 									if((parts[i].ctype==PT_NSCN||parts[i].ctype==PT_PTCT||(parts[i].ctype==PT_PSCN&&parts[r>>8].temp<373.0f))&&(pavg != PT_INSL && pavg != PT_RBRI)) //AntB Edit
 									{
@@ -1949,7 +1949,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 									}
 								}
 								if(t==PT_SPRK && rt==PT_INWR && parts[r>>8].life==0 &&
-									 (parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
+									(parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
 								{
 									if((parts[i].ctype==PT_NSCN||parts[i].ctype==PT_INWR||parts[i].ctype==PT_PSCN)&&(pavg != PT_INSL && pavg != PT_RBRI)) //AntB Edit
 									{
@@ -1958,25 +1958,25 @@ void update_particles_i(pixel *vid, int start, int inc)
 										parts[r>>8].ctype = rt;
 									}
 								}
-	/*	 |=>	 */			 if(t==PT_SPRK && rt==PT_LEAD && parts[r>>8].life==0 &&
-	/*	 |	 */				 (parts[i].life<2 || ((r>>8)<i && parts[i].life<3)) && abs(nx)+abs(ny)<4)
-	/*	 |	 */			 {
-	/*	 |	 */				 if((pavg != PT_INSL|| pavg!=PT_RBRI))
-	/* AntB Edit */				 {
-	/*	 |	 */					 parts[r>>8].type = PT_SPRK;
-	/*	 |	 */						parts[r>>8].life = 6;
-	/*	 |	 */						parts[r>>8].ctype = rt;
-	/*	 |	 */					 }
-	/*	 |=>	 */			 }
+	/*	|=>	*/			if(t==PT_SPRK && rt==PT_LEAD && parts[r>>8].life==0 &&
+	/*	|	*/				(parts[i].life<2 || ((r>>8)<i && parts[i].life<3)) && abs(nx)+abs(ny)<4)
+	/*	|	*/			{
+	/*	|	*/				if((pavg != PT_INSL|| pavg!=PT_RBRI))
+	/* AntB Edit */				{
+	/*	|	*/					parts[r>>8].type = PT_SPRK;
+	/*	|	*/						parts[r>>8].life = 6;
+	/*	|	*/						parts[r>>8].ctype = rt;
+	/*	|	*/					}
+	/*	|=>	*/			}
 								if(t==PT_SPRK && rt==PT_WATR && parts[r>>8].life==0 &&
-									 (parts[i].life<2 || ((r>>8)<i && parts[i].life<3)) && abs(nx)+abs(ny)<4)
+									(parts[i].life<2 || ((r>>8)<i && parts[i].life<3)) && abs(nx)+abs(ny)<4)
 								{
 									parts[r>>8].type = PT_SPRK;
 									parts[r>>8].life = 6;
 									parts[r>>8].ctype = rt;
 								}
 								if(t==PT_SPRK && rt==PT_SLTW && parts[r>>8].life==0 &&
-									 (parts[i].life<2 || ((r>>8)<i && parts[i].life<3)) && abs(nx)+abs(ny)<4)
+									(parts[i].life<2 || ((r>>8)<i && parts[i].life<3)) && abs(nx)+abs(ny)<4)
 								{
 									parts[r>>8].type = PT_SPRK;
 									parts[r>>8].life = 5;
@@ -2412,11 +2412,11 @@ void update_particles_i(pixel *vid, int start, int inc)
 					for(nx=-1; nx<2; nx++)
 						for(ny=-1; ny<2; ny++)
 							if(x+nx>=0 && y+ny>0 &&
-								 x+nx<XRES && y+ny<YRES &&
-								 pmap[y+ny][x+nx] &&
-								 (pmap[y+ny][x+nx]&0xFF)!=PT_CLNE &&
-								 (pmap[y+ny][x+nx]&0xFF)!=PT_STKM &&
-								 (pmap[y+ny][x+nx]&0xFF)!=0xFF)
+								x+nx<XRES && y+ny<YRES &&
+								pmap[y+ny][x+nx] &&
+								(pmap[y+ny][x+nx]&0xFF)!=PT_CLNE &&
+								(pmap[y+ny][x+nx]&0xFF)!=PT_STKM &&
+								(pmap[y+ny][x+nx]&0xFF)!=0xFF)
 								parts[i].ctype = pmap[y+ny][x+nx]&0xFF;
 				}
 				else
@@ -2462,7 +2462,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			ny = (int)(parts[i].y+0.5f);
 
 			if(nx<CELL || nx>=XRES-CELL ||
-				 ny<CELL || ny>=YRES-CELL)
+				ny<CELL || ny>=YRES-CELL)
 			{
 				parts[i].x = lx;
 				parts[i].y = ly;
@@ -2499,12 +2499,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 		parts[i].vy -= 2.0f*ct1*nry;
 		} else {
 		ct2 = sqrtf(ct2);
-			 ct2 = ct2 - nn*ct1;
-			 parts[i].vx = nn*parts[i].vx + ct2*nrx;
-			 parts[i].vy = nn*parts[i].vy + ct2*nry;
-		 }
-	 }
-		 }
+			ct2 = ct2 - nn*ct1;
+			parts[i].vx = nn*parts[i].vx + ct2*nrx;
+			parts[i].vy = nn*parts[i].vy + ct2*nry;
+		}
+	}
+		}
  
 			rt = parts[i].flags & FLAG_STAGNANT;
 			parts[i].flags &= ~FLAG_STAGNANT;
@@ -3330,8 +3330,8 @@ int create_parts(int x, int y, int r, int c)
 		for(v=-1; v<2; v++)
 			for(u=-1; u<2; u++)
 				if(i+u>=0 && i+u<XRES/CELL &&
-					 j+v>=0 && j+v<YRES/CELL &&
-					 bmap[j+v][i+u] == 5)
+					j+v>=0 && j+v<YRES/CELL &&
+					bmap[j+v][i+u] == 5)
 					return 1;
 		bmap[j][i] = 5;
 		return 1;
