@@ -83,7 +83,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 	if(!e) {
 		if(!legacy_enable) {
 			if((r >> 8) < PT_NUM)
-				|				parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, MAX_TEMP);;
+				parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, MAX_TEMP);;
 		}
 		return 0;
 	}	
