@@ -21,5 +21,5 @@
 {"M",     PIXPACK(0xFF00FF),  0.0f,	  0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f, 0.00f,  0.000000f * CFDS, 0,	0,	   0,  0,  1,  1, SC_NEON,      R_TEMP+0.0f	    +273.15f,	106,	"Magenta Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
 {"Y",	  PIXPACK(0xFFFF00),  0.0f,	  0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f, 0.00f,  0.000000f * CFDS, 0,	0,     0,  0,  1,  1, SC_NEON,	    R_TEMP+0.0f	    +273.15f,	106,	"Yellow Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
 //End Neons
-s//Name		Colour			Advec	Airdrag			Airloss	Loss	Collid	Grav	Diffus	Hotair			Fal Burn  Exp Mel Hrd  M	Section		H       				Ins(real world, by triclops200) Description
+//Name		Colour			Advec	Airdrag			Airloss	Loss	Collid	Grav	Diffus	Hotair			Fal Burn  Exp Mel Hrd  M	Section		H       				Ins(real world, by triclops200) Description
 

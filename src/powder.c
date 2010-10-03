@@ -67,10 +67,13 @@ static int eval_move(int pt, int nx, int ny, unsigned *rr)
     if (r && ((r&0xFF) >= PT_NUM || !can_move[pt][(r&0xFF)]))
         return 0;
 
-    if(pt == PT_PHOT || pt == PT_MUPT) // AntB Edit
+    if(pt == PT_PHOT)
         return 2;
     return 1;
 }
+
+static void create_cherenkov_photon(int pp);
+
 int try_move(int i, int x, int y, int nx, int ny)
 {
     unsigned r, e;
@@ -80,17 +83,21 @@ int try_move(int i, int x, int y, int nx, int ny)
 
     e = eval_move(parts[i].type, nx, ny, &r);
     if(!e) {
-        if(!legacy_enable && (parts[i].type==PT_PHOT||parts[i].type==PT_MUPT)) {
+        if(!legacy_enable && parts[i].type==PT_PHOT) {
             if((r & 0xFF ) < PT_NUM)
                 parts[i].temp = parts[r>>8].temp =
                                     restrict_flt((parts[r>>8].temp+parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
         }
         return 0;
     }
-    if(e == 2)
+    if(e == 2) {
+	if(parts[i].type == PT_NEUT && (r&0xFF)==PT_GLAS) {
+	    if(rand() < RAND_MAX/10)
+		create_cherenkov_photon(i);
+	}
         return 1;
-    if(parts[i].type == PT_NEUT && ((r&0xFF) == PT_LEAD)) // <
-		return 1;                                         // < AntB Edit
+    }
+
     if((r&0xFF)==PT_VOID)
     {
         parts[i].type=PT_NONE;
@@ -135,6 +142,11 @@ int try_move(int i, int x, int y, int nx, int ny)
 #define NORMAL_FRAC    16
 
 #define REFRACT        0x80000000
+
+/* heavy flint glass, for awesome refraction/dispersion
+   this way you can make roof prisms easily */
+#define GLASS_IOR      1.9
+#define GLASS_DISP     0.07
 
 static unsigned direction_to_map(float dx, float dy)
 {
@@ -199,13 +211,6 @@ static int find_next_boundary(int pt, int *x, int *y, int dm, int *em)
     return 0;
 }
 
-static int vec_colinear(float nx, float ny, float vx, float vy)
-{
-    float d = 1.0f/hypot(vx, vy);
-    d *= nx*vx + ny*vy;
-    return (d >= 0.99) || (d <= -0.99);
-}
-
 int get_normal(int pt, int x, int y, float dx, float dy, float *nx, float *ny)
 {
     int ldm, rdm, lm, rm;
@@ -248,9 +253,6 @@ int get_normal(int pt, int x, int y, float dx, float dy, float *nx, float *ny)
     r = 1.0f/hypot(ex, ey);
     *nx =  ey * r;
     *ny = -ex * r;
-
-    if(vec_colinear(*ny, -*nx, dx, dy))
-        return 0;
 
     return 1;
 }
@@ -347,6 +349,8 @@ inline int create_part(int p, int x, int y, int t)
         }
         return -1;
     }
+
+
 
     if(t==PT_SPRK)
     {
@@ -511,6 +515,49 @@ inline int create_part(int p, int x, int y, int t)
     }
 
     return i;
+}
+
+static void create_cherenkov_photon(int pp)
+{
+    int i, lr, nx, ny;
+    float r, eff_ior;
+
+    if(pfree == -1)
+        return;
+    i = pfree;
+
+    nx = (int)(parts[pp].x + 0.5f);
+    ny = (int)(parts[pp].y + 0.5f);
+    if((pmap[ny][nx] & 0xFF) != PT_GLAS)
+	return;
+
+    if(hypotf(parts[pp].vx, parts[pp].vy) < 1.44f)
+	return;
+
+    pfree = parts[i].life;
+
+    lr = rand() % 2;
+
+    parts[i].type = PT_PHOT;
+    parts[i].ctype = 0x00000F80;
+    parts[i].life = 680;
+    parts[i].x = parts[pp].x;
+    parts[i].y = parts[pp].y;
+    parts[i].temp = parts[pmap[ny][nx] >> 8].temp;
+    parts[i].tmp = 0;
+
+    if(lr) {
+	parts[i].vx = parts[pp].vx - 2.5f*parts[pp].vy;
+	parts[i].vy = parts[pp].vy + 2.5f*parts[pp].vx;
+    } else {
+	parts[i].vx = parts[pp].vx + 2.5f*parts[pp].vy;
+	parts[i].vy = parts[pp].vy - 2.5f*parts[pp].vx;
+    }
+
+    /* photons have speed of light. no discussion. */
+    r = 1.269 / hypotf(parts[i].vx, parts[i].vy);
+    parts[i].vx *= r;
+    parts[i].vy *= r;
 }
 
 #ifdef WIN32
@@ -2504,7 +2551,8 @@ killed:
 			kill_part(i);
 			continue;
 		    }
-		    nn = 2.3f - 0.02f*r;
+			nn = GLASS_IOR - GLASS_DISP*(r-15)/15.0f;
+			nn *= nn;
 
                     nrx = -nrx;
                     nry = -nry;
@@ -2515,6 +2563,10 @@ killed:
                     if(ct2 < 0.0f) {
                         parts[i].vx -= 2.0f*ct1*nrx;
                         parts[i].vy -= 2.0f*ct1*nry;
+						parts[i].x = lx;
+						parts[i].y = ly;
+						nx = (int)(lx + 0.5f);
+						ny = (int)(ly + 0.5f);
                     } else {
                         ct2 = sqrtf(ct2);
                         ct2 = ct2 - nn*ct1;
