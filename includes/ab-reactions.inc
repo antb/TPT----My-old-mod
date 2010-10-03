@@ -14,15 +14,6 @@ if(t==PT_SPRK && parts[i].ctype==PT_EMIT)
           for(ny=-2;ny<3;ny++)
             create_part(-1, x+rand()%3-1, y+rand()%3-1, PT_PHOT);
 
-if(t==PT_SPRK && rt==PT_LEAD && parts[r>>8].life==0 && (parts[i].life<2 || ((r>>8)<i && parts[i].life<3)) && abs(nx)+abs(ny)<4)
-{
-    if((pavg != PT_INSL || PT_RBRI))
-    {
-        parts[r>>8].type = PT_SPRK;
-        parts[r>>8].life = 5;
-        parts[r>>8].ctype = rt;
-    }
-}
 
 if(t==PT_H2O2)
 {

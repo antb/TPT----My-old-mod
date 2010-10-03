@@ -353,6 +353,7 @@ static part_state pstates[PT_NUM] =
     /* HSWC */ {ST_NONE,    PT_NONE, 0.0f,      PT_NONE, 0.0f,      PT_NONE, 0.0f,      PT_NONE, 0.0f},
 #include "ab-elemStates.inc"
 };
+
 #include "weights.h"
 
 extern int isplayer;
