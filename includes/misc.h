@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#if defined(WIN32) && !defined(__MINGW32__)
+#if defined(WIN32) && !defined(__GNUC__)
 #define x86_cpuid(func,af,bf,cf,df) \
 	do {\
 	__asm mov	eax, func\
@@ -21,19 +21,19 @@ __asm__ __volatile ("cpuid":\
 
 static char hex[] = "0123456789ABCDEF";
 //Signum function
-#if defined(WIN32) && !defined(__MINGW32__)
+#ifdef WIN32
 extern _inline int isign(float i);
 #else
 extern inline int isign(float i);
 #endif
 
-#if defined(WIN32) && !defined(__MINGW32__)
+#ifdef WIN32
 extern _inline unsigned clamp_flt(float f, float min, float max);
 #else
 extern inline unsigned clamp_flt(float f, float min, float max);
 #endif
 
-#if defined(WIN32) && !defined(__MINGW32__)
+#ifdef WIN32
 extern _inline float restrict_flt(float f, float min, float max);
 #else
 extern inline float restrict_flt(float f, float min, float max);

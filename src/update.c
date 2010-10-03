@@ -23,7 +23,6 @@
 #ifndef MACOSX
 #include <malloc.h>
 #endif
-
 #include <string.h>
 
 #ifdef WIN32
@@ -32,19 +31,17 @@
 #include <unistd.h>
 #include <sys/stat.h>
 #endif
-
 #ifdef MACOSX
 #include <mach-o/dyld.h>
 #include <errno.h>
 #include <sys/param.h>
 #endif
 
-#include "update.h"
+#include <update.h>
 
 static char *exe_name(void)
 {
-#if defined(WIN32)//
-// && !defined(__MINGW32__)
+#if defined WIN32
     char *name= (char *)malloc(64), max=64, res;
     while((res = (char)GetModuleFileName(NULL, name, max)) >= max)
     {
