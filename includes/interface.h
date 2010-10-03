@@ -50,7 +50,9 @@ static menu_wall mwalls[] =
 #define SC_GAS 3
 #define SC_LIQUID 4
 #define SC_NUCLEAR 7
-#define SC_TOTAL 9
+#define SC_CUSTOM 9
+#define SC_NEON 10
+#define SC_TOTAL 11
 
 static menu_section msections[] =
 {
@@ -63,6 +65,8 @@ static menu_section msections[] =
     {"\xD1", "Solids", 0},
     {"\xC6", "Radioactive", 0},
     {"\xCC", "Special", 0},
+	{"\xC2", "AntB's Mod", 0},
+	{"\xC5", "Neon Lights", 0},
 };
 
 struct ui_edit

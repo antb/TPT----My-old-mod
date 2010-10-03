@@ -37,29 +37,28 @@ powder-64-sse2: $(SOURCES)
 	strip $@
 
 powder-res.o: src/Resources/powder-res.rc src/Resources/powder.ico
-	i586-mingw32msvc-windres src/Resources/powder-res.rc src/Resources/powder-res.o
+	cd src/Resources; i586-mingw32msvc-windres powder-res.rc ../../powder-res.o
 
 powder-sse3.exe: $(SOURCES) powder-res.o
-	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) src/Resources/powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32 -D_inline= -Dmax=fmaxf
 	strip $@
 	chmod 0644 $@
 powder-sse2.exe: $(SOURCES) powder-res.o
-	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE2) $(SOURCES) src/Resources/powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
-	strip $@
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE2) $(SOURCES) powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32 -D_inline= -Dmax=fmaxf
 	chmod 0644 $@
 powder-sse.exe: $(SOURCES) powder-res.o
-	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE) $(SOURCES) src/Resources/powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE) $(SOURCES) powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32 -D_inline= -Dmax=fmaxf
 	strip $@
 	chmod 0644 $@
 
 winfarm: powder-sse.exe powder-sse2.exe powder-sse3.exe
 	mv *.exe Releases
+
 linfarm: powder-sse powder-sse2 powder-sse3
 	mv *sse* Releases
 	cp ./Releases/*sse3 ./
+
 farm: winfarm linfarm
-	mv powder* ./Releases
-	cp ./Releases/*sse3 ./
 
 powder-x: $(SOURCES)
 	gcc -o $@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS) $(SOURCES) -lSDLmain -DMACOSX -DPIX32BGRA -arch x86_64 -framework Cocoa -ggdb
