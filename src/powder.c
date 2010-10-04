@@ -38,8 +38,11 @@ static int eval_move(int pt, int nx, int ny, unsigned *rr)
     if(rr)
         *rr = r;
 
-    if((r&0xFF)==PT_VOID || (r&0xFF)==PT_BHOL)
-	return 1;
+	if((r&0xFF)==PT_VOID || (r&0xFF)==PT_BHOL)
+		return 1;
+
+	if(pt==PT_NEUT && (r&0xFF)==PT_GLAS)
+		return 2;
 
     if((pt==PT_PHOT||pt==PT_MUPT)&&(											// < AntB
                 (r&0xFF)==PT_GLAS || (r&0xFF)==PT_PHOT || (r&0xFF)==PT_MUPT ||	// < Edit
@@ -91,7 +94,7 @@ int try_move(int i, int x, int y, int nx, int ny)
         return 0;
     }
     if(e == 2) {
-	if(parts[i].type == PT_NEUT && (r&0xFF)==PT_GLAS) {
+	if((parts[i].type == PT_NEUT || parts[i].type == PT_MUNE) && (r&0xFF)==PT_GLAS) {
 	    if(rand() < RAND_MAX/10)
 		create_cherenkov_photon(i);
 	}
@@ -743,7 +746,7 @@ void update_particles_i(pixel *vid, int start, int inc)
             if(sys_pause&&!framerender)
                 return;
 
-            if(parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_NBLE && t!=PT_SWCH && t!=PT_STKM && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL)
+            if(parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_NBLE && t!=PT_SWCH && t!=PT_STKM && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_RADI) //AntB Edit
             {
                 if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_MNEO||parts[i].type==PT_YNEO)))
                     parts[i].life--;

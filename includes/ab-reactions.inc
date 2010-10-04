@@ -65,14 +65,13 @@ if(t==PT_RADI)
                 r = pmap[y+ny][x+nx];
                 if((r>>8)>=NPART || !r)
                     continue;
-                if(10>rand()/(RAND_MAX/1000))
+                if(10>rand()/(RAND_MAX/100))
                     parts[i].life--;
+
                 if(parts[i].life <= 0)
                 {
                     kill_part(i);
                     create_part(-1,x,y,PT_RADO);
-                    if(10>rand()/(RAND_MAX/1000))
-                        create_part(r,x+nx,y+ny,PT_NEUT);
                 }
             }
       }
@@ -86,7 +85,7 @@ if(t==PT_RADO)
                 r = pmap[y+ny][x+nx];
                 if((r>>8)>=NPART || !r)
                     continue;
-                if(1>(rand()/(RAND_MAX/1000)))
+                if(10>(rand()/(RAND_MAX/1000)))
                     create_part(r>>8, x+nx, y+ny, PT_NEUT);
             }
 }
@@ -224,3 +223,43 @@ if(t==PT_RNEO || t==PT_GNEO || t==PT_BNEO || t==PT_CNEO || t==PT_YNEO || t==PT_M
             }
 }
 
+//Test reaction
+if(t==PT_SLTW)
+{
+    for(nx=-1; nx<2; nx++)
+        for(ny=-1; ny<2; ny++)
+            if(x+nx>=0 && y+ny>0 &&
+                    x+nx<XRES && y+ny<YRES && (nx || ny))
+            {
+                r = pmap[y+ny][x+nx];
+                if((r>>8)>=NPART || !r)
+                    continue;
+                rt = parts[r>>8].type;
+
+				if(rt==PT_METL && 10>(rand()/(RAND_MAX/1500)))
+				{
+					parts[r>>8].type=PT_BRMT;
+					parts[r>>8].tmp=1;
+				}
+			}
+}
+
+if(t==PT_BRMT && parts[i].tmp==1)
+{
+    for(nx=-1; nx<2; nx++)
+        for(ny=-1; ny<2; ny++)
+            if(x+nx>=0 && y+ny>0 &&
+                    x+nx<XRES && y+ny<YRES && (nx || ny))
+            {
+			    r = pmap[y+ny][x+nx];
+                if((r>>8)>=NPART || !r)
+                    continue;
+                rt = parts[r>>8].type;
+
+				if(rt==PT_METL && 10>(rand()/(RAND_MAX/2000)))
+				{
+					parts[r>>8].type=PT_BRMT;
+					parts[r>>8].tmp=1;
+				}
+			}
+}

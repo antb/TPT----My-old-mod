@@ -45,11 +45,18 @@ powder-sse3.exe: $(SOURCES) powder-res.o
 	chmod 0644 $@
 powder-sse2.exe: $(SOURCES) powder-res.o
 	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE2) $(SOURCES) powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32 -D_inline= -Dmax=fmaxf
+	strip $@
 	chmod 0644 $@
 powder-sse.exe: $(SOURCES) powder-res.o
 	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE) $(SOURCES) powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32 -D_inline= -Dmax=fmaxf
 	strip $@
 	chmod 0644 $@
+
+powder.exe: $(SOURCES) powder-res.o
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(SOURCES) powder-res.o -lmingw32 -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32 -D_inline= -Dmax=fmaxf
+	strip $@
+	chmod 0644 $@
+
 
 winfarm: powder-sse.exe powder-sse2.exe powder-sse3.exe
 	mv *.exe Releases
