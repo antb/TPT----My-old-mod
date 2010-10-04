@@ -75,6 +75,7 @@ static int eval_move(int pt, int nx, int ny, unsigned *rr)
     if((pt==PT_PHOT||pt==PT_MUPT)&&(											// < AntB
                 (r&0xFF)==PT_GLAS || (r&0xFF)==PT_PHOT || (r&0xFF)==PT_MUPT ||	// < Edit
                 (r&0xFF)==PT_CLNE || (r&0xFF)==PT_PCLN ||
+				(r&0xFF)==PT_GLOW ||
                 (r&0xFF)==PT_WATR || (r&0xFF)==PT_DSTW || (r&0xFF)==PT_SLTW ||
                 ((r&0xFF)==PT_LCRY&&parts[r>>8].life > 5)))
         return 2;
@@ -104,6 +105,7 @@ static int eval_move(int pt, int nx, int ny, unsigned *rr)
 }
 
 static void create_cherenkov_photon(int pp);
+static void create_gain_photon(int pp);
 
 int try_move(int i, int x, int y, int nx, int ny)
 {
@@ -113,6 +115,13 @@ int try_move(int i, int x, int y, int nx, int ny)
         return 1;
 
     e = eval_move(parts[i].type, nx, ny, &r);
+
+    /* half-silvered mirror */
+	if(!e && parts[i].type==PT_PHOT &&
+	   (((r&0xFF)==PT_BMTL && rand()<RAND_MAX/2) ||
+       (pmap[y][x]&0xFF)==PT_BMTL))
+	e = 2;
+
     if(!e) {
         if(!legacy_enable && parts[i].type==PT_PHOT) {
 			if((r & 0xFF) == PT_COAL || (r & 0xFF) == PT_BCOL)
@@ -124,6 +133,11 @@ int try_move(int i, int x, int y, int nx, int ny)
         return 0;
     }
     if(e == 2) {
+  if(parts[i].type == PT_PHOT && (r&0xFF)==PT_GLOW && !parts[r>>8].life)
+	if(rand() < RAND_MAX/30) {
+		parts[r>>8].life = 120;
+		create_gain_photon(i);
+	}
 	if((parts[i].type == PT_NEUT || parts[i].type == PT_MUNE) && (r&0xFF)==PT_GLAS) {
 	    if(rand() < RAND_MAX/10)
 		create_cherenkov_photon(i);
@@ -158,15 +172,20 @@ int try_move(int i, int x, int y, int nx, int ny)
         return 0;
 
 
-    pmap[ny][nx] = (i<<8)|parts[i].type;
-    pmap[y][x] = r;
+    if(parts[i].type == PT_PHOT)
+		return 1;
 
-    if(r && (r>>8)<NPART)
+    e = r >> 8;
+	if(r && e<NPART)
     {
-        r >>= 8;
-        parts[r].x += x-nx;
-        parts[r].y += y-ny;
+		if(parts[e].type == PT_PHOT)
+			return 1;
+
+        parts[e].x += x-nx;
+        parts[e].y += y-ny;
     }
+	pmap[ny][nx] = (i<<8)|parts[i].type;
+	pmap[y][x] = r;
 
     return 1;
 }
@@ -318,13 +337,13 @@ int get_normal_interp(int pt, float x0, float y0, float dx, float dy, float *nx,
 void kill_part(int i)
 {
     int x, y;
-    parts[i].type = PT_NONE;
+    if(parts[i].type != PT_PHOT) {
+		x = (int)(parts[i].x+0.5f);
+		y = (int)(parts[i].y+0.5f);
 
-    x = (int)(parts[i].x+0.5f);
-    y = (int)(parts[i].y+0.5f);
-
-    if(x>=0 && y>=0 && x<XRES && y<YRES)
-        pmap[y][x] = 0;
+		if(x>=0 && y>=0 && x<XRES && y<YRES)
+			pmap[y][x] = 0;
+	}
 
     parts[i].life = pfree;
     pfree = i;
@@ -536,6 +555,51 @@ inline int create_part(int p, int x, int y, int t)
     }
 
     return i;
+}
+
+static void create_gain_photon(int pp)
+{
+    float xx, yy;
+    int i, lr, temp_bin, nx, ny;
+
+    if(pfree == -1)
+        return;
+    i = pfree;
+
+    lr = rand() % 2;
+
+    if(lr) {
+		xx = parts[pp].x - 0.3*parts[pp].vy;
+		yy = parts[pp].y + 0.3*parts[pp].vx;
+    } else {
+		xx = parts[pp].x + 0.3*parts[pp].vy;
+		yy = parts[pp].y - 0.3*parts[pp].vx;
+    }
+
+	nx = (int)(xx + 0.5f);
+	ny = (int)(yy + 0.5f);
+
+	if(nx<0 || ny<0 || nx>=XRES || ny>=YRES)
+		return;
+
+	if((pmap[ny][nx] & 0xFF) != PT_GLOW)
+		return;
+
+	pfree = parts[i].life;
+
+	parts[i].type = PT_PHOT;
+	parts[i].life = 680;
+	parts[i].x = xx;
+	parts[i].y = yy;
+	parts[i].vx = parts[pp].vx;
+	parts[i].vy = parts[pp].vy;
+	parts[i].temp = parts[pmap[ny][nx] >> 8].temp;
+	parts[i].tmp = 0;
+
+	temp_bin = (int)((parts[i].temp-273.0f)*0.25f);
+	if(temp_bin < 0) temp_bin = 0;
+	if(temp_bin > 25) temp_bin = 25;
+	parts[i].ctype = 0x1F << temp_bin;
 }
 
 static void create_cherenkov_photon(int pp)
@@ -768,7 +832,7 @@ void update_particles_i(pixel *vid, int start, int inc)
             {
                 if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_MNEO||parts[i].type==PT_YNEO)))
                     parts[i].life--;
-                if(parts[i].life<=0 && t!=PT_METL && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_EMIT && t!=PT_SUWR && t!=PT_LEAD) //AntB Edit (elec)
+                if(parts[i].life<=0 && t!=PT_METL && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_GLOW && t!=PT_EMIT && t!=PT_SUWR && t!=PT_LEAD) //AntB Edit (elec)
                 {
                     kill_part(i);
                     continue;
@@ -797,7 +861,6 @@ void update_particles_i(pixel *vid, int start, int inc)
 
             x = (int)(parts[i].x+0.5f);
             y = (int)(parts[i].y+0.5f);
-
 
             if(x<0 || y<0 || x>=XRES || y>=YRES ||
                     ((bmap[y/CELL][x/CELL]==1 ||
@@ -2725,6 +2788,7 @@ killed:
 						/* this should be replaced with a particle type attribute ("photwl" or something) */
 						if((r & 0xFF) == PT_PSCN) parts[i].ctype  = 0x00000000;
 						if((r & 0xFF) == PT_NSCN) parts[i].ctype  = 0x00000000;
+						if((r & 0xFF) == PT_SPRK) parts[i].ctype  = 0x00000000;
 						if((r & 0xFF) == PT_COAL) parts[i].ctype  = 0x00000000;
 						if((r & 0xFF) == PT_BCOL) parts[i].ctype  = 0x00000000;
 						if((r & 0xFF) == PT_PLEX) parts[i].ctype &= 0x1F00003E;
@@ -2820,8 +2884,8 @@ void update_particles(pixel *vid)
             t = parts[i].type;
             x = (int)(parts[i].x+0.5f);
             y = (int)(parts[i].y+0.5f);
-            if(x>=0 && y>=0 && x<XRES && y<YRES && (parts[i].type!=PT_PHOT||parts[i].type==PT_MUPT)) { //AntB Edit
-				if(parts[i].type!=PT_NEUT || parts[i].type!=PT_MUNE || (pmap[y][x]&0xFF)!=PT_GLAS) //AntB Edit
+            if(x>=0 && y>=0 && x<XRES && y<YRES && (t!=PT_PHOT||t!=PT_MUPT)) { //AntB Edit
+				if(t!=PT_NEUT || t!=PT_MUNE || (pmap[y][x]&0xFF)!=PT_GLAS) //AntB Edit
 					pmap[y][x] = t|(i<<8);
 			}
         }
