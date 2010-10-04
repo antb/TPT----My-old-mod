@@ -337,14 +337,16 @@ int get_normal_interp(int pt, float x0, float y0, float dx, float dy, float *nx,
 void kill_part(int i)
 {
     int x, y;
+
     if(parts[i].type != PT_PHOT) {
-		x = (int)(parts[i].x+0.5f);
-		y = (int)(parts[i].y+0.5f);
+	x = (int)(parts[i].x+0.5f);
+	y = (int)(parts[i].y+0.5f);
 
-		if(x>=0 && y>=0 && x<XRES && y<YRES)
-			pmap[y][x] = 0;
-	}
+	if(x>=0 && y>=0 && x<XRES && y<YRES)
+	    pmap[y][x] = 0;
+    }
 
+    parts[i].type = PT_NONE;
     parts[i].life = pfree;
     pfree = i;
 }
@@ -498,7 +500,7 @@ inline int create_part(int p, int x, int y, int t)
         parts[i].life = 0;
     if(t==PT_ICEI)
         parts[i].ctype = PT_WATR;
-    if(t==PT_NEUT)
+    if(t==PT_NEUT || t==PT_MUNE)  //AntB Edit
     {
         float r = (rand()%128+128)/127.0f;
         float a = (rand()%360)*3.14159f/180.0f;
@@ -506,14 +508,16 @@ inline int create_part(int p, int x, int y, int t)
         parts[i].vx = r*cosf(a);
         parts[i].vy = r*sinf(a);
     }
-    if(t==PT_PHOT||t==PT_MUPT) //AntB Edit
+    if(t==PT_PHOT || t==PT_MUPT) //AntB Edit
     {
-        float a = (rand()%8) * 0.78540f;
+	float a = (rand()%8) * 0.78540f;
         parts[i].life = 680;
-		parts[i].ctype = 0x3FFFFFFF;
+	parts[i].ctype = 0x3FFFFFFF;
+        parts[i].vx = 3.0f*cosf(a);
+        parts[i].vy = 3.0f*sinf(a);
     }
 
-    if(t!=PT_STKM && t!=PT_PHOT && t!=PT_NEUT && t!=PT_MUPT) // AntB Edit
+    if(t!=PT_STKM && t!=PT_PHOT && t!=PT_NEUT && t!=PT_MUPT && t!= PT_MUNE) // AntB Edit
         pmap[y][x] = t|(i<<8);
     else if(t==PT_STKM)
     {
@@ -569,37 +573,37 @@ static void create_gain_photon(int pp)
     lr = rand() % 2;
 
     if(lr) {
-		xx = parts[pp].x - 0.3*parts[pp].vy;
-		yy = parts[pp].y + 0.3*parts[pp].vx;
+	xx = parts[pp].x - 0.3*parts[pp].vy;
+        yy = parts[pp].y + 0.3*parts[pp].vx;
     } else {
-		xx = parts[pp].x + 0.3*parts[pp].vy;
-		yy = parts[pp].y - 0.3*parts[pp].vx;
+	xx = parts[pp].x + 0.3*parts[pp].vy;
+        yy = parts[pp].y - 0.3*parts[pp].vx;
     }
 
-	nx = (int)(xx + 0.5f);
-	ny = (int)(yy + 0.5f);
+    nx = (int)(xx + 0.5f);
+    ny = (int)(yy + 0.5f);
 
-	if(nx<0 || ny<0 || nx>=XRES || ny>=YRES)
-		return;
+    if(nx<0 || ny<0 || nx>=XRES || ny>=YRES)
+	return;
 
-	if((pmap[ny][nx] & 0xFF) != PT_GLOW)
-		return;
+    if((pmap[ny][nx] & 0xFF) != PT_GLOW)
+	return;
 
-	pfree = parts[i].life;
+    pfree = parts[i].life;
 
-	parts[i].type = PT_PHOT;
-	parts[i].life = 680;
-	parts[i].x = xx;
-	parts[i].y = yy;
-	parts[i].vx = parts[pp].vx;
-	parts[i].vy = parts[pp].vy;
-	parts[i].temp = parts[pmap[ny][nx] >> 8].temp;
-	parts[i].tmp = 0;
+    parts[i].type = PT_PHOT;
+    parts[i].life = 680;
+    parts[i].x = xx;
+    parts[i].y = yy;
+    parts[i].vx = parts[pp].vx;
+    parts[i].vy = parts[pp].vy;
+    parts[i].temp = parts[pmap[ny][nx] >> 8].temp;
+    parts[i].tmp = 0;
 
-	temp_bin = (int)((parts[i].temp-273.0f)*0.25f);
-	if(temp_bin < 0) temp_bin = 0;
-	if(temp_bin > 25) temp_bin = 25;
-	parts[i].ctype = 0x1F << temp_bin;
+    temp_bin = (int)((parts[i].temp-273.0f)*0.25f);
+    if(temp_bin < 0) temp_bin = 0;
+    if(temp_bin > 25) temp_bin = 25;
+    parts[i].ctype = 0x1F << temp_bin;
 }
 
 static void create_cherenkov_photon(int pp)
