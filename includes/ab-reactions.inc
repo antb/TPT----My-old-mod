@@ -163,10 +163,13 @@ if(t==PT_BMTL && parts[i].tmp>1)
 				if((rt==PT_METL || rt==PT_IRON) && 1>(rand()/(RAND_MAX/100)))
 				{
 					parts[r>>8].type=PT_BMTL;
-					parts[r>>8].tmp=rand()/(RAND_MAX/500)+500;
+					parts[r>>8].tmp=rand()/(RAND_MAX/300)+100;
 				}
 			}
 }
+
+if(t==PT_BMTL && parts[i].tmp>1)
+	parts[i].tmp--;
 
 if(t==PT_BMTL && parts[i].tmp==1)
 {
