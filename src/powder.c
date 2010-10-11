@@ -829,7 +829,7 @@ void update_particles_i(pixel *vid, int start, int inc)
             if(sys_pause&&!framerender)
                 return;
 
-            if(parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_NBLE && t!=PT_SWCH && t!=PT_STKM && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_RADI) //AntB Edit
+            if(parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_NBLE && t!=PT_SWCH && t!=PT_STKM && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_RADI && t!=PT_IRON) //AntB Edit
             {
                 if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_MNEO||parts[i].type==PT_YNEO)))
                     parts[i].life--;

@@ -87,11 +87,10 @@ else if(t==PT_MUNE)
     blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
 } 
 
-//Neons
-else if(t==PT_RNEO)
+if(t==PT_IRON && parts[i].life>=1)
 {
-    uint8   cr = 0x07+(parts[i].life*19);
-            cg = 0x00;
+    uint8   cr = 0x0F+(parts[i].life*19);
+    uint8   cg = 0x0F+(parts[i].life*19);
             cb = 0x00;
 
     vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
@@ -107,105 +106,157 @@ else if(t==PT_RNEO)
         blendpixel(vid, nx+1, ny+1, cr, cg, cb, 32);
         blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
     }
+}
+
+//Neons
+if(t==PT_RNEO)
+{
+	uint8   cr = 0x07+(parts[i].life*19);
+		cg = 0x00;
+		cb = 0x00;
+
+	vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
+	blendpixel(vid, nx, ny, cr, cg, cb, 192);
+	blendpixel(vid, nx+1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx-1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny+1, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny-1, cr, cg, cb, 128);
+	blendpixel(vid, nx+1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx+1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-1, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+1, cr, cg, cb, 64);
+	blendpixel(vid, nx+1, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-1, ny+2, cr, cg, cb, 64);
 }
 else if(t==PT_GNEO)
 {
-            cr = 0x00;
-    uint8   cg = 0x07+(parts[i].life*19);
-            cb = 0x00;
+		cr = 0x00;
+	uint8   cg = 0x07+(parts[i].life*19);
+		cb = 0x00;
 
-    vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
-    if(cmode == 4)
-    {
-        blendpixel(vid, nx, ny, cr, cg, cb, 192);
-        blendpixel(vid, nx+1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx-1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny+1, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny-1, cr, cg, cb, 96);
-        blendpixel(vid, nx+1, ny-1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx+1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
-    }
+	vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
+	blendpixel(vid, nx, ny, cr, cg, cb, 192);
+	blendpixel(vid, nx+1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx-1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny+1, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny-1, cr, cg, cb, 128);
+	blendpixel(vid, nx+1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx+1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-1, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+1, cr, cg, cb, 64);
+	blendpixel(vid, nx+1, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-1, ny+2, cr, cg, cb, 64);
 }
 else if(t==PT_BNEO)
 {
-            cr = 0x00;
-            cg = 0x00;
-    uint8   cb = 0x07+(parts[i].life*19);
+		cr = 0x00;
+		cg = 0x00;
+	uint8   cb = 0x07+(parts[i].life*19);
 
-    vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
-    if(cmode == 4)
-    {
-        blendpixel(vid, nx, ny, cr, cg, cb, 192);
-        blendpixel(vid, nx+1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx-1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny+1, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny-1, cr, cg, cb, 96);
-        blendpixel(vid, nx+1, ny-1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx+1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
-    }
+	vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
+	blendpixel(vid, nx, ny, cr, cg, cb, 192);
+	blendpixel(vid, nx+1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx-1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny+1, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny-1, cr, cg, cb, 128);
+	blendpixel(vid, nx+1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx+1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-1, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+1, cr, cg, cb, 64);
+	blendpixel(vid, nx+1, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-1, ny+2, cr, cg, cb, 64);
 }
 else if(t==PT_CNEO)
 {
-            cr = 0x00;
-    uint8   cg = 0x07+(parts[i].life*19);
-    uint8   cb = 0x07+(parts[i].life*19);
+		cr = 0x00;
+	uint8   cg = 0x07+(parts[i].life*19);
+	uint8   cb = 0x07+(parts[i].life*19);
 
-    vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
-    if(cmode == 4)
-    {
-        blendpixel(vid, nx, ny, cr, cg, cb, 192);
-        blendpixel(vid, nx+1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx-1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny+1, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny-1, cr, cg, cb, 96);
-        blendpixel(vid, nx+1, ny-1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx+1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
-    }
+	vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
+	blendpixel(vid, nx, ny, cr, cg, cb, 192);
+	blendpixel(vid, nx+1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx-1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny+1, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny-1, cr, cg, cb, 128);
+	blendpixel(vid, nx+1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx+1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-1, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+1, cr, cg, cb, 64);
+	blendpixel(vid, nx+1, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-1, ny+2, cr, cg, cb, 64);
 }
 else if(t==PT_MNEO)
 {
-    uint8   cr = 0x07+(parts[i].life*19);
-            cg = 0x00;
-    uint8   cb = 0x07+(parts[i].life*19);
+	uint8   cr = 0x07+(parts[i].life*19);
+		cg = 0x00;
+	uint8   cb = 0x07+(parts[i].life*19);
 
-    vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
-    if(cmode == 4)
-    {
-        blendpixel(vid, nx, ny, cr, cg, cb, 192);
-        blendpixel(vid, nx+1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx-1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny+1, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny-1, cr, cg, cb, 96);
-        blendpixel(vid, nx+1, ny-1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx+1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
-    }
+	vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
+	blendpixel(vid, nx, ny, cr, cg, cb, 192);
+	blendpixel(vid, nx+1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx-1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny+1, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny-1, cr, cg, cb, 128);
+	blendpixel(vid, nx+1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx+1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-1, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+1, cr, cg, cb, 64);
+	blendpixel(vid, nx+1, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-1, ny+2, cr, cg, cb, 64);
 }
 else if(t==PT_YNEO)
 { 
-    uint8   cr = 0x07+(parts[i].life*19);
-    uint8   cg = 0x07+(parts[i].life*19);
-            cb = 0x00;
+	uint8	cr = 0x07+(parts[i].life*19);
+	uint8	cg = 0x07+(parts[i].life*19);
+		cb = 0x00;
 
-    vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
-    if(cmode == 4)
-    {
-        blendpixel(vid, nx, ny, cr, cg, cb, 192);
-        blendpixel(vid, nx+1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx-1, ny, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny+1, cr, cg, cb, 96);
-        blendpixel(vid, nx, ny-1, cr, cg, cb, 96);
-        blendpixel(vid, nx+1, ny-1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx+1, ny+1, cr, cg, cb, 32);
-        blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
-    }
+	vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);    
+	blendpixel(vid, nx, ny, cr, cg, cb, 192);
+	blendpixel(vid, nx+1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx-1, ny, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny+1, cr, cg, cb, 128);
+	blendpixel(vid, nx, ny-1, cr, cg, cb, 128);
+	blendpixel(vid, nx+1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx+1, ny+1, cr, cg, cb, 96);
+	blendpixel(vid, nx-1, ny-1, cr, cg, cb, 96);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx+2, ny-1, cr, cg, cb, 64);
+	blendpixel(vid, nx-2, ny+1, cr, cg, cb, 64);
+	blendpixel(vid, nx+1, ny-2, cr, cg, cb, 64);
+	blendpixel(vid, nx-1, ny+2, cr, cg, cb, 64);
 }
 
