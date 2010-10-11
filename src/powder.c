@@ -425,7 +425,8 @@ inline int create_part(int p, int x, int y, int t)
                 (pmap[y][x]&0xFF)!=PT_INWR &&
                 (pmap[y][x]&0xFF)!=PT_EMIT &&	// < (elec)
                 (pmap[y][x]&0xFF)!=PT_SUWR &&	// < AntB Edit
-                (pmap[y][x]&0xFF)!=PT_LEAD      // <
+                (pmap[y][x]&0xFF)!=PT_LEAD &&   // <
+		(pmap[y][x]&0xFF)!=PT_IRON 
                 )
             return -1;
         parts[pmap[y][x]>>8].type = PT_SPRK;
@@ -833,7 +834,7 @@ void update_particles_i(pixel *vid, int start, int inc)
             {
                 if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_MNEO||parts[i].type==PT_YNEO)))
                     parts[i].life--;
-                if(parts[i].life<=0 && t!=PT_METL && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_GLOW && t!=PT_EMIT && t!=PT_SUWR && t!=PT_LEAD && t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO) //AntB Edit (elec)
+                if(parts[i].life<=0 && t!=PT_METL && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_GLOW && t!=PT_EMIT && t!=PT_SUWR && t!=PT_LEAD && t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO && t!=PT_IRON) //AntB Edit (elec)
                 {
                     kill_part(i);
                     continue;
@@ -1018,6 +1019,8 @@ void update_particles_i(pixel *vid, int start, int inc)
                 t = parts[i].type = PT_BRMT;
             if(t==PT_BRCK && pv[y/CELL][x/CELL]>2.8f)
                 t = parts[i].type = PT_STNE;
+	    if(t==PT_BMTL && pv[y/CELL][x/CELL]>1.0f && parts[i].tmp)
+		t = parts[i].type = PT_BRMT;
             //if(t==PT_GLAS && pv[y/CELL][x/CELL]>4.0f)
             //	t = parts[i].type = PT_BGLA;
             if(t==PT_GLAS)
