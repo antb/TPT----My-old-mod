@@ -1,10 +1,9 @@
 /* AntB's Fork - Defines > powder.h */
 
-#define PT_MUPT 76
-#define PT_BAGL 77
-#define PT_MUNE 78
-#define PT_RBRI 79
-#define PT_EMIT 80
+#define PT_MUPT 77
+#define PT_BAGL 78
+#define PT_MUNE 79
+#define PT_RBRI 80
 #define PT_LH2  81
 #define PT_H2   82
 #define PT_H2O2 83
@@ -19,6 +18,5 @@
 #define PT_CNEO 92
 #define PT_MNEO 93
 #define PT_YNEO 94
-#define PT_IRON 95
 
-#define PT_NUM  96
+#define PT_NUM  95
