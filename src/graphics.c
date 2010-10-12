@@ -1987,6 +1987,7 @@ void draw_parts(pixel *vid)
                     }
                 }
 #include "ab-graphics.inc"
+
                 else
                     vid[ny*(XRES+BARSIZE)+nx] = ptypes[t].pcolors;
             }
