@@ -1,18 +1,11 @@
 /* AntB's Fork - Element Reactions > powder.c */
 if (t==PT_NEUT || t==PT_MUNE)
-		{
-			if ((r&0xFF)==PT_LEAD)
-			{
-			  kill_part(i);
-				if(!legacy_enable)
-				  parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, 650.0f);//3.0f;
-			}
-		}
-
-if(t==PT_SPRK && parts[i].ctype==PT_EMIT)
-		for(nx=-2;nx<3;nx++)
-		  for(ny=-2;ny<3;ny++)
-			create_part(-1, x+rand()%3-1, y+rand()%3-1, PT_PHOT);
+	if ((r&0xFF)==PT_LEAD)
+	{
+		kill_part(i);
+		if(!legacy_enable)
+			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, 650.0f);//3.0f;
+	}
 
 
 if(t==PT_H2O2)
@@ -48,10 +41,7 @@ if(t==PT_GROW)
 				if((r>>8)>=NPART || !r)
 					continue;
 				if((r&0xFF)!=PT_GROW && (r&0xFF)!=PT_CLNE && (r&0xFF)!=PT_PCLN && (r&0xFF)!=PT_NONE && (r&0xFF)!=PT_DMND && (r&0xFF))
-				{
-					//parts[i].type = (r&0xFF); 
 					create_part(i,x+nx,y+ny,(r&0xFF));			   
-				}
 			}
 }
 

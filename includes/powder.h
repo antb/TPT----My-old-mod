@@ -114,6 +114,7 @@
 #define PT_BCOL 73
 #define PT_PCLN 74
 #define PT_HSWC 75
+#define PT_IRON 76
 #include "ab-elemDef.inc" // PT_NUM now lurks in here.
 
 #define R_TEMP 22
@@ -264,10 +265,11 @@ static const part_type ptypes[PT_NUM] =
     {"FIRW",	PIXPACK(0xFFA040),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	-0.99f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	30,	1,	SC_EXPLOSIVE,	R_TEMP+0.0f	+273.15f,	70,		"Fireworks!"},
     {"FUSE",    PIXPACK(0x0A5706),  0.0f,   0.00f * CFDS,   0.90f,  0.00f,  0.0f,   0.0f,   0.0f,   0.0f    * CFDS, 0,  0,      0,  0,  20, 1,  SC_SOLIDS,      R_TEMP+0.0f	+273.15f,   200,    "Solid. Burns slowly. Ignites at somewhat high temperatures and electricity."},
     {"FSEP",	PIXPACK(0x63AD5F),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	0,	30,	1,	SC_POWDERS,		R_TEMP+0.0f	+273.15f,	70,		"Fuse Powder. See FUSE."},
-    {"AMTR",    PIXPACK(0x808080),  0.7f,   0.02f * CFDS,       0.96f,  0.80f,  0.00f,  0.10f,  1.00f,  0.0000f * CFDS, 0,      0,              0,  0,      0,       1,  SC_NUCLEAR,             R_TEMP+0.0f +273.15f, 70,             "Anti-Matter, Destroys a majority of particles"},
+    {"AMTR",    PIXPACK(0x808080),  0.7f,   0.02f * CFDS,   0.96f,  0.80f,  0.00f,  0.10f,  1.00f,  0.0000f * CFDS, 0,  0,      0,  0,  0,  1,  SC_NUCLEAR,     R_TEMP+0.0f +273.15f,	70,     "Anti-Matter, Destroys a majority of particles"},
     {"BCOL",	PIXPACK(0x333333),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.3f,	0.00f,	0.000f	* CFDS,	1,	0,		0,	5,	2,	1,	SC_POWDERS,		R_TEMP+0.0f	+273.15f,	150,	"Broken Coal. Heavy particles. See COAL"},
     {"PCLN",	PIXPACK(0x3B3B10),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"Solid. When actived, duplicates any particles it touches."},
     {"HSWC",	PIXPACK(0x3B1010),	0.0f,	0.00f * CFDS,	0.90f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	1,	1,	1,	SC_ELEC,		R_TEMP+0.0f	+273.15f,	251,	"Heat switch. Conducts Heat only when activated"},
+	{"IRON",	PIXPACK(0x707070),  0.0f,	0.00f * CFDS,	0.90f,  0.00f,  0.0f,	0.0f,	0.00f,  0.000f	* CFDS, 0,  0,		0,  1,  50, 1,	SC_SOLIDS,		R_TEMP+0.0f +273.15f,	251,	"Rusts with salt, can be used for electrlosis of WATR"},
     //Name		Colour				Advec	Airdrag			Airloss	Loss	Collid	Grav	Diffus	Hotair			Fal Burn	Exp	Mel Hrd M	Section			H				Ins(real world, by triclops200) Description
 #include "ab-elemProp.inc"
 };
@@ -351,6 +353,7 @@ static part_state pstates[PT_NUM] =
     /* BCOL */ {ST_SOLID,   PT_NONE, 0.0f,      PT_NONE, 0.0f,      PT_NONE, 0.0f,      PT_NONE, 0.0f},
     /* PCLN */ {ST_NONE,    PT_NONE, 0.0f,      PT_NONE, 0.0f,      PT_NONE, 0.0f,      PT_NONE, 0.0f},
     /* HSWC */ {ST_NONE,    PT_NONE, 0.0f,      PT_NONE, 0.0f,      PT_NONE, 0.0f,      PT_NONE, 0.0f},
+	/* IRON */ {ST_SOLID,   PT_NONE, 0.0f,		PT_LAVA, 1687.0f,	PT_NONE, 0.0f,		PT_NONE, 0.0f},
 #include "ab-elemStates.inc"
 };
 
