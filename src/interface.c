@@ -1866,13 +1866,13 @@ int search_ui(pixel *vid_buf)
         }
         else
         {
-           drawrect(vid_buf, XRES-64+16, 8, 56, 16, 192, 192, 192, 255);
-           drawtext(vid_buf, XRES-61+16, 11, "\x94", 192, 160, 32, 255);
-           drawtext(vid_buf, XRES-61+16, 11, "\x93", 255, 255, 255, 255);
-           drawtext(vid_buf, XRES-46+16, 13, "My Own", 255, 255, 255, 255);
+            drawrect(vid_buf, XRES-64+16, 8, 56, 16, 192, 192, 192, 255);
+            drawtext(vid_buf, XRES-61+16, 11, "\x94", 192, 160, 32, 255);
+            drawtext(vid_buf, XRES-61+16, 11, "\x93", 255, 255, 255, 255);
+            drawtext(vid_buf, XRES-46+16, 13, "My Own", 255, 255, 255, 255);
         }
-    
-    if(search_fav)
+		
+		if(search_fav)
         {
             fillrect(vid_buf, XRES-134, 7, 18, 18, 255, 255, 255, 255);
             drawtext(vid_buf, XRES-130, 11, "\xCC", 192, 160, 64, 255);
@@ -2155,7 +2155,7 @@ int search_ui(pixel *vid_buf)
             search_date = !search_date;
             lasttime = TIMEOUT;
         }
-    if(b && !bq && mx>=XRES-134 && mx<=XRES-134+16 && my>=8 && my<=24)
+		if(b && !bq && mx>=XRES-134 && mx<=XRES-134+16 && my>=8 && my<=24)
         {
             search_fav = !search_fav;
             lasttime = TIMEOUT;
@@ -2345,7 +2345,7 @@ int search_ui(pixel *vid_buf)
             last_own = search_own;
             last_date = search_date;
             last_page = search_page;
-      last_fav = search_fav;
+			last_fav = search_fav;
             active = 1;
             // TODO: Create a better fix for this bug
             uri = malloc(strlen(last)*3+180+strlen(SERVER)+strlen(svf_user)+20); //Increase "padding" from 80 to 180 to fix the search memory corruption bug
@@ -2377,10 +2377,10 @@ int search_ui(pixel *vid_buf)
                 strcaturl(uri, " user:");
                 strcaturl(uri, svf_user);
             }
-      if(search_fav)
-      {
-        strcaturl(uri, " cat:favs");
-      }
+			if(search_fav)
+			{
+				strcaturl(uri, " cat:favs");
+			}
             if(search_date)
                 strcaturl(uri, " sort:date");
 
