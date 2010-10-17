@@ -18,5 +18,6 @@
 #define PT_CNEO 92
 #define PT_MNEO 93
 #define PT_YNEO 94
+#define PT_LLED 95
 
-#define PT_NUM  95
+#define PT_NUM  96

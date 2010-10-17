@@ -18,8 +18,12 @@
 {"B",	  PIXPACK(0x000020),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Blue Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
 {"C",	  PIXPACK(0x002020),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Cyan Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
 {"M",     PIXPACK(0x200020),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Magenta Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
-{"Y",	  PIXPACK(0x202000),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Yellow Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
+{"Y",	  PIXPACK(0x202000),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 49,  SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Yellow Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
 //End Neons
 
+{"LLED",  PIXPACK(0x170D0D),  0.5f,	0.05f * CFDS,	0.90f,	0.00f,  0.00f,	3.00f,	0.00f,	0.000000f * CFDS, 2,  0,    0,  1,  1,  1, 100, SC_CUSTOM,	R_TEMP+650.61f	+273.15f,	255,  "Electrics - Molten Lead"},
+
 //Name    Colour              Advec	Airdrag		Airloss	Loss	Collid	Grav	Diffus	Hotair		  Fal Burn  Exp Mel Hrd M  Section	H       				Ins(real world, by triclops200) Description
+
+/* fal --> 0=Solid 1=Gas 2 = Liquid  */
 

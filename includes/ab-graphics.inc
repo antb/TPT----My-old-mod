@@ -1,5 +1,5 @@
 /* AntB's Fork - Glow effects > graphics.c */
-else if (t==PT_LEAD)
+else if (t==PT_LEAD || t==PT_LLED)
 {
     if(cmode == 3||cmode==4 || cmode==6)
     {

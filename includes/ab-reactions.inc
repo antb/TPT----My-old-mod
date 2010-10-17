@@ -1,6 +1,6 @@
 /* AntB's Fork - Element Reactions > powder.c */
 if (t==PT_NEUT || t==PT_MUNE)
-	if ((r&0xFF)==PT_LEAD)
+	if ((r&0xFF)==PT_LEAD || (r&0xFF)==PT_LLED)
 	{
 		kill_part(i);
 		if(!legacy_enable)
@@ -112,32 +112,6 @@ else if(t==PT_O2 && !(parts[i].tmp))
 		}
 }
 
-if(t==PT_IRON)
-{
-	for(nx=-1; nx<2; nx++)
-		for(ny=-1; ny<2; ny++)
-			if(x+nx>=0 && y+ny>0 &&
-			   x+nx<XRES && y+ny<YRES && (nx || ny))
-			{
-				r = pmap[y+ny][x+nx];
-				if((r>>8)>=NPART || !r)
-					continue;
-				if((((r&0xFF) == PT_SALT && 15>(rand()/(RAND_MAX/100))) ||
-				    ((r&0xFF) == PT_SLTW && 30>(rand()/(RAND_MAX/100))) ||
-				    ((r&0xFF) == PT_WATR && 5 >(rand()/(RAND_MAX/100))) ||
-				    ((r&0xFF) == PT_DSTW && 10>(rand()/(RAND_MAX/100))) ||
-				    ((r&0xFF) == PT_O2   && 2 >(rand()/(RAND_MAX/100))) ||
-				    ((r&0xFF) == PT_LO2))&&
-				   (!(parts[i].life))
-				  )
-				{
-					parts[i].type=PT_BMTL;
-					parts[i].tmp=(rand()/(RAND_MAX/500))+500;
-				}
-
-			}
-}
-
 if(t==PT_BMTL && parts[i].tmp>1)
 {
 	for(nx=-1; nx<2; nx++)
@@ -157,18 +131,6 @@ if(t==PT_BMTL && parts[i].tmp>1)
 				}
 			}
 }
-
-if(t==PT_BMTL && parts[i].tmp>1)
-	parts[i].tmp--;
-
-if(t==PT_BMTL && parts[i].tmp==1)
-{
-	parts[i].type=PT_BRMT;
-}
-
-if((t==PT_H2||t==PT_O2)&&parts[i].tmp==1)
-	if(5>(rand()/(RAND_MAX/100)))
-		parts[i].tmp=0;		
 
 if(t==PT_SUWR)
 	if(parts[i].life!=0)

@@ -415,7 +415,8 @@ inline int create_part(int p, int x, int y, int t)
 		                   (pmap[y][x]&0xFF)!=PT_IRON &&
                 (pmap[y][x]&0xFF)!=PT_INWR &&
                 (pmap[y][x]&0xFF)!=PT_SUWR &&	// < AntB Edit
-                (pmap[y][x]&0xFF)!=PT_LEAD      // <
+                (pmap[y][x]&0xFF)!=PT_LEAD &&   // <
+                (pmap[y][x]&0xFF)!=PT_LLED
                 )
             return -1;
         parts[pmap[y][x]>>8].type = PT_SPRK;
@@ -823,7 +824,7 @@ void update_particles_i(pixel *vid, int start, int inc)
             {
                 if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_MNEO||parts[i].type==PT_YNEO)))
                     parts[i].life--;
-                if(parts[i].life<=0 && t!=PT_METL && t!=PT_IRON && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_GLOW && t!=PT_SUWR && t!=PT_LEAD && t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO) //AntB Edit (elec)
+                if(parts[i].life<=0 && t!=PT_METL && t!=PT_IRON && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_GLOW && t!=PT_SUWR && t!=PT_LEAD && t!=PT_LLED && t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO) //AntB Edit (elec)
                 {
                     kill_part(i);
                     continue;
@@ -831,7 +832,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                 if(parts[i].life<=0 && t==PT_SPRK)
                 {
                     t = parts[i].ctype;
-                    if(t!=PT_METL&&t!=PT_IRON&&t!=PT_BMTL&&t!=PT_BRMT&&t!=PT_LRBD&&t!=PT_RBDM&&t!=PT_BTRY&&t!=PT_NBLE&&t!=PT_SUWR&&t!=PT_LEAD) //AntB Edit (elec)
+                    if(t!=PT_METL&&t!=PT_IRON&&t!=PT_BMTL&&t!=PT_BRMT&&t!=PT_LRBD&&t!=PT_RBDM&&t!=PT_BTRY&&t!=PT_NBLE&&t!=PT_SUWR&&t!=PT_LEAD&&t!=PT_LLED) //AntB Edit (elec)
                         parts[i].temp = R_TEMP + 273.15f;
                     if(!t)
                         t = PT_METL;
@@ -1185,7 +1186,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                 pt = parts[i].temp -= 2.5f;
             }
 
-            if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_BRMT || t==PT_PSCN || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_BMTL || t==PT_SPRK|| t == PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD) //AntB Edit (elec)
+            if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_BRMT || t==PT_PSCN || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_BMTL || t==PT_SPRK|| t == PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_LLED) //AntB Edit (elec)
             {
                 nx = x % CELL;
                 if(nx == 0)
@@ -1203,7 +1204,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     ny = y/CELL;
                 if(nx>=0 && ny>=0 && nx<XRES/CELL && ny<YRES/CELL)
                 {
-                    if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_PSCN || t==PT_BRMT || t==PT_BMTL||t==PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD) //AntB Edit (elec)
+                    if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_PSCN || t==PT_BRMT || t==PT_BMTL||t==PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_LLED) //AntB Edit (elec)
                     {
                         if(emap[ny][nx]==12 && !parts[i].life)
                         {
@@ -2163,7 +2164,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                                         parts[r>>8].ctype = rt;
                                     }
                                 }
-	/*     |=>	 */			if(t==PT_SPRK && rt==PT_LEAD && parts[r>>8].life==0 &&
+	/*     |=>	 */			if(t==PT_SPRK && (rt==PT_LEAD || rt==PT_LLED) && parts[r>>8].life==0 &&
 	/*     |	 */				(parts[i].life<2 || ((r>>8)<i && parts[i].life<3)) && abs(nx)+abs(ny)<4)
 	/*	   |	 */			{
 	/*	   |	 */			//	if((pavg != PT_INSL|| pavg!=PT_RBRI))
@@ -2189,7 +2190,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                                 }
                                 if(t==PT_SPRK&&parts[i].ctype==PT_ETRD&&parts[i].life==5)
                                 {
-                                    if(rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_SUWR||rt==PT_LEAD||rt==PT_IRON) //AntB Edit (elec)
+                                    if(rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_SUWR||rt==PT_LEAD||rt==PT_LLED) //AntB Edit (elec)
                                     {
                                         t = parts[i].type = PT_ETRD;
                                         parts[i].ctype = PT_NONE;
