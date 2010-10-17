@@ -52,7 +52,6 @@ static void photoelectric_effect(int nx, int ny)
     }
 }
 
-
 static int eval_move(int pt, int nx, int ny, unsigned *rr)
 {
     unsigned r;
@@ -96,7 +95,9 @@ static int eval_move(int pt, int nx, int ny, unsigned *rr)
     if(ptypes[pt].falldown!=1 && bmap[ny/CELL][nx/CELL]==10)
         return 0;
 
-    if (r && ((r&0xFF) >= PT_NUM || !can_move[pt][(r&0xFF)]))
+    if (r && ((r&0xFF) >= PT_NUM ||
+        (ptypes[pt].weight <= ptypes[(r&0xFF)].weight))
+       )
         return 0;
 
     if(pt == PT_PHOT)
@@ -188,17 +189,6 @@ int try_move(int i, int x, int y, int nx, int ny)
 
     return 1;
 }
-#define SURF_RANGE     10
-#define NORMAL_MIN_EST 3
-#define NORMAL_INTERP  20
-#define NORMAL_FRAC    16
-
-#define REFRACT        0x80000000
-
-/* heavy flint glass, for awesome refraction/dispersion
-   this way you can make roof prisms easily */
-#define GLASS_IOR      1.9
-#define GLASS_DISP     0.07
 
 static unsigned direction_to_map(float dx, float dy)
 {
@@ -507,9 +497,9 @@ inline int create_part(int p, int x, int y, int t)
     }
     if(t==PT_PHOT || t==PT_MUPT) //AntB Edit
     {
-    float a = (rand()%8) * 0.78540f;
+		float a = (rand()%8) * 0.78540f;
         parts[i].life = 680;
-    parts[i].ctype = 0x3FFFFFFF;
+		parts[i].ctype = 0x3FFFFFFF;
         parts[i].vx = 3.0f*cosf(a);
         parts[i].vy = 3.0f*sinf(a);
     }
@@ -841,7 +831,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                 if(parts[i].life<=0 && t==PT_SPRK)
                 {
                     t = parts[i].ctype;
-                    if(t!=PT_METL&&t!=PT_IRON&&t!=PT_BMTL&&t!=PT_BRMT&&t!=PT_LRBD&&t!=PT_RBDM&&t!=PT_BTRY&&t!=PT_NBLE&&t!=PT_SUWR&&t!=PT_LEAD&&t!=PT_IRON) //AntB Edit (elec)
+                    if(t!=PT_METL&&t!=PT_IRON&&t!=PT_BMTL&&t!=PT_BRMT&&t!=PT_LRBD&&t!=PT_RBDM&&t!=PT_BTRY&&t!=PT_NBLE&&t!=PT_SUWR&&t!=PT_LEAD) //AntB Edit (elec)
                         parts[i].temp = R_TEMP + 273.15f;
                     if(!t)
                         t = PT_METL;
@@ -1044,7 +1034,7 @@ void update_particles_i(pixel *vid, int start, int inc)
             if(t==PT_SPRK&&parts[i].ctype==PT_ETRD&&parts[i].life==1)
             {
                 nearp = nearest_part(i, PT_ETRD);
-                if(nearp!=-1&&(parts_avg(i, nearp)!=PT_INSL || parts_avg(i, nearp)!=PT_RBRI))
+                if(nearp!=-1&&(parts_avg(i, nearp)!=PT_INSL || parts_avg(i, nearp)!=PT_RBRI))  //AntB Edit
                 {
                     create_line((int)parts[i].x, (int)parts[i].y, (int)parts[nearp].x, (int)parts[nearp].y, 0, PT_PLSM);
                     t = parts[i].type = PT_ETRD;
@@ -1195,7 +1185,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                 pt = parts[i].temp -= 2.5f;
             }
 
-            if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_RBDM || t==PT_LRBD || t==PT_BRMT || t==PT_PSCN || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_BMTL || t==PT_SPRK|| t == PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_IRON) //AntB Edit (elec)
+            if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_BRMT || t==PT_PSCN || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_BMTL || t==PT_SPRK|| t == PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD) //AntB Edit (elec)
             {
                 nx = x % CELL;
                 if(nx == 0)
@@ -1213,7 +1203,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     ny = y/CELL;
                 if(nx>=0 && ny>=0 && nx<XRES/CELL && ny<YRES/CELL)
                 {
-                    if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_PSCN || t==PT_BRMT || t==PT_BMTL||t==PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_IRON) //AntB Edit (elec)
+                    if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_PSCN || t==PT_BRMT || t==PT_BMTL||t==PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD) //AntB Edit (elec)
                     {
                         if(emap[ny][nx]==12 && !parts[i].life)
                         {
@@ -2043,8 +2033,8 @@ void update_particles_i(pixel *vid, int start, int inc)
                             if(bmap[(y+ny)/CELL][(x+nx)/CELL] && bmap[(y+ny)/CELL][(x+nx)/CELL]!=5)
                                 continue;
                             rt = parts[r>>8].type;
-                            if((a || ptypes[rt].explosive) && ((rt!=PT_RBDM && rt!=PT_LRBD && rt!=PT_INSL && rt!=PT_RBRI && rt!=PT_SWCH) || t!=PT_SPRK) &&
-                 !(t==PT_PHOT && rt==PT_INSL) &&
+                            if((a || ptypes[rt].explosive) && ((rt!=PT_RBDM && rt!=PT_LRBD && rt!=PT_INSL && rt!=PT_RBRI && rt!=PT_SWCH) || t!=PT_SPRK) &&  //AntB Edit
+									!(t==PT_PHOT && rt==PT_INSL) && 
                                     (t!=PT_LAVA || parts[i].life>0 || (rt!=PT_STNE && rt!=PT_PSCN && rt!=PT_NSCN && rt!=PT_NTCT && rt!=PT_PTCT && rt!=PT_METL  && rt!=PT_IRON && rt!=PT_ETRD && rt!=PT_BMTL && rt!=PT_BRMT && rt!=PT_SWCH && rt!=PT_INWR)) &&
                                     ptypes[rt].flammable && (ptypes[rt].flammable + (int)(pv[(y+ny)/CELL][(x+nx)/CELL]*10.0f))>(rand()%1000))
                             {
@@ -2131,7 +2121,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                             pavg = parts_avg(i, r>>8);
                             if(pavg != PT_INSL && pavg != PT_RBRI)
                             {
-                                if(t==PT_SPRK && (rt==PT_METL||rt==PT_IRON||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_NBLE||rt==PT_SUWR||rt==PT_LEAD||rt==PT_IRON) && parts[r>>8].life==0 && //AntB Edit (elec)
+                                if(t==PT_SPRK && (rt==PT_METL||rt==PT_IRON||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_NBLE||rt==PT_SUWR) && parts[r>>8].life==0 && //AntB Edit (elec)
                                         (parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
                                 {
                                     if(!(rt==PT_PSCN&&parts[i].ctype==PT_NSCN)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN&&parts[i].temp>=373.0f)&&parts[i].ctype==PT_NTCT)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN&&parts[i].temp<=373.0f)&&parts[i].ctype==PT_PTCT)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN)&&parts[i].ctype==PT_INWR) && pavg != PT_INSL && pavg != PT_RBRI &&!(parts[i].ctype==PT_SWCH&&(rt==PT_PSCN||rt==PT_NSCN)) )
@@ -2634,9 +2624,9 @@ killed:
                                     (pmap[y+ny][x+nx]&0xFF)!=0xFF)
                                 parts[i].ctype = pmap[y+ny][x+nx]&0xFF;
                 }
-                else{
-          create_part(-1, x+rand()%3-1, y+rand()%3-1, parts[i].ctype);
-        }
+                else {
+					create_part(-1, x+rand()%3-1, y+rand()%3-1, parts[i].ctype);
+				}
 
             }
             if(parts[i].type==PT_PCLN)
@@ -2656,18 +2646,18 @@ killed:
                                     (pmap[y+ny][x+nx]&0xFF)!=0xFF)
                                 parts[i].ctype = pmap[y+ny][x+nx]&0xFF;
                 if(parts[i].ctype && parts[i].life==10)
-          if(parts[i].ctype==PT_PHOT){
-             for(nx=-1; nx<2; nx++)
-               for(ny=-1; ny<2; ny++){
-                 r = create_part(-1, x+nx, y+ny, parts[i].ctype);
-                 if(r!=-1){
-                   parts[r].vx = nx*3;
-                   parts[r].vy = ny*3;
-                 }
-               }
-           } else {
-             create_part(-1, x+rand()%3-1, y+rand()%3-1, parts[i].ctype);
-           }
+					if(parts[i].ctype==PT_PHOT){
+						for(nx=-1; nx<2; nx++)
+							for(ny=-1; ny<2; ny++){
+								r = create_part(-1, x+nx, y+ny, parts[i].ctype);
+								if(r!=-1){
+									parts[r].vx = nx*3;
+									parts[r].vy = ny*3;
+								}
+							}
+					} else {
+						create_part(-1, x+rand()%3-1, y+rand()%3-1, parts[i].ctype);
+					}
             }
             if(t==PT_YEST)
             {
@@ -2910,6 +2900,7 @@ killed:
                     	    continue;
 			}
                     }
+
                     else
                     {
                         if(nx>x+ISTP) nx=x+ISTP;
@@ -2971,7 +2962,7 @@ void update_particles(pixel *vid)
             if(x>=0 && y>=0 && x<XRES && y<YRES && t!=PT_PHOT) {
 		if(t!=PT_NEUT || (pmap[y][x]&0xFF)!=PT_GLAS)
             	    pmap[y][x] = t|(i<<8);
-			}
+	    }
         }
         else
         {
