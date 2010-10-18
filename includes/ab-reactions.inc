@@ -111,26 +111,6 @@ else if(t==PT_O2 && !(parts[i].tmp))
 		}
 }
 
-if(t==PT_BMTL && parts[i].tmp>1)
-{
-	for(nx=-1; nx<2; nx++)
-		for(ny=-1; ny<2; ny++)
-			if(x+nx>=0 && y+ny>0 &&
-					x+nx<XRES && y+ny<YRES && (nx || ny))
-			{
-				r = pmap[y+ny][x+nx];
-				if((r>>8)>=NPART || !r)
-					continue;
-				rt = parts[r>>8].type;
-
-				if((rt==PT_METL || rt==PT_IRON) && 1>(rand()/(RAND_MAX/100)))
-				{
-					parts[r>>8].type=PT_BMTL;
-					parts[r>>8].tmp=rand()/(RAND_MAX/300)+100;
-				}
-			}
-}
-
 if(t==PT_SUWR)
 	if(parts[i].life!=0)
 		parts[i].life = 4;
@@ -144,16 +124,33 @@ if(t==PT_VIRU)
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
 					continue;
-				if((r&0xFF)!=PT_VIRU && (r&0xFF)!=PT_ACID && (r&0xFF))
+				if(parts[r>>8].type!=PT_VIRU && parts[r>>8].tmp!=512)
 				{
+					parts[r>>8].ctype=parts[r>>8].type;
 					parts[r>>8].type=PT_VIRU;
-					parts[r>>8].tmp=1;
 				}
+				if(parts[r>>8].tmp==512)
+					parts[i].tmp=512;
+				if(parts[i].tmp==512)
+					parts[i].type=parts[i].ctype;
 			}
 }
 
-if(t==PT_VIRU && 10>(rand()/(RAND_MAX/100)+1) && parts[i].tmp)
-	parts[i].type=PT_ACID;
+if(t==PT_PHOT)
+{
+	for(nx=-2;nx<3;nx++)
+		for(ny=-2;ny<3;ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+					continue;
+				if(parts[r>>8].type==PT_VIRU)
+				{
+					parts[r>>8].tmp=512;
+				}
+			}
+}
 
 if(t==PT_MUPT || t==PT_MUNE)
 {

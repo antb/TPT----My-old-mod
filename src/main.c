@@ -2055,12 +2055,14 @@ int main(int argc, char *argv[])
             }
             if(currentTime-pastFPS>=1000)
             {
-#ifdef BETA
+/*#ifdef BETA
                 sprintf(uitext, "Version %d (Beta %d) FPS:%d", SAVE_VERSION, MINOR_VERSION, FPS);
                 //printf("%s\n", uitext);
-#else
+##else
                 sprintf(uitext, "Version %d.%d FPS:%d", SAVE_VERSION, MINOR_VERSION, FPS);
-#endif
+##endif*/
+		sprintf(uitext, "AntB's Fork v%d.%d - Based on v%d (FPS:%d)",ANTB_VERSION,(MINOR_VERSION-10),SAVE_VERSION,FPS);  //AntB Edit
+
                 FPSB = FPS;
                 FPS = 0;
                 pastFPS = currentTime;

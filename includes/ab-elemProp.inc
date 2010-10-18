@@ -22,8 +22,8 @@
 //End Neons
 
 {"LLED",  PIXPACK(0x170D0D),  0.5f,	0.05f * CFDS,	0.90f,	0.00f,  0.00f,	3.00f,	0.00f,	0.000000f * CFDS, 2,  0,    0,  1,  1,  1, 100, SC_CUSTOM,	R_TEMP+650.61f	+273.15f,	255,  "Electrics - Molten Lead"},
-{"X  X",  PIXPACK(0xC000C0),  0.5f,	0.05f * CFDS,   0.90f,  0.80f,  1.00f,  0.20f,  0.00f,  0.000000f * CFDS, 0,  25,   0,  0,  0,  1, 65,  SC_CUSTOM,	R_TEMP+0.0f     +273.15f,	100,  "Unknown?"},
-//Name    Colour              Advec	Airdrag		Airloss	Loss	Collid	Grav	Diffus	Hotair		  Fal Burn  Exp Mel Hrd M  W    Section 	H       				Ins(real world, by triclops200) Description
+{"X",     PIXPACK(0xC000C0),  0.5f,	0.05f * CFDS,   0.90f,  0.50f,  0.10f,  0.20f,  0.00f,  0.000000f * CFDS, 2,  0,    0,  0,  0,  1, 65,  SC_CUSTOM,	R_TEMP+0.0f     +273.15f,	100,  "Unknown?"},
+//Name    Colour              Advec	Airdrag		Airloss	Loss	Collid	Grav	Diffus	Hotair		  Fal Burn  Exp Mel Hrd M  W    Section 	H       			Ins(real world, by triclops200) Description
 
-/* fal --> 0=Solid 1=Gas 2 = Liquid  */
+/* fal --> 0=Solid/Gas 1=Powder 2 = Liquid  */
 

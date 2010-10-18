@@ -7,8 +7,9 @@
 #define PATH_SEP "/"
 #endif
 
+#define ANTB_VERSION 4 //AntB Edit -- Bwahahahaaah!
 #define SAVE_VERSION 43
-#define MINOR_VERSION 10
+#define MINOR_VERSION 19
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
 #define BETA
 

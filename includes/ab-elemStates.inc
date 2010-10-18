@@ -23,4 +23,6 @@
 //End Neons
 
 /* LLed */ {ST_SOLID,   PT_LEAD, 600.60f, PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
-/* XXXX */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* X    */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* RCOV */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
+
