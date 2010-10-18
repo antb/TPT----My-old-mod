@@ -7,7 +7,6 @@ if (t==PT_NEUT || t==PT_MUNE)
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, 650.0f);//3.0f;
 	}
 
-
 if(t==PT_H2O2)
 {
 	for(nx=-2; nx<3; nx++)
@@ -135,6 +134,26 @@ if(t==PT_BMTL && parts[i].tmp>1)
 if(t==PT_SUWR)
 	if(parts[i].life!=0)
 		parts[i].life = 4;
+
+if(t==PT_VIRU)
+{
+	for(nx=-2;nx<3;nx++)
+		for(ny=-2;ny<3;ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+					continue;
+				if((r&0xFF)!=PT_VIRU && (r&0xFF)!=PT_ACID && (r&0xFF))
+				{
+					parts[r>>8].type=PT_VIRU;
+					parts[r>>8].tmp=1;
+				}
+			}
+}
+
+if(t==PT_VIRU && 10>(rand()/(RAND_MAX/100)+1) && parts[i].tmp)
+	parts[i].type=PT_ACID;
 
 if(t==PT_MUPT || t==PT_MUNE)
 {

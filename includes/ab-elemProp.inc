@@ -10,7 +10,7 @@
 {"SUWR",  PIXPACK(0x8080A0),  0.0f,	0.00f * CFDS,	0.90f,	0.00f,  0.00f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  1,  1,  1, 100, SC_CUSTOM,	R_TEMP+0.0f     +273.15f,	251,  "Electrics - Single use wire."},
 {"RADI",  PIXPACK(0x505020),  0.0f,	0.00f * CFDS,	0.90f,	0.00f,  0.00f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  0,  1, 100, SC_CUSTOM,	R_TEMP+30.0f    +273.15f,	251,  "Nuclear - Solid Radioactive substance. Decays into Radon Gas."},
 {"RADO",  PIXPACK(0x50FF20),  1.0f,	0.01f * CFDS,	0.99f,	0.30f, -0.10f,	0.00f,	0.75f,	0.001000f * CFDS, 0,  0,    0,  0,  1,  0, 1,   SC_CUSTOM,	R_TEMP+2.0f     +273.15f,	106,  "Nuclear - Radioactive Gas: Releases the occasional Neutron"},
-{"GROW",  PIXPACK(0x008000),  2.0f,	0.02f * CFDS,	0.96f,	0.80f,  0.00f,	1.00f,	0.50f,	0.000000f * CFDS, 1,  0,    0,  0,  30, 1, 15,  SC_CUSTOM,	R_TEMP+0.0f     +273.15f,	70,   "Powder - Growth particles, expands whatever element it hits"},
+{"GROW",  PIXPACK(0x008000),  2.0f,	0.02f * CFDS,	0.96f,	0.80f,  0.00f,	1.00f,	0.50f,	0.000000f * CFDS, 1,  0,    0,  0,  30, 1, 65,  SC_CUSTOM,	R_TEMP+0.0f     +273.15f,	70,   "Powder - Growth particles, expands whatever element it hits"},
 {"LEAD",  PIXPACK(0x201E1E),  0.0f,	0.00f * CFDS,	0.90f,	0.00f,  0.00f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  1,  1,  1, 100, SC_CUSTOM,	R_TEMP+0.0f	+273.15f,	255,  "Electrics - Absorbs neutrons and heats up; doubles as a resistor."},
 //Neons
 {"R",	  PIXPACK(0x200000),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Red Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
@@ -18,12 +18,12 @@
 {"B",	  PIXPACK(0x000020),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Blue Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
 {"C",	  PIXPACK(0x002020),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Cyan Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
 {"M",     PIXPACK(0x200020),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Magenta Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
-{"Y",	  PIXPACK(0x202000),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 49,  SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Yellow Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
+{"Y",	  PIXPACK(0x202000),  0.0f,	0.00f * CFDS,	0.00f,	0.00f,	0.50f,	0.00f,	0.00f,	0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,	R_TEMP+0.0f	+273.15f,	106,	"Yellow Neon - Conductive - Glows when charged with PSCN, Discharge with NSCN"},
 //End Neons
 
 {"LLED",  PIXPACK(0x170D0D),  0.5f,	0.05f * CFDS,	0.90f,	0.00f,  0.00f,	3.00f,	0.00f,	0.000000f * CFDS, 2,  0,    0,  1,  1,  1, 100, SC_CUSTOM,	R_TEMP+650.61f	+273.15f,	255,  "Electrics - Molten Lead"},
-
-//Name    Colour              Advec	Airdrag		Airloss	Loss	Collid	Grav	Diffus	Hotair		  Fal Burn  Exp Mel Hrd M  Section	H       				Ins(real world, by triclops200) Description
+{"X  X",  PIXPACK(0xC000C0),  0.5f,	0.05f * CFDS,   0.90f,  0.80f,  1.00f,  0.20f,  0.00f,  0.000000f * CFDS, 0,  25,   0,  0,  0,  1, 65,  SC_CUSTOM,	R_TEMP+0.0f     +273.15f,	100,  "Unknown?"},
+//Name    Colour              Advec	Airdrag		Airloss	Loss	Collid	Grav	Diffus	Hotair		  Fal Burn  Exp Mel Hrd M  W    Section 	H       				Ins(real world, by triclops200) Description
 
 /* fal --> 0=Solid 1=Gas 2 = Liquid  */
 
