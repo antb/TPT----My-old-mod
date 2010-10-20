@@ -225,7 +225,7 @@ static const part_type ptypes[PT_NUM] =
 	{"ACID",	PIXPACK(0xED55FF),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	40,	0,	0,	1,	1,	10,	SC_LIQUID,		R_TEMP+0.0f	+273.15f,	34,	"Dissolves almost everything."},
 	{"VOID",	PIXPACK(0x790B0B),	0.0f,	0.00f * CFDS,	1.00f,	0.00f,	0.0f,	0.0f,	0.00f,	-0.0003f* CFDS,	0,	0,	0,	0,	0,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	251,	"Hole, will drain away any particles."},
 	{"WTRV",	PIXPACK(0xA0A0FF),	1.0f,	0.01f * CFDS,	0.99f,	0.30f,	-0.1f,	-0.1f,	0.75f,	0.0003f	* CFDS,	0,	0,	0,	0,	4,	1,	1,	SC_GAS,			R_TEMP+100.0f	+273.15f,	48,	"Steam, heats up air, produced from hot water."},
-	{"CNCT",	PIXPACK(0xC0C0C0),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.3f,	0.00f,	0.000f	* CFDS,	1,	0,	0,	2,	25,	1,	55,	SC_POWDERS,		R_TEMP+0.0f	+273.15f,	100,	"Concrete, stronger than stone."},
+	{"CNCT",	PIXPACK(0xC0C0C0),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.3f,	0.00f,	0.000f	* CFDS,	1,	0,	0,	2,	25,	1,	90,	SC_POWDERS,		R_TEMP+0.0f	+273.15f,	100,	"Concrete, stronger than stone."},
 	{"DSTW",	PIXPACK(0x1020C0),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	0,	0,	0,	20,	1,	30,	SC_LIQUID,		R_TEMP-2.0f	+273.15f,	23,	"Distilled water, does not conduct electricity."},
 	{"SALT",	PIXPACK(0xFFFFFF),	0.4f,	0.04f * CFDS,	0.94f,	0.95f,	-0.1f,	0.3f,	0.00f,	0.000f	* CFDS,	1,	0,	0,	5,	1,	1,	75,	SC_POWDERS,		R_TEMP+0.0f	+273.15f,	110,	"Salt, dissolves in water."},
 	{"SLTW",	PIXPACK(0x4050F0),	0.6f,	0.01f * CFDS,	0.98f,	0.95f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	2,	0,	0,	0,	20,	1,	35,	SC_LIQUID,		R_TEMP+0.0f	+273.15f,	75,	"Saltwater, conducts electricity, difficult to freeze."},
