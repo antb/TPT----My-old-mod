@@ -30,8 +30,8 @@ powder-sse: $(SOURCES) $(HEADERS) $(ABMOD)
 powder-64-sse3-opengl: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64 -lGL -lGLU -DOpenGL
 	strip $@
-powder-64-sse3: $(SOURCES) $(HEADERS) $(ABMOD)
-	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64
+powder-64-sse3: $(SOURCES)
+	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64 -j3
 	strip $@
 	mv $@ build
 powder-64-sse2: $(SOURCES) $(HEADERS) $(ABMOD)

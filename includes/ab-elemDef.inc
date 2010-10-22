@@ -1,26 +1,28 @@
 /* AntB's Fork - Defines > powder.h */
 
-#define PT_MUPT 77
-#define PT_BAGL 78
-#define PT_MUNE 79
-#define PT_RBRI 80
-#define PT_LH2  81
-#define PT_H2   82
-#define PT_H2O2 83
-#define PT_SUWR 84
-#define PT_RADI 85
-#define PT_RADO 86
-#define PT_GROW 87
-#define PT_LEAD 88
-#define PT_RNEO 89
-#define PT_GNEO 90
-#define PT_BNEO 91
-#define PT_CNEO 92
-#define PT_MNEO 93
-#define PT_YNEO 94
-#define PT_LLED 95
-#define PT_VIRU 96
-#define PT_ZINC 97
-#define PT_GSTL 98
+#define SEC 77
 
-#define PT_NUM  99
+#define PT_MUPT SEC+1
+#define PT_BAGL SEC+2
+#define PT_MUNE SEC+3
+#define PT_RBRI SEC+4
+#define PT_LH2  SEC+5
+#define PT_H2   SEC+6
+#define PT_H2O2 SEC+7
+#define PT_SUWR SEC+8
+#define PT_RADI SEC+9
+#define PT_RADO SEC+10
+#define PT_GROW SEC+11
+#define PT_LEAD SEC+12
+#define PT_RNEO SEC+13
+#define PT_GNEO SEC+14
+#define PT_BNEO SEC+15
+#define PT_CNEO SEC+16
+#define PT_MNEO SEC+17
+#define PT_YNEO SEC+18
+#define PT_LLED SEC+19
+#define PT_VIRU SEC+20
+#define PT_ZINC SEC+21
+#define PT_GSTL SEC+22
+
+#define PT_NUM  SEC+23
