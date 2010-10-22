@@ -1,6 +1,7 @@
 /* AntB's Fork - Defines > powder.h */
 
-#define SEC 77
+// SEC = Simon Element Count, set it the same as the last element in the source.
+#define SEC 77  
 
 #define PT_MUPT SEC+1
 #define PT_BAGL SEC+2
