@@ -198,11 +198,9 @@ typedef struct part_state part_state;
  * 98  = Heavy || Powder  50-99
  * 100 = Solid ||
  * -1 is Neutrons and Photons
- * 0 is CNCT
  */
 static const part_type ptypes[PT_NUM] =
 {
-<<<<<<< HEAD
     //Name		Colour			Advec	Airdrag		Airloss	Loss	Collid	Grav	Diffus	Hotair		Fal	Burn	Exp	Mel	Hrd 	M	Weight	Section			H				Ins(real world, by triclops200) Description
     {"",		PIXPACK(0x000000),	0.0f,	0.00f * CFDS,	1.00f,	0.00f,	0.0f,	0.0f,	0.00f,	0.000f	* CFDS,	0,	0,		0,	0,	1,	1,	100,	SC_SPECIAL,		R_TEMP+0.0f	+273.15f,	251,	"Erases particles."},
     {"DUST",	PIXPACK(0xFFE0A0),	0.7f,	0.02f * CFDS,	0.96f,	0.80f,	0.0f,	0.1f,	0.00f,	0.000f	* CFDS,	1,	10,		0,	0,	30,	1,	85,		SC_POWDERS,		R_TEMP+0.0f	+273.15f,	70,	"Very light dust. Flammable."},
