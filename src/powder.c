@@ -52,6 +52,12 @@ static void photoelectric_effect(int nx, int ny)
     }
 }
 
+/*
+   RETURN-value explenation
+ * 1 = Swap
+ * 0 = No move/Bounce
+ * 2 = Both particles occupy the same space.
+ */
 static int eval_move(int pt, int nx, int ny, unsigned *rr)
 {
     unsigned r;
@@ -95,13 +101,16 @@ static int eval_move(int pt, int nx, int ny, unsigned *rr)
     if(ptypes[pt].falldown!=1 && bmap[ny/CELL][nx/CELL]==10)
         return 0;
 
-    if (r && ((r&0xFF) >= PT_NUM ||
-        (ptypes[pt].weight <= ptypes[(r&0xFF)].weight))
-       )
+    if(pt==PT_CNCT && (r&0xFF)!=PT_CNCT)
         return 0;
 
-    if(pt == PT_PHOT)
+    if(r && ((r&0xFF)>=PT_NUM || ptypes[pt].weight <= ptypes[(r&0xFF)].weight)
+      )
+        return 0;
+
+    if(pt == PT_PHOT || pt == PT_NEUT)
         return 2;
+
     return 1;
 }
 

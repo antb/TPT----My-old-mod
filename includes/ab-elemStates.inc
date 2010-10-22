@@ -11,7 +11,7 @@
 /* Radi */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* Rado */ {ST_GAS,     PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* Grow */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
-/* Lead */ {ST_SOLID,   PT_NONE, 0.0f,    PT_LLED, 600.61f, PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* Lead */ {ST_SOLID,   PT_NONE, 0.0f,    PT_LLED, 700.60f, PT_NONE, 0.0f,    PT_NONE, 0.0f},
 
 //Neons
 /* R    */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
@@ -22,6 +22,8 @@
 /* Y    */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 //End Neons
 
-/* LLed */ {ST_SOLID,   PT_LEAD, 600.60f, PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* LLed */ {ST_LIQUID,   PT_LEAD, 600.60f, PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* X    */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* Zinc */ {ST_SOLID,   PT_NONE, 0.0f,    PT_LAVA, 692.68f, PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* GStl */ {ST_SOLID,   PT_NONE, 0.0f,    PT_LAVA, 4273.0f, PT_NONE, 0.0f,    PT_NONE, 0.0f},
 

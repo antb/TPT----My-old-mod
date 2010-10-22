@@ -85,9 +85,10 @@ else if(t==PT_MUNE)
     blendpixel(vid, nx-1, ny+1, cr, cg, cb, 32);
     blendpixel(vid, nx+1, ny+1, cr, cg, cb, 32);
     blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
-} 
+}
 
 //Neons
+
 else if(t==PT_RNEO)
 {
 	uint8   cr = 0x07+(parts[i].life*19);
