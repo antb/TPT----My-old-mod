@@ -1,6 +1,6 @@
 SOURCES := src/*.c
 HEADERS := includes/*.h
-ABMOD := includes/*.inc
+ABMOD := includes/mod/*.inc
 
 CFLAGS := -Wall -std=c99 -D_POSIX_C_SOURCE=200112L -Iincludes/
 OFLAGS := -O3 -ffast-math -ftree-vectorize -funsafe-math-optimizations

@@ -2109,7 +2109,7 @@ void draw_parts(pixel *vid)
                         fire_b[y][x] = cb;
                     }
                 }
-#include "ab-graphics.inc"
+#include "mod/ab-graphics.inc"
 
                 else
                     vid[ny*(XRES+BARSIZE)+nx] = ptypes[t].pcolors;

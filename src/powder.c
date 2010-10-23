@@ -22,7 +22,7 @@ int pfree;
 unsigned pmap[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
 
-#include "ab-functions.inc"
+#include "mod/ab-functions.inc"
 
 static int pn_junction_sprk(int x, int y, int pt)
 {
@@ -478,7 +478,7 @@ inline int create_part(int p, int x, int y, int t)
     	parts[i].life = 150;
     }
     End Testing*/
-#include "ab-life.inc"
+#include "mod/ab-life.inc"
     if(t==PT_FUSE) {
         parts[i].life = 50;
         parts[i].tmp = 50;
@@ -2038,7 +2038,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                 {
                     parts[i].life--;
                 }
-#include "ab-reactions.inc"
+#include "mod/ab-reactions.inc"
             if(t==PT_FIRE || t==PT_PLSM || t==PT_LAVA || t==PT_SPRK || fe || (t==PT_PHOT&&(1>rand()%10)))
             {
                 for(nx=-2; nx<3; nx++)

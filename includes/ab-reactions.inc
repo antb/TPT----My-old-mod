@@ -7,6 +7,28 @@ if (t==PT_NEUT || t==PT_MUNE)
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, 650.0f);//3.0f;
 	}
 
+if(t==PT_LAVA)
+{
+	for(nx=-2; nx<3; nx++)
+		for(ny=-2; ny<3; ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+    				continue;
+                if(parts[i].ctype==PT_ZINC && (
+                    parts[r>>8].ctype==PT_BMTL ||
+                    parts[r>>8].ctype==PT_BRMT ||
+                    parts[r>>8].ctype==PT_METL
+                    )
+                  )
+                {
+                    parts[i].ctype=PT_GSTL;
+                    parts[r>>8].ctype=PT_GSTL;
+                }
+            }
+}
+
 if(t==PT_H2O2)
 {
 	for(nx=-2; nx<3; nx++)
@@ -15,7 +37,7 @@ if(t==PT_H2O2)
 			{
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
-				continue;
+	    			continue;
 				if((r&0xFF)==PT_FIRE || (r&0xFF)==PT_PLSM)
 				{
 					if(10>(rand()/(RAND_MAX/100)))  
@@ -213,6 +235,25 @@ if(t==PT_YEST || t==PT_DYST)
 
 
 //Neons
+if((t==PT_NEUT || t==PT_MUNE) && (
+   (r&0xFF)==PT_RNEO || (r&0xFF)==PT_GNEO || (r&0xFF)==PT_BNEO ||
+   (r&0xFF)==PT_CNEO || (r&0xFF)==PT_YNEO || (r&0xFF)==PT_MNEO )
+  )
+{
+	for(nx=-2;nx<3;nx++)
+		for(ny=-2;ny<3;ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r=pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+					continue;
+            
+            rt = rand()/(RAND_MAX/5);
+            parts[i].type = PT_RNEO+rt;
+
+            }
+}
+
 if(t==PT_RNEO || t==PT_GNEO || t==PT_BNEO || t==PT_CNEO || t==PT_YNEO || t==PT_MNEO)
 {
 	for(nx=-1; nx<2; nx++)
