@@ -102,6 +102,12 @@ static int eval_move(int pt, int nx, int ny, unsigned *rr)
 		return 1;
 	if((r&0xFF)==PT_NEUT && ptypes[pt].properties&PROP_NEUTPENETRATE)
 		return 0;
+    
+    if(pt==PT_NEUT && (r&0xFF)==PT_PLUT)
+    {
+        pv[ny][nx]+=75;
+        return 2;
+    }
 	
     if (r && ((r&0xFF) >= PT_NUM || (ptypes[pt].weight <= ptypes[(r&0xFF)].weight)))
         return 0;
