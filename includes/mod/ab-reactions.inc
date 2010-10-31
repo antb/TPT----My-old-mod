@@ -7,7 +7,76 @@ if (t==PT_NEUT || t==PT_MUNE)
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, 650.0f);//3.0f;
 	}
 
-if(t==PT_LAVA)
+if(t==PT_SOIL && pv[y/CELL][x/CELL]>=6.0f)
+    parts[i].type=PT_ERTH;
+if(t==PT_ERTH && pv[y/CELL][x/CELL]<=-6.0f)
+    parts[i].type=PT_SOIL;
+
+if(t==PT_ERTH)
+	for(nx=-2; nx<3; nx++)
+		for(ny=-2; ny<3; ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+    				continue;
+                if(!(r&0xFF))
+                    parts[i].type=PT_SOIL;
+            }
+
+if(t==PT_SOIL)
+	for(nx=-2; nx<3; nx++)
+		for(ny=-2; ny<3; ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+    				continue;
+                if(parts[r>>8].type==PT_WATR || parts[r>>8].type==PT_DSTW)
+                {
+                    parts[i].tmp++;
+                    kill_part(r>>8);
+                }
+                if(parts[i].tmp>=3)
+                {
+                    parts[i].tmp=0;
+                    parts[i].type=PT_PLNT;
+                }
+            }
+
+if(t==PT_ZINC || t==PT_SLTW || t==PT_METL)
+	for(nx=-2; nx<3; nx++)
+		for(ny=-2; ny<3; ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+    				continue;
+
+                int range=3;
+
+                if(t==PT_SLTW && parts[r>>8].type==PT_ZINC)
+                {
+                    parts[i].tmp=(range*10)+range;
+                    break;
+                }
+                if(t==PT_SLTW && parts[r>>8].type==PT_METL)
+                {
+                    parts[i].tmp=(range*10)+range;
+                    break;
+                }
+                if(parts[i].tmp<=range)
+                    parts[i].tmp=0;
+                
+                if(t==PT_SLTW && parts[i].tmp>range+1 && parts[r>>8].tmp==0)
+                {
+                    parts[r>>8].tmp=parts[i].tmp--;
+                }
+
+            }
+    
+
+if(t==PT_LAVA && parts[i].ctype==PT_ZINC)
 {
 	for(nx=-2; nx<3; nx++)
 		for(ny=-2; ny<3; ny++)
@@ -16,11 +85,9 @@ if(t==PT_LAVA)
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
     				continue;
-                if(parts[i].ctype==PT_ZINC && (
-                    parts[r>>8].ctype==PT_BMTL ||
+                if( parts[r>>8].ctype==PT_BMTL ||
                     parts[r>>8].ctype==PT_BRMT ||
                     parts[r>>8].ctype==PT_METL
-                    )
                   )
                 {
                     parts[i].ctype=PT_GSTL;
@@ -116,7 +183,7 @@ if(t==PT_LO2)
 			}
 		}
 }
-else if(t==PT_O2 && !(parts[i].tmp))
+else if(t==PT_O2)
 {
 	for(nx=-2;nx<3;nx++)
 		for(ny=-2;ny<3;ny++)
@@ -124,7 +191,7 @@ else if(t==PT_O2 && !(parts[i].tmp))
 			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
 			{
 			r=pmap[y+ny][x+nx];
-				if ((r&0xFF)==PT_H2 && !(parts[i].tmp))
+				if ((r&0xFF)==PT_H2)
 				{
 					parts[i].type=PT_WATR;
 					parts[r>>8].type=PT_WATR;
@@ -184,27 +251,27 @@ if(t==PT_MUPT || t==PT_MUNE)
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
 					continue;
-				//changeParticle(PT_FROM,PT_TO,r,Reversable?,Chance in 100)
-				changeParticle(PT_GUNP,PT_DUST,r,0,15);
-				changeParticle(PT_DYST,PT_DUST,r,0,15);
-				changeParticle(PT_WATR,PT_DSTW,r,0,5);
-				changeParticle(PT_PLEX,PT_GOO,r,0,15);
-				changeParticle(PT_NITR,PT_DESL,r,0,10);
-				changeParticle(PT_PLNT,PT_WOOD,r,0,15);
-				changeParticle(PT_DESL,PT_GAS,r,0,5);
-				changeParticle(PT_COAL,PT_WOOD,r,0,20);
-				changeParticle(PT_BHOL,PT_WHOL,r,1,50);
-				changeParticle(PT_SMKE,PT_DUST,r,0,15);
-				changeParticle(PT_BTRY,PT_METL,r,0,15);
-				changeParticle(PT_PTCT,PT_NTCT,r,1,100);
-				changeParticle(PT_PSCN,PT_NSCN,r,1,100);
-				changeParticle(PT_NBLE,PT_O2,r,1,15);
-				changeParticle(PT_WTRV,PT_SLTW,r,0,15);
-				changeParticle(PT_BRMT,PT_BMTL,r,0,15);
-				changeParticle(PT_BGLA,PT_GLAS,r,0,15);
-				changeParticle(PT_PLSM,PT_URAN,r,0,15);
-				changeParticle(PT_ACID,PT_DSTW,r,1,15);
-				changeParticle(PT_STKM,PT_BAGL,r,0,5);
+				//change_particle(PT_FROM,PT_TO,r,Reversable?,Chance in 100)
+				change_particle(PT_GUNP,PT_DUST,r,0,15);
+				change_particle(PT_DYST,PT_DUST,r,0,15);
+				change_particle(PT_WATR,PT_DSTW,r,0,5);
+				change_particle(PT_PLEX,PT_GOO,r,0,15);
+				change_particle(PT_NITR,PT_DESL,r,0,10);
+				change_particle(PT_PLNT,PT_WOOD,r,0,15);
+				change_particle(PT_DESL,PT_GAS,r,0,5);
+				change_particle(PT_COAL,PT_WOOD,r,0,20);
+				change_particle(PT_BHOL,PT_WHOL,r,1,50);
+				change_particle(PT_SMKE,PT_DUST,r,0,15);
+				change_particle(PT_BTRY,PT_METL,r,0,15);
+				change_particle(PT_PTCT,PT_NTCT,r,1,100);
+				change_particle(PT_PSCN,PT_NSCN,r,1,100);
+				change_particle(PT_NBLE,PT_O2,r,1,15);
+				change_particle(PT_WTRV,PT_SLTW,r,0,15);
+				change_particle(PT_BRMT,PT_BMTL,r,0,15);
+				change_particle(PT_BGLA,PT_GLAS,r,0,15);
+				change_particle(PT_PLSM,PT_URAN,r,0,15);
+				change_particle(PT_ACID,PT_DSTW,r,1,15);
+				change_particle(PT_STKM,PT_BAGL,r,0,5);
 
 				if((r&0xFF)==PT_YEST)
 				{

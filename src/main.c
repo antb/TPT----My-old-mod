@@ -974,7 +974,7 @@ int main(int argc, char *argv[])
     int is_beta = 0;
 #endif
     char uitext[48] = "";
-    char heattext[64] = "";
+    char heattext[128] = "";
     int currentTime = 0;
     int FPS = 0;
     int pastFPS = 0;
@@ -1433,7 +1433,7 @@ int main(int argc, char *argv[])
             if(!((cr>>8)>=NPART || !cr))
             {
 #ifdef BETA
-                sprintf(heattext, "%s (%s), Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp: %i", ptypes[cr&0xFF].name, ptypes[parts[cr>>8].ctype].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp); //AntB Edit
+                sprintf(heattext, "%s(%s) Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp: %d", ptypes[cr&0xFF].name, ptypes[parts[cr>>8].ctype].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp); //AntB Edit
 #else
                 sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C", ptypes[cr&0xFF].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f);
 #endif
