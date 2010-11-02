@@ -97,18 +97,18 @@ static int eval_move(int pt, int nx, int ny, unsigned *rr)
     if(ptypes[pt].falldown!=1 && bmap[ny/CELL][nx/CELL]==10)
         return 0;
 
-	if(ptypes[pt].properties&TYPE_ENERGY && (r && ((r&0xFF) >= PT_NUM || (ptypes[(r&0xFF)].properties&TYPE_ENERGY))))
+    if(r && (r&0xFF) < PT_NUM){
+	//if(ptypes[pt].properties&TYPE_ENERGY && (r && ((r&0xFF) >= PT_NUM || (ptypes[(r&0xFF)].properties&TYPE_ENERGY))))
+	if(ptypes[pt].properties&TYPE_ENERGY && ptypes[(r&0xFF)].properties&TYPE_ENERGY)
 		return 2;
 	
-	if(pt==PT_NEUT && (r && ((r&0xFF) >= PT_NUM || (ptypes[(r&0xFF)].properties&PROP_NEUTPENETRATE))))
+	//if(pt==PT_NEUT && (r && ((r&0xFF) >= PT_NUM || (ptypes[(r&0xFF)].properties&PROP_NEUTPENETRATE))))
+	if(pt==PT_NEUT && ptypes[(r&0xFF)].properties&PROP_NEUTPASS)
+		return 2;
+	if(pt==PT_NEUT && ptypes[(r&0xFF)].properties&PROP_NEUTPENETRATE)
 		return 1;
 	if((r&0xFF)==PT_NEUT && ptypes[pt].properties&PROP_NEUTPENETRATE)
 		return 0;
-    
-    if(pt==PT_NEUT && (r&0xFF)==PT_PLUT)
-    {
-        pv[ny][nx]+=75;
-        return 2;
     }
 	
     if (r && ((r&0xFF) >= PT_NUM || (ptypes[pt].weight <= ptypes[(r&0xFF)].weight)))
@@ -1134,6 +1134,11 @@ void update_particles_i(pixel *vid, int start, int inc)
                                 parts[i].tmp = 0;
                                 parts[i].ctype = PT_BMTL;
                             }
+                            if(parts[i].ctype==PT_PLUT)
+                            {
+                                parts[i].tmp = 0;
+                                parts[i].ctype = PT_LAVA;
+                            }
                             t = parts[i].type = parts[i].ctype;
                             parts[i].ctype = PT_NONE;
                         }
@@ -1200,6 +1205,11 @@ void update_particles_i(pixel *vid, int start, int inc)
                         {
                             parts[i].tmp--;
                             parts[i].temp = 3500;
+                        }
+                        if(parts[i].ctype==PT_PLUT&&parts[i].tmp>0)
+                        {
+                            parts[i].tmp--;
+                            parts[i].temp = MAX_TEMP;
                         }
                     }
                     pt = parts[i].temp = restrict_flt(parts[i].temp, MIN_TEMP, MAX_TEMP);
@@ -1741,7 +1751,12 @@ void update_particles_i(pixel *vid, int start, int inc)
                             {
                                 if(33>rand()%100)
                                 {
-                                    create_part(r>>8, x+nx, y+ny, rand()%2 ? PT_LAVA : PT_URAN);
+                                    create_part(r>>8, x+nx, y+ny, rand()%3 ? PT_LAVA : PT_URAN);
+				    parts[r>>8].temp = MAX_TEMP;
+				    if(parts[r>>8].type==PT_LAVA){
+				    	parts[r>>8].tmp = 100;
+					parts[r>>8].ctype = PT_PLUT;
+				    }
                                 }
                                 else
                                 {
@@ -2888,7 +2903,7 @@ killed:
                         kill_part(i);
                         continue;
                     }
-                    else if(t==PT_NEUT || t==PT_PHOT)
+                    else if(t==PT_NEUT || t==PT_PHOT) //Seems to break neutrons, sorry Skylark
                     {
                         r = pmap[ny][nx];
 
@@ -2924,12 +2939,14 @@ killed:
                                 continue;
                             }
                         } else {
-                            kill_part(i);
+			    if(t!=PT_NEUT)
+                            	kill_part(i);
                             continue;
                         }
 
                         if(!parts[i].ctype) {
-                            kill_part(i);
+			    if(t!=PT_NEUT)
+                            	kill_part(i);
                             continue;
                         }
                     }

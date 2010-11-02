@@ -15,10 +15,11 @@ WIN32_TARG := powder-sse.exe powder-sse2.exe
 
 powder-build: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -DINTERNAL -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64
-powder-debug: $(SOURCES) $(HEADERS) $(ABMOD)
-	$(COMPILER) -DINTERNAL -m32 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(FLAGS_DBUG) $(MFLAGS_SSE3) -DLIN64 $(SOURCES) 
-
-powder-sse3: $(SOURCES) $(HEADERS) $(ABMOD) 
+powder-debug-64: $(SOURCES)
+	$(COMPILER) -m64 -o$@ $(FLAGS_DBUG) -DLIN64 $(SOURCES) -Iincludes/
+powder-debug: $(SOURCES)
+	$(COMPILER) -m32 -o$@ $(FLAGS_DBUG) -DLIN32 $(SOURCES) -Iincludes/ 
+powder-sse3: $(SOURCES)
 	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN32
 	strip $@
 powder-sse2: $(SOURCES) $(HEADERS) $(ABMOD) 
@@ -31,7 +32,7 @@ powder-64-sse3-opengl: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64 -lGL -lGLU -DOpenGL
 	strip $@
 powder-64-sse3: $(SOURCES)
-	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64 -j3
+	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64 
 	strip $@
 	mv $@ build
 powder-64-sse2: $(SOURCES) $(HEADERS) $(ABMOD)
