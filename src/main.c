@@ -1831,7 +1831,7 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    if((sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)) && !(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
+                    if((sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)) && !(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL|KMOD_LALT)))
                     {
                         lx = x;
                         ly = y;
@@ -1845,7 +1845,7 @@ int main(int argc, char *argv[])
                         lb = b;
                         lm = 2;
                     }
-                    else if((sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)) && (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)))
+                    else if((sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)) && (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)) && !(sdl_mod & (KMOD_LALT)))
                     {
                         if(c!=125&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM)
                             flood_parts(x, y, c, -1, -1);
@@ -1854,7 +1854,7 @@ int main(int argc, char *argv[])
                         lb = 0;
                         lm = 0;
                     }
-                    else if((sdl_mod & (KMOD_LALT||KMOD_RALT)) || b==SDL_BUTTON_MIDDLE)
+                    else if(((sdl_mod & (KMOD_LALT||KMOD_RALT)) && !sdl_mod & (KMOD_SHIFT)) || b==SDL_BUTTON_MIDDLE)
                     {
                         if(y>0 && y<sdl_scale*YRES && x>0 && x<sdl_scale*XRES)
                         {
