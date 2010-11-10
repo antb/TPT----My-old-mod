@@ -757,7 +757,7 @@ void draw_menu(pixel *vid_buf, int i, int hover)
     }
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
 _inline void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
 #else
 inline void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
@@ -776,7 +776,7 @@ inline void drawpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
     vid[y*(XRES+BARSIZE)+x] = PIXRGB(r,g,b);
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
 _inline int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
 #else
 inline int drawchar(pixel *vid, int x, int y, int c, int r, int g, int b, int a)
@@ -1002,18 +1002,25 @@ int textnwidth(char *s, int n)
     }
     return x-1;
 }
-int textnheight(char *s, int n, int w)
+void textnpos(char *s, int n, int w, int *cx, int *cy)
 {
     int x = 0;
+	int y = 0;
 	//TODO: Implement Textnheight for wrapped text
 	for(; *s; s++)
     {
-        if(!n)
+        if(!n){
             break;
+		}
         x += font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+		if(x>=w) {
+			x = 0;
+			y += FONT_H+2;
+		}
         n--;
     }
-    return x-1;
+    *cx = x-1;
+	*cy = y;
 }
 
 int textwidthx(char *s, int w)
@@ -1029,8 +1036,25 @@ int textwidthx(char *s, int w)
     }
     return n;
 }
+int textposxy(char *s, int width, int w, int h)
+{
+    int x=0,y=0,n=0,cw;
+    for(; *s; s++)
+    {
+        cw = font_data[font_ptrs[(int)(*(unsigned char *)s)]];
+        if(x+(cw/2) >= w && y+6 >= h)
+            break;
+        x += cw;
+		if(x>=width) {
+			x = 0;
+			y += FONT_H+2;
+		}
+        n++;
+    }
+    return n;
+}
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
 _inline void blendpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
 #else
 inline void blendpixel(pixel *vid, int x, int y, int r, int g, int b, int a)
@@ -1544,7 +1568,8 @@ void draw_parts(pixel *vid)
                         blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
                     }
                 }
-                else if(t==PT_SWCH && parts[i].life == 10)
+                //Life can be 11 too, so don't just check for 10
+                else if(t==PT_SWCH && parts[i].life >= 10)
                 {
                     x = nx;
                     y = ny;

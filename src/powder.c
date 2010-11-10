@@ -361,7 +361,7 @@ void kill_part(int i)
     pfree = i;
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
 _inline int create_part(int p, int x, int y, int t)
 #else
 inline int create_part(int p, int x, int y, int t)
@@ -664,7 +664,7 @@ static void create_cherenkov_photon(int pp)
     parts[i].vy *= r;
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
 _inline void delete_part(int x, int y)
 #else
 inline void delete_part(int x, int y)
@@ -686,7 +686,7 @@ inline void delete_part(int x, int y)
 	    return;
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
 _inline int is_wire(int x, int y)
 #else
 inline int is_wire(int x, int y)
@@ -695,7 +695,7 @@ inline int is_wire(int x, int y)
     return bmap[y][x]==6 || bmap[y][x]==7 || bmap[y][x]==3 || bmap[y][x]==8 || bmap[y][x]==11 || bmap[y][x]==12;
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
 _inline int is_wire_off(int x, int y)
 #else
 inline int is_wire_off(int x, int y)
@@ -786,7 +786,7 @@ void set_emap(int x, int y)
             }
 }
 
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
 _inline int parts_avg(int ci, int ni)
 #else
 inline int parts_avg(int ci, int ni)
@@ -961,7 +961,7 @@ void update_particles_i(pixel *vid, int start, int inc)
             }
 
             // interpolator
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
             mv = max(fabsf(parts[i].vx), fabsf(parts[i].vy));
 #else
             mv = fmaxf(fabsf(parts[i].vx), fabsf(parts[i].vy));
@@ -1456,7 +1456,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     r = create_part(-1, x, y, PT_PLSM);
                     if(r!=-1)
                         parts[r].life = 50;
-                    //goto killed;
+                    goto killed;
                 } else if (parts[i].life < 40) {
                     parts[i].life--;
                     if((rand()%100)==0) {
@@ -1473,7 +1473,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     //t = PT_NONE;
                     kill_part(i);
                     r = create_part(-1, x, y, PT_FSEP);
-                    //goto killed;
+                    goto killed;
                 }
                 for(nx=-2; nx<3; nx++)
                     for(ny=-2; ny<3; ny++)
@@ -1499,7 +1499,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     r = create_part(-1, x, y, PT_PLSM);
                     if(r!=-1)
                         parts[r].life = 50;
-                    //goto killed;
+                    goto killed;
                 } else if (parts[i].life < 40) {
                     parts[i].life--;
                     if((rand()%10)==0) {
@@ -1942,14 +1942,15 @@ void update_particles_i(pixel *vid, int start, int inc)
                                 {
                                     parts[i].type = PT_NONE;
                                     kill_part(i);
+				    goto killed;
                                 }
                                 parts[r>>8].life = 0;
                                 parts[r>>8].type = PT_NONE;
                                 kill_part(r>>8);
                                 if(2>(rand()/(RAND_MAX/100)))
-                                    create_part(r>>8, x+nx, y+ny, PT_PHOT);
+                                    create_part(-1, x+nx, y+ny, PT_PHOT);
                                 pv[y/CELL][x/CELL] -= 5.0f;
-                                continue;
+                                //goto killed;
                             }
                         }
             }
@@ -2007,9 +2008,11 @@ void update_particles_i(pixel *vid, int start, int inc)
                     }
                     pv[y/CELL][x/CELL] += 20;
                     kill_part(i);
+					goto killed;
                 } else if(parts[i].tmp>=3) {
                     if(parts[i].life<=0) {
                         kill_part(i);
+						goto killed;
                     }
                 }
             }
@@ -2149,6 +2152,19 @@ void update_particles_i(pixel *vid, int start, int inc)
                                     }
                                 }
                             }
+                            //Check if there is a SWCH that is currently covered with SPRK
+                            //If so check if the current SPRK is covering a NSCN
+                            //If so turn the SPRK that covers the SWCH back into SWCH and turn it off
+                            if(rt==PT_SPRK && parts[r>>8].ctype == PT_SWCH && t==PT_SPRK)
+                            {
+                                pavg = parts_avg(r>>8, i);
+                                if(parts[i].ctype == PT_NSCN&&pavg != PT_INSL)
+                                {
+                                    parts[r>>8].type = PT_SWCH;
+                                    parts[r>>8].ctype = PT_NONE;
+                                    parts[r>>8].life = 0;
+                                }
+                            }
                             pavg = parts_avg(i, r>>8);
                             if(rt==PT_SWCH && t==PT_SPRK)
                             {
@@ -2157,7 +2173,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                                     parts[r>>8].life = 10;
                                 if(parts[i].ctype == PT_NSCN&&(pavg != PT_INSL || pavg != PT_RBRI))
                                     parts[r>>8].life = 9;
-                                if(!(parts[i].ctype == PT_PSCN||parts[i].ctype == PT_NSCN)&&parts[r>>8].life == 10&&(pavg != PT_INSL || pavg != PT_RBRI))
+                                if(!(parts[i].ctype == PT_PSCN||parts[i].ctype == PT_NSCN)&&parts[r>>8].life >= 10&&(pavg != PT_INSL || pavg != PT_RBRI))
                                 {
                                     parts[r>>8].type = PT_SPRK;
                                     parts[r>>8].ctype = PT_SWCH;

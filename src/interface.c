@@ -215,7 +215,7 @@ void add_sign_ui(pixel *vid_buf, int mx, int my)
 //TODO: Finish text wrapping in text edits
 void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
 {
-    int cx, i;
+    int cx, i, cy;
     char echo[256], *str;
 
     if(ed->hide)
@@ -242,9 +242,15 @@ void ui_edit_draw(pixel *vid_buf, ui_edit *ed)
         drawtext(vid_buf, ed->x, ed->y, ed->def, 128, 128, 128, 255);
     if(ed->focus)
     {
-        cx = textnwidth(str, ed->cursor);
+		if(ed->multiline){
+			textnpos(str, ed->cursor, ed->w-14, &cx, &cy);
+		} else {
+			cx = textnwidth(str, ed->cursor);
+			cy = 0;			
+		}
+		
         for(i=-3; i<9; i++)
-            drawpixel(vid_buf, ed->x+cx, ed->y+i, 255, 255, 255, 255);
+            drawpixel(vid_buf, ed->x+cx, ed->y+i+cy, 255, 255, 255, 255);
     }
 }
 
@@ -278,7 +284,7 @@ void ui_edit_process(int mx, int my, int mb, ui_edit *ed)
 			else if(mx>=ed->x-ed->nx && mx<ed->x+ed->w && my>=ed->y-5 && my<ed->y+ed->h)
 			{
 				ed->focus = 1;
-				ed->cursor = textwidthx(str, mx-ed->x);
+				ed->cursor = textposxy(str, ed->w-14, mx-ed->x, my-ed->y);
 			}
 			else
 				ed->focus = 0;
@@ -1125,7 +1131,7 @@ finish:
 
 int save_name_ui(pixel *vid_buf)
 {
-    int x0=(XRES-400)/2,y0=(YRES-68-YRES/4)/2,b=1,bq,mx,my,ths,nd=0;
+    int x0=(XRES-420)/2,y0=(YRES-68-YRES/4)/2,b=1,bq,mx,my,ths,nd=0;
     void *th;
     ui_edit ed;
     ui_edit ed2;
@@ -1176,8 +1182,8 @@ int save_name_ui(pixel *vid_buf)
         mx /= sdl_scale;
         my /= sdl_scale;
 
-        drawrect(vid_buf, x0, y0, 400, 90+YRES/4, 192, 192, 192, 255);
-        clearrect(vid_buf, x0, y0, 400, 90+YRES/4);
+        drawrect(vid_buf, x0, y0, 420, 90+YRES/4, 192, 192, 192, 255);
+        clearrect(vid_buf, x0, y0, 420, 90+YRES/4);
         drawtext(vid_buf, x0+8, y0+8, "New simulation name:", 255, 255, 255, 255);
         drawtext(vid_buf, x0+10, y0+23, "\x82", 192, 192, 192, 255);
         drawrect(vid_buf, x0+8, y0+20, 176, 16, 192, 192, 192, 255);
@@ -1187,14 +1193,16 @@ int save_name_ui(pixel *vid_buf)
         ui_edit_draw(vid_buf, &ed);
         ui_edit_draw(vid_buf, &ed2);
 
-        drawrect(vid_buf, x0+(192-XRES/3)/2-2+200, y0+34, XRES/3+3, YRES/3+3, 128, 128, 128, 255);
-        render_thumb(th, ths, 0, vid_buf, x0+(200-XRES/3)/2+200, y0+36, 3);
+        drawrect(vid_buf, x0+(205-XRES/3)/2-2+205, y0+30, XRES/3+3, YRES/3+3, 128, 128, 128, 255);
+        render_thumb(th, ths, 0, vid_buf, x0+(205-XRES/3)/2+205, y0+32, 3);
 
         ui_checkbox_draw(vid_buf, &cb);
         drawtext(vid_buf, x0+34, y0+50+YRES/4, "Publish? (Do not publish others'\nworks without permission)", 192, 192, 192, 255);
 
         drawtext(vid_buf, x0+5, y0+79+YRES/4, "Save simulation", 255, 255, 255, 255);
         drawrect(vid_buf, x0, y0+74+YRES/4, 192, 16, 192, 192, 192, 255);
+		
+		draw_line(vid_buf, x0+192, y0, x0+192, y0+90+YRES/4, 150, 150, 150, XRES+BARSIZE);
 
         sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
@@ -2287,128 +2295,6 @@ int search_ui(pixel *vid_buf)
             if(open_ui(vid_buf, search_ids[mp], search_dates[mp]?search_dates[mp]:NULL)==1) {
                 goto finish;
             }
-            /*
-            fillrect(vid_buf, 0, 0, XRES+BARSIZE, YRES+MENUSIZE, 0, 0, 0, 255);
-            info_box(vid_buf, "Loading...");
-
-            if(search_dates[mp]) {
-                uri = malloc(strlen(search_ids[mp])*3+strlen(search_dates[mp])*3+strlen(SERVER)+71);
-                strcpy(uri, "http://" SERVER "/Get.api?Op=save&ID=");
-                strcaturl(uri, search_ids[mp]);
-                strappend(uri, "&Date=");
-                strcaturl(uri, search_dates[mp]);
-            } else {
-                uri = malloc(strlen(search_ids[mp])*3+strlen(SERVER)+64);
-                strcpy(uri, "http://" SERVER "/Get.api?Op=save&ID=");
-                strcaturl(uri, search_ids[mp]);
-            }
-            data = http_simple_get(uri, &status, &dlen);
-            free(uri);
-
-            if(status == 200)
-            {
-                status = parse_save(data, dlen, 1, 0, 0);
-                switch(status)
-                {
-                case 1:
-                    error_ui(vid_buf, 0, "Simulation corrupted");
-                    break;
-                case 2:
-                    error_ui(vid_buf, 0, "Simulation from a newer version");
-                    break;
-                case 3:
-                    error_ui(vid_buf, 0, "Simulation on a too large grid");
-                    break;
-                }
-                if(!status)
-                {
-                    char *tnames[] = {"ID", NULL};
-                    char *tparts[1];
-                    int tplens[1];
-                    if(svf_last)
-                        free(svf_last);
-                    svf_last = data;
-                    svf_lsize = dlen;
-
-                    tparts[0] = search_ids[mp];
-                    tplens[0] = strlen(search_ids[mp]);
-                    data = http_multipart_post("http://" SERVER "/Tags.api", tnames, tparts, tplens, svf_user, svf_pass, &status, NULL);
-
-                    svf_open = 1;
-                    svf_own = svf_login && !strcmp(search_owners[mp], svf_user);
-                    svf_publish = search_publish[mp] && svf_login && !strcmp(search_owners[mp], svf_user);
-
-                    strcpy(svf_id, search_ids[mp]);
-                    strcpy(svf_name, search_names[mp]);
-                    if(status == 200)
-                    {
-                        if(data)
-                        {
-                            strncpy(svf_tags, data, 255);
-                            svf_tags[255] = 0;
-                        }
-                        else
-                            svf_tags[0] = 0;
-                    }
-                    else
-                    {
-                        svf_tags[0] = 0;
-                    }
-
-                    if(svf_login)
-                    {
-                        char *names[] = {"ID", NULL};
-                        char *parts[1];
-                        parts[0] = search_ids[mp];
-                        data = http_multipart_post("http://" SERVER "/Vote.api", names, parts, NULL, svf_user, svf_pass, &status, NULL);
-                        if(status == 200)
-                        {
-                            if(data)
-                            {
-                                if(!strcmp(data, "Up"))
-                                {
-                                    svf_myvote = 1;
-                                }
-                                else if(!strcmp(data, "Down"))
-                                {
-                                    svf_myvote = -1;
-                                }
-                                else
-                                {
-                                    svf_myvote = 0;
-                                }
-                            }
-                            else
-                            {
-                                svf_myvote = 0;
-                            }
-                        }
-                        else
-                        {
-                            svf_myvote = 0;
-                        }
-                    }
-                }
-                else
-                {
-                    svf_open = 0;
-                    svf_publish = 0;
-                    svf_own = 0;
-                    svf_myvote = 0;
-                    svf_id[0] = 0;
-                    svf_name[0] = 0;
-                    svf_tags[0] = 0;
-                    if(svf_last)
-                        free(svf_last);
-                    svf_last = NULL;
-                }
-            }
-            else
-                error_ui(vid_buf, status, http_ret_text(status));
-
-            if(data)
-                free(data);
-            goto finish;*/
         }
 
         if(!last)
@@ -2675,7 +2561,9 @@ int report_ui(pixel* vid_buf, char *save_id)
 int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 {
     int b=1,bq,mx,my,ca=0,thumb_w,thumb_h,active=0,active_2=0,cc=0,ccy=0,cix=0,hasdrawninfo=0,hasdrawnthumb=0,authoritah=0,myown=0,queue_open=0,data_size=0,retval=0,bc=255,openable=1;
-    char *uri, *uri_2, *o_uri;
+    int nyd,nyu,ry,lv;
+	
+	char *uri, *uri_2, *o_uri;
     void *data, *info_data;
     save_info *info = malloc(sizeof(save_info));
     void *http = NULL, *http_2 = NULL;
@@ -2799,13 +2687,44 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
             memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
         }
         if(info_ready && !hasdrawninfo) {
-            //drawtext(vid_buf, 2, 2, info->name, 255, 255, 255, 255);
+            //Render all the save information
             cix = drawtext(vid_buf, 60, (YRES/2)+60, info->name, 255, 255, 255, 255);
             cix = drawtext(vid_buf, 60, (YRES/2)+72, "Author:", 255, 255, 255, 155);
             cix = drawtext(vid_buf, cix+4, (YRES/2)+72, info->author, 255, 255, 255, 255);
             cix = drawtext(vid_buf, cix+4, (YRES/2)+72, "Date:", 255, 255, 255, 155);
             cix = drawtext(vid_buf, cix+4, (YRES/2)+72, info->date, 255, 255, 255, 255);
             drawtextwrap(vid_buf, 62, (YRES/2)+86, (XRES/2)-24, info->description, 255, 255, 255, 200);
+			
+			//Draw the score bars
+			if(info->voteup>0||info->votedown>0)
+			{
+				lv = (info->voteup>info->votedown?info->voteup:info->votedown);
+
+				if(50>lv)
+				{
+					ry = ((float)(50)/(float)lv);
+					if(lv<8)
+					{
+						ry =  ry/(8-lv);
+					}
+					nyu = info->voteup*ry;
+					nyd = info->votedown*ry;
+				}
+				else
+				{
+					ry = ((float)lv/(float)(50));
+					nyu = info->voteup/ry;
+					nyd = info->votedown/ry;
+				}
+				
+				fillrect(vid_buf, 46+(XRES/2)-51, (YRES/2)+53, 54, 6, 0, 107, 10, 255);
+				fillrect(vid_buf, 46+(XRES/2)-51, (YRES/2)+59, 54, 6, 107, 10, 0, 255);
+				drawrect(vid_buf, 46+(XRES/2)-51, (YRES/2)+53, 54, 6, 128, 128, 128, 255);
+				drawrect(vid_buf, 46+(XRES/2)-51, (YRES/2)+59, 54, 6, 128, 128, 128, 255);
+
+				fillrect(vid_buf, 48+(XRES/2)-nyu, (YRES/2)+54, nyu, 4, 57, 187, 57, 255);
+				fillrect(vid_buf, 48+(XRES/2)-nyd, (YRES/2)+60, nyd, 4, 187, 57, 57, 255);
+			}
 
             ccy = 0;
             for(cc=0; cc<info->comment_count; cc++) {
@@ -2821,7 +2740,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
             memcpy(old_vid, vid_buf, ((XRES+BARSIZE)*(YRES+MENUSIZE))*PIXELSIZE);
         }
 		if(info_ready && svf_login){
-			
+			//Render the comment box.
 			fillrect(vid_buf, 50+(XRES/2)+1, YRES+MENUSIZE-125, XRES+BARSIZE-100-((XRES/2)+1), 75, 0, 0, 0, 255);
 			drawrect(vid_buf, 50+(XRES/2)+1, YRES+MENUSIZE-125, XRES+BARSIZE-100-((XRES/2)+1), 75, 200, 200, 200, 255);
 			
@@ -2941,7 +2860,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
         	}
 	}
 
-	if(!(mx>50 && my>50 && mx<XRES+BARSIZE-100 && my<XRES+MENUSIZE-100) && b && !queue_open){
+	if(!(mx>50 && my>50 && mx<XRES+BARSIZE-50 && my<XRES+MENUSIZE-50) && b && !queue_open){
 		retval = 0;
 		break;	
 	}
@@ -3009,6 +2928,18 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
         if(lasttime<TIMEOUT)
             lasttime++;
     }
+	//Prevent those mouse clicks being passed down.
+	while(!sdl_poll())
+    {
+        b = SDL_GetMouseState(&mx, &my);
+        if(!b)
+            break;
+    }
+	//Close open connections
+	if(http)
+        http_async_req_close(http);
+	if(http_2)
+        http_async_req_close(http_2);
     return retval;
 }
 
