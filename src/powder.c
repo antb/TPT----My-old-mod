@@ -523,7 +523,7 @@ inline int create_part(int p, int x, int y, int t)
     {
         parts[i].vx = 2;
     }
-    if(t==PT_PHOT || t==PT_MUPT) //AntB Edit
+    if(t==PT_PHOT)
     {
         float a = (rand()%8) * 0.78540f;
         parts[i].life = 680;
