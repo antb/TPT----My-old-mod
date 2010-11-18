@@ -11,7 +11,7 @@
 /* Radi */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* Rado */ {ST_GAS,     PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* Grow */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
-/* Lead */ {ST_SOLID,   PT_NONE, 0.0f,    PT_LLED, 700.6f,  PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* Lead */ {ST_SOLID,   PT_RBRI, 0.0f,    PT_LLED, 700.6f,  PT_NONE, 0.0f,    PT_NONE, 0.0f},
 
 //Neons
 /* R    */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},

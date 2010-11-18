@@ -1,26 +1,6 @@
 /* AntB's Fork - Glow effects > graphics.c */
 else if (t==PT_LEAD || t==PT_LLED)
 {
-    if(cmode == 3||cmode==4 || cmode==6)
-    {
-        vid[ny*(XRES+BARSIZE)+nx] = ptypes[t].pcolors;
-        cg = 1;
-        cb = 1;
-        cr = 1;
-        x = nx/CELL;
-        y = ny/CELL;
-        cg += fire_g[y][x];
-        if(cg > 255) cg = 255;
-        fire_g[y][x] = cg;
-        cb += fire_b[y][x];
-        if(cb > 255) cb = 255;
-        fire_b[y][x] = cb;
-        cr += fire_r[y][x];
-        if(cr > 255) cr = 255;
-        fire_r[y][x] = cr;
-    }
-    else
-    {
         cr = 0x20;
         cg = 0x1E;
         cb = 0x1E;
@@ -33,7 +13,6 @@ else if (t==PT_LEAD || t==PT_LLED)
         blendpixel(vid, nx-1, ny+1, cr, cg, cb, 32);
         blendpixel(vid, nx+1, ny+1, cr, cg, cb, 32);
         blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
-    }
 }
 else if(t==PT_MUPT)
 {

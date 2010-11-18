@@ -14,12 +14,14 @@
 #define PT_RADO SEC+10
 #define PT_GROW SEC+11
 #define PT_LEAD SEC+12
+
 #define PT_RNEO SEC+13
 #define PT_GNEO SEC+14
 #define PT_BNEO SEC+15
 #define PT_CNEO SEC+16
 #define PT_MNEO SEC+17
 #define PT_YNEO SEC+18
+
 #define PT_LLED SEC+19
 #define PT_VIRU SEC+20
 #define PT_ZINC SEC+21
