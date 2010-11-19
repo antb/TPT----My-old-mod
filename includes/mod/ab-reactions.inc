@@ -7,22 +7,61 @@ if (t==PT_NEUT || t==PT_MUNE)
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, 650.0f);//3.0f;
 	}
 
-if(t==PT_SOIL && pv[y/CELL][x/CELL]>=6.0f)
-    parts[i].type=PT_ERTH;
-if(t==PT_ERTH && pv[y/CELL][x/CELL]<=-6.0f)
-    parts[i].type=PT_SOIL;
-
-if(t==PT_ERTH)
-	for(nx=-2; nx<3; nx++)
-		for(ny=-2; ny<3; ny++)
+if(t==PT_DBTY)
+    for(nx=-2;nx<3;nx++)
+        for(ny=-2;ny<3;ny++)
 			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
 			{
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
     				continue;
-                if(!(r&0xFF))
-                    parts[i].type=PT_SOIL;
+                if(ptypes[(r&0xFF)].properties&PROP_CONDUCTS && parts[i].life > 0 && parts[r>>8].life==0)
+                {
+                    create_part(r>>8, x+nx, y+ny, PT_SPRK);
+                    parts[i].life--;
+                }
+                if(parts[i].life==0 && parts[r>>8].life == 10)
+                {
+                    parts[i].life=10;
+                    parts[r>>8].life=0;
+                }
             }
+
+if(t==PT_RBTY)
+    for(nx=-2;nx<3;nx++)
+        for(ny=-2;ny<3;ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+    				continue;
+
+                if(parts[i].life==0 && parts[r>>8].life == 10)
+                {
+                    parts[i].life=10;
+                    parts[r>>8].life=0;
+                    continue;
+                }
+
+                if((ptypes[(r&0xFF)].properties&PROP_CONDUCTS && !(parts[i].type==PT_NSCN || parts[i].type==PT_PSCN)) && parts[i].life > 0 && parts[r>>8].life==0)
+                {
+                    create_part(r>>8, x+nx, y+ny, PT_SPRK);
+                    parts[i].life--;
+                    continue;
+                }
+
+                if(parts[i].life<10 && (r&0xFF)==PT_SPRK && parts[r>>8].ctype==PT_PSCN)
+                {
+                    parts[r>>8].type=parts[r>>8].ctype;
+                    parts[i].life++;
+                }
+            }
+
+
+if(t==PT_SOIL && pv[y/CELL][x/CELL]>=6.0f)
+    parts[i].type=PT_ERTH;
+if(t==PT_ERTH && pv[y/CELL][x/CELL]<=-6.0f)
+    parts[i].type=PT_SOIL;
 
 if(t==PT_SOIL)
 	for(nx=-2; nx<3; nx++)

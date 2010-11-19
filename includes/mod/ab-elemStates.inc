@@ -28,4 +28,6 @@
 /* GStl */ {ST_SOLID,   PT_NONE, 0.0f,    PT_LAVA, 2000.0f, PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* Erth */ {ST_SOLID,   PT_NONE, 0.0f,    PT_LAVA, 500.0f,  PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* Soil */ {ST_SOLID,   PT_NONE, 0.0f,    PT_LAVA, 500.0f,  PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* DBty */ {ST_SOLID,	PT_NONE, 0.0f,	  PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_PLSM, 2273.0f},
+/* RBty */ {ST_SOLID,	PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_PLSM, 2273.0f},
 

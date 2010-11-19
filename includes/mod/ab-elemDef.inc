@@ -28,7 +28,9 @@
 #define PT_GSTL SEC+22
 #define PT_ERTH SEC+23
 #define PT_SOIL SEC+24
+#define PT_DBTY SEC+25
+#define PT_RBTY SEC+26 
 
-#define PT_NUM  SEC+25
+#define PT_NUM  SEC+27
 
 

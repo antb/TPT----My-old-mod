@@ -51,8 +51,9 @@ static menu_wall mwalls[] =
 #define SC_LIQUID 4
 #define SC_NUCLEAR 7
 #define SC_CUSTOM 9
-#define SC_NEON 10
-#define SC_TOTAL 11
+#define SC_NEON 11
+#define SC_CELEC 10
+#define SC_TOTAL 12
 
 static menu_section msections[] =
 {
@@ -66,6 +67,7 @@ static menu_section msections[] =
     {"\xC6", "Radioactive", 0},
     {"\xCC", "Special", 0},
 	{"\x97", "AntB's Mod", 0},
+    {"\xC2", "AntB's Electrics", 0},  
 	{"\xC5", "Neon Lights", 0},
 
 };

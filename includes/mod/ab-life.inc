@@ -3,6 +3,8 @@
 if(t==PT_RADI)
     parts[i].life = 1000;
 
+if(t==PT_DBTY)
+    parts[i].life = 10;
 
 if(t==PT_MUPT)
 {
