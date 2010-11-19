@@ -15,19 +15,15 @@ if(t==PT_DBTY)
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
     				continue;
-                if(ptypes[(r&0xFF)].properties&PROP_CONDUCTS && parts[i].life > 0 && parts[r>>8].life==0)
+                if(ptypes[(r&0xFF)].properties&PROP_CONDUCTS && parts[r>>8].type!=PT_SPRK && parts[i].life>0 && parts[r>>8].life==0)
                 {
                     create_part(r>>8, x+nx, y+ny, PT_SPRK);
                     parts[i].life--;
-                }
-                if(parts[i].life==0 && parts[r>>8].life == 10)
-                {
-                    parts[i].life=10;
-                    parts[r>>8].life=0;
+                    continue;
                 }
             }
 
-if(t==PT_RBTY)
+if(t==PT_SBTY)
     for(nx=-2;nx<3;nx++)
         for(ny=-2;ny<3;ny++)
 			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
@@ -36,26 +32,36 @@ if(t==PT_RBTY)
 				if((r>>8)>=NPART || !r)
     				continue;
 
-                if(parts[i].life==0 && parts[r>>8].life == 10)
-                {
-                    parts[i].life=10;
-                    parts[r>>8].life=0;
-                    continue;
-                }
+				rt = parts[r>>8].type;
+				if(rt==PT_SPRK)
+				{
+					if(parts[r>>8].ctype==PT_PSCN)
+					{
+						parts[i].life = 10;
+					}
+					else if(parts[r>>8].ctype==PT_NSCN)
+					{
+						parts[i].life = 9;
+					}
+				}
+				if(rt==PT_SBTY)
+				{
+					if(parts[i].life==10&&parts[r>>8].life<10&&parts[r>>8].life>0)
+					{
+						parts[i].life = 9;
+					}
+					else if(parts[i].life==0&&parts[r>>8].life==10)
+					{
+						parts[i].life = 10;
+					}
+				}
 
-                if((ptypes[(r&0xFF)].properties&PROP_CONDUCTS && !(parts[i].type==PT_NSCN || parts[i].type==PT_PSCN)) && parts[i].life > 0 && parts[r>>8].life==0)
+                if(ptypes[(parts[r>>8].type)].properties&PROP_CONDUCTS && parts[r>>8].type!=PT_PSCN && parts[r>>8].type!=PT_NSCN && parts[r>>8].life==0)
                 {
                     create_part(r>>8, x+nx, y+ny, PT_SPRK);
-                    parts[i].life--;
                     continue;
                 }
-
-                if(parts[i].life<10 && (r&0xFF)==PT_SPRK && parts[r>>8].ctype==PT_PSCN)
-                {
-                    parts[r>>8].type=parts[r>>8].ctype;
-                    parts[i].life++;
-                }
-            }
+           }
 
 
 if(t==PT_SOIL && pv[y/CELL][x/CELL]>=6.0f)
