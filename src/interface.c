@@ -1514,15 +1514,6 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
                     drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
                     h = n;
                 }
-                if(!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT)))
-                {
-                    drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-                    h = n;
-                }
-		else if(n==SLALT)
-                {
-                    drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-                }
                 else if(n==*sl)
                 {
                     drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
@@ -1547,15 +1538,6 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
                 {
                     drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
                     h = n;
-                }
-                if(!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT)))
-                {
-                    drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-                    h = n;
-                }
-		else if(n==SLALT)
-                {
-                    drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
                 }
                 else if(n==*sl)
                 {
@@ -1584,15 +1566,6 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
                 {
                     drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
                     h = n;
-                }
-                if(!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT)))
-                {
-                    drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
-                    h = n;
-                }
-		else if(n==SLALT)
-                {
-                    drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
                 }
                 else if(n==*sl)
                 {
@@ -1621,23 +1594,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
 
     if(b==1&&h!=-1)
     {
-	if(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT))
-	{
-		SLALT = h;
-	}
-	else{
-		*sl = h;
-	}
+        *sl = h;
     }
     if(b==4&&h!=-1)
     {
-        if(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT))
-	{
-		SLALT = h;
-	}
-	else{
-		*sr = h;
-	}
+        *sr = h;
     }
 }
 

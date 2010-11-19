@@ -1430,11 +1430,7 @@ int main(int argc, char *argv[])
             cr = pmap[y/sdl_scale][x/sdl_scale];
             if(!((cr>>8)>=NPART || !cr))
             {
-#ifdef BETA
                 sprintf(heattext, "%s(%s) Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp: %d", ptypes[cr&0xFF].name, ptypes[parts[cr>>8].ctype].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp); //AntB Edit
-#else
-                sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C", ptypes[cr&0xFF].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f);
-#endif
             }
             else
             {
@@ -1831,7 +1827,7 @@ int main(int argc, char *argv[])
                 }
                 else
                 {
-                    if((sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)) && !(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL|KMOD_LALT)))
+                    if((sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)) && !(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
                     {
                         lx = x;
                         ly = y;
@@ -1845,7 +1841,7 @@ int main(int argc, char *argv[])
                         lb = b;
                         lm = 2;
                     }
-                    else if((sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)) && (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)) && !(sdl_mod & (KMOD_LALT)))
+                    else if((sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)) && (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)))
                     {
                         if(c!=125&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM)
                             flood_parts(x, y, c, -1, -1);
@@ -1854,7 +1850,7 @@ int main(int argc, char *argv[])
                         lb = 0;
                         lm = 0;
                     }
-                    else if(((sdl_mod & (KMOD_LALT||KMOD_RALT)) && !sdl_mod & (KMOD_SHIFT)) || b==SDL_BUTTON_MIDDLE)
+                    else if((sdl_mod & (KMOD_LALT||KMOD_RALT)) || b==SDL_BUTTON_MIDDLE)
                     {
                         if(y>0 && y<sdl_scale*YRES && x>0 && x<sdl_scale*XRES)
                         {
@@ -2053,14 +2049,7 @@ int main(int argc, char *argv[])
             }
             if(currentTime-pastFPS>=1000)
             {
-/*#ifdef BETA
-                sprintf(uitext, "Version %d (Beta %d) FPS:%d", SAVE_VERSION, MINOR_VERSION, FPS);
-                //printf("%s\n", uitext);
-##else
-                sprintf(uitext, "Version %d.%d FPS:%d", SAVE_VERSION, MINOR_VERSION, FPS);
-##endif*/
-		sprintf(uitext, "AntB's Fork v%d.%d - Based on v%d (FPS:%d)",ANTB_VERSION,(MINOR_VERSION-10),SAVE_VERSION,FPS);  //AntB Edit
-
+        		sprintf(uitext, "AntB's Fork v%d.%d - Based on v%d (FPS:%d)",ANTB_VERSION,MINOR_VERSION,SAVE_VERSION,FPS);  //AntB Edit
                 FPSB = FPS;
                 FPS = 0;
                 pastFPS = currentTime;
