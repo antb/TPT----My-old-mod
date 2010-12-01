@@ -30,4 +30,5 @@
 /* Soil */ {ST_SOLID,   PT_NONE, 0.0f,    PT_LAVA, 500.0f,  PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* DBty */ {ST_SOLID,	PT_NONE, 0.0f,	  PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_PLSM, 2273.0f},
 /* RBty */ {ST_SOLID,	PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_PLSM, 2273.0f},
+/* NP2  */ {ST_LIQUID,  PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 

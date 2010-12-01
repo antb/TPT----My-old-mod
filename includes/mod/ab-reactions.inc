@@ -316,6 +316,7 @@ if(t==PT_MUPT || t==PT_MUNE)
 				change_particle(PT_BGLA,PT_GLAS,r,0,15);
 				change_particle(PT_PLSM,PT_URAN,r,0,15);
 				change_particle(PT_ACID,PT_DSTW,r,1,15);
+                change_particle(PT_NP2, PT_DESL,r,0,25);
 				change_particle(PT_STKM,PT_BAGL,r,0,5);
 
 				if((r&0xFF)==PT_YEST)
@@ -346,6 +347,48 @@ if(t==PT_YEST || t==PT_DYST)
 }
 
 
+else if(t==PT_NP2)
+{
+    if(parts[i].life<=0)
+    {
+        t = PT_NONE;
+        kill_part(i);
+        create_part(-1, x, y, PT_FIRE);
+        goto killed;
+    }
+    for(nx=-2; nx<3; nx++)
+        for(ny=-2; ny<3; ny++)
+            if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+            {
+                r = pmap[y+ny][x+nx];
+                if(parts[i].life < 100 && !r)
+                {
+                    parts[i].life--;
+                    create_part(-1, x+rand()%3-1, y+rand()%3-1, PT_FIRE);
+                }
+                if((r>>8)>=NPART || !r)
+                    continue;
+                if(((r&0xFF)==PT_LAVA && parts[r>>8].ctype==PT_THRM) || ((r&0xFF)==PT_NP2 && parts[r>>8].tmp==1) && !parts[i].tmp )
+                {
+                    parts[i].tmp = 1;
+                }
+            }
+}
+
+if(t==PT_DESL)
+    for(nx=-2; nx<3; nx++)
+        for(ny=-2; ny<3; ny++)
+            if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+            {
+                r = pmap[y+ny][x+nx];
+                if((r>>8)>=NPART || !r)
+                    continue;
+                if((r&0xFF)==PT_GOO)
+                {
+                    create_part(-1,x,y,PT_NP2);
+                    create_part(r>>8,x+nx,y+ny,PT_NP2);
+                }
+            }
 //Neons
 if((t==PT_NEUT || t==PT_MUNE) && (
    (r&0xFF)==PT_RNEO || (r&0xFF)==PT_GNEO || (r&0xFF)==PT_BNEO ||

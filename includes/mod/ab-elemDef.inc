@@ -30,7 +30,8 @@
 #define PT_SOIL SEC+24
 #define PT_DBTY SEC+25
 #define PT_SBTY SEC+26 
+#define PT_NP2  SEC+27
 
-#define PT_NUM  SEC+27
+#define PT_NUM  SEC+29
 
 

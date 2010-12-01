@@ -846,9 +846,9 @@ void update_particles_i(pixel *vid, int start, int inc)
             if(sys_pause&&!framerender)
                 return;
 
-            if(parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_NBLE && t!=PT_SWCH && t!=PT_STKM && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_RADI && t!=PT_DBTY) //AntB Edit - Ignore life value
+            if(parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_NBLE && t!=PT_SWCH && t!=PT_STKM && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_RADI && t!=PT_DBTY && t!=PT_NP2) //AntB Edit - Ignore life value
             {
-                if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_MNEO||parts[i].type==PT_YNEO||/*parts[i].type*/t==PT_SBTY))) //AntB Edit - Ignore life if 10
+                if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_MNEO||parts[i].type==PT_YNEO||parts[i].type==PT_SBTY))) //AntB Edit - Ignore life if 10
                     parts[i].life--;
                 if(parts[i].life<=0 && t!=PT_METL && t!=PT_IRON && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_GLOW && t!=PT_SUWR && t!=PT_LEAD && t!=PT_LLED && t!=PT_ZINC && t!=PT_GSTL && t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO && t!=PT_SBTY) //AntB Edit (elec) - Do not kill if life <= 0
                 {

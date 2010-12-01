@@ -14,6 +14,9 @@ if(t==PT_MUPT)
     parts[i].vy = 3.0f*sinf(a);
 }
 
+if(t==PT_NP2)
+    parts[i].life=110;
+
 if(t==PT_MUNE)
 {
     float r = (rand()%128+128)/127.0f;
