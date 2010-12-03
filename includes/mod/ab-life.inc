@@ -15,7 +15,7 @@ if(t==PT_MUPT)
 }
 
 if(t==PT_NP2)
-    parts[i].life=110;
+    parts[i].life=200;
 
 if(t==PT_MUNE)
 {
