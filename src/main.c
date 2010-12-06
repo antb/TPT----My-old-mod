@@ -2187,7 +2187,7 @@ int main(int argc, char *argv[])
             }
 
             //I don't have beta/non-beta releases, so 1 line is all I need			
-    		sprintf(uitext, "AntB's Fork v%d.%d - Based on v%d - %d Elements - Parts: %d - FPS:%d",ANTB_VERSION,MINOR_VERSION,SAVE_VERSION,(PT_NUM),NUM_PARTS, FPSB);  //AntB Edit
+    		sprintf(uitext, "AntB's Fork v%d.%d - Based on v%d\n%d Elements added by AntB (%d total)\nParts: %d FPS:%d",ANTB_VERSION,MINOR_VERSION,SAVE_VERSION,(PT_NUM-BEC),PT_NUM,NUM_PARTS, FPSB);  //AntB Edit
 		    
             if(REPLACE_MODE)
 				strappend(uitext, " [REPLACE MODE]");
@@ -2214,7 +2214,7 @@ int main(int argc, char *argv[])
                 fillrect(vid_buf, XRES-20-textwidth(heattext), 12, textwidth(heattext)+8, 15, 0, 0, 0, 140);
                 drawtext(vid_buf, XRES-16-textwidth(heattext), 16, heattext, 255, 255, 255, 200);
             }
-            fillrect(vid_buf, 12, 12, textwidth(uitext)+8, 15, 0, 0, 0, 140);
+            fillrect(vid_buf, 12, 12, 190, 40, 0, 0, 0, 140);
             drawtext(vid_buf, 16, 16, uitext, 32, 216, 255, 200);
         }
         sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);

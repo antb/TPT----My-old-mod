@@ -1500,7 +1500,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
         {
             if(n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM)
             {
-                if(x-18<=20)
+                if(x-18<=2)
                 {
                     x = XRES-BARSIZE-18;
                     y += 19;
@@ -1537,7 +1537,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
         {
             if(n==SPC_AIR||n==SPC_HEAT||n==SPC_COOL||n==SPC_VACUUM)
             {
-                if(x-18<=20)
+                if(x-18<=0)
                 {
                     x = XRES-BARSIZE-18;
                     y += 19;
@@ -1571,7 +1571,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
         {
             if(ptypes[n].menusection==i&&ptypes[n].menu==1)
             {
-                if(x-18<=20)
+                if(x-18<=0)
                 {
                     x = XRES-BARSIZE-18;
                     y += 19;
@@ -1608,7 +1608,7 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
         {
             if(ptypes[n].menusection==i&&ptypes[n].menu==1)
             {
-                if(x-18<=20)
+                if(x-18<=0)
                 {
                     x = XRES-BARSIZE-18;
                     y += 19;
@@ -2720,9 +2720,14 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
             if(status == 200)
             {
                 pixel *full_save = prerender_save(data, data_size, &imgw, &imgh);
-                save_pic = rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
-                data_ready = 1;
-                free(full_save);
+				if(full_save!=NULL){
+					save_pic = rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
+					data_ready = 1;
+					free(full_save);
+				} else {
+					error_ui(vid_buf, 0, "Save may be from a newer version");
+					break;
+				}
             }
             active = 0;
             free(http);

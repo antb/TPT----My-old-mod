@@ -29,8 +29,8 @@
 {"SOIL",  PIXPACK(0x5A3F20),  0.7f,	0.02f * CFDS, 0.96f,  0.80f,  0.00f,  0.10f,  0.00f,  0.000000f * CFDS, 1,  10,   0,  1,  30, 1, 85,  SC_CUSTOM,  R_TEMP+0.0f	 +273.15f,  70,   "Powder - Soil. Grows PLNT.",                                                 TYPE_PART}, 
 {"DBTY",  PIXPACK(0x656500),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,	  0,  1,  1,  1, 100, SC_CELEC,   R_TEMP+0.0f	 +273.15f,	70,   "Disposable Battery - Generates a finite amount of Electricity.",             TYPE_SOLID},
 {"SBTY",  PIXPACK(0x658005),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,	  0,  1,  1,  1, 100, SC_CELEC,   R_TEMP+0.0f	 +273.15f,	70,   "Switchable Battery - Turn on with PSCN, turn off with NSCN",                 TYPE_SOLID},
-{"NP2",   PIXPACK(0xD7DE09),  0.5f, 0.05f * CFDS, 0.90f,  0.00f,  0.00f,  1.00f,  0.00f,  0.000000f * CFDS, 2,  0,    0,  0,  0,  1, 49,  SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  70,   "Explosives - Napalm",                                                        TYPE_LIQUID},
-{"EMIT",  PIXPAXK(0x505050),
+{"NP2",   PIXPACK(0xD7DE09),  0.5f, 0.05f * CFDS, 0.90f,  0.75f,  0.00f,  1.00f,  0.00f,  0.000000f * CFDS, 2,  0,    0,  0,  0,  1, 49,  SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  70,   "Explosives - Napalm",                                                        TYPE_LIQUID},
+{"EMIT",  PIXPACK(0x505050),  0.0f, 0.00f * CFDS, 0.90f,  0.00f,  0.70f,  0.00f,  0.00f,  0.000000f * CFDS, 0,  0,    0,  0,  30, 1, 100, SC_CELEC,   R_TEMP+0.0f    +273.15f,  70,   "Emitter - Releases PHOT when sparked.",                                      TYPE_SOLID|     PROP_CONDUCTS},
 //Name    Colour              Advec Airdrag       Airloss Loss    Collid  Grav    Diffus  Hotair            Fal Burn  Exp Mel Hrd M  W    Section     H                   Ins(real world, by triclops200) Description                                               Flags (TYPE then PROPs)
 /* fal --> 0=Solid/Gas 1=Powder 2 = Liquid  */
 

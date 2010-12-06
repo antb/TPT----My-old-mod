@@ -391,6 +391,10 @@ if(t==PT_DESL)
                     create_part(r>>8,x+nx,y+ny,PT_NP2);
                 }
             }
+
+if(t==PT_SPRK && parts[i].ctype==PT_EMIT)
+    create_part(r>>8,x+(rand()/(RAND_MAX/3)-1),y+(rand()/(RAND_MAX/3)-1), PT_PHOT);
+
 //Neons
 if((t==PT_NEUT || t==PT_MUNE) && (
    (r&0xFF)==PT_RNEO || (r&0xFF)==PT_GNEO || (r&0xFF)==PT_BNEO ||
