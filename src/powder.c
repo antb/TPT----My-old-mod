@@ -475,7 +475,8 @@ inline int create_part(int p, int x, int y, int t)
                 (pmap[y][x]&0xFF)!=PT_LEAD &&   // < (elec)
                 (pmap[y][x]&0xFF)!=PT_LLED &&   // <
                 (pmap[y][x]&0xFF)!=PT_ZINC &&   // < Directly apply SPRK to these elements
-                (pmap[y][x]&0xFF)!=PT_GSTL      // <
+                (pmap[y][x]&0xFF)!=PT_GSTL &&   // <
+                (pmap[y][x]&0xFF)!=PT_EMIT      // <
         )
             return -1;
 	if(parts[pmap[y][x]>>8].life!=0)
@@ -1154,7 +1155,8 @@ void update_particles_i(pixel *vid, int start, int inc)
             {
                 if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||parts[i].type==PT_PUMP||parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_MNEO||parts[i].type==PT_YNEO||parts[i].type==PT_SBTY)) && !(parts[i].life%4==0 && parts[i].type==PT_INST))
                     parts[i].life--;
-                if(parts[i].life<=0 && t!=PT_METL && t!=PT_ARAY && t!=PT_IRON && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_PUMP && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_GLOW && t!= PT_FOG && t!=PT_PIPE && t!=PT_FRZW  && t!=PT_SUWR && t!=PT_LEAD && t!=PT_LLED && t!=PT_ZINC && t!=PT_GSTL && t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO && t!=PT_SBTY &&(t!=PT_ICEI&&parts[i].ctype!=PT_FRZW)&&t!=PT_INST && t!=PT_SHLD1&& t!=PT_SHLD2&& t!=PT_SHLD3&& t!=PT_SHLD4) //AntB Edit (elec) - Do not kill if life <= 0
+                if(parts[i].life<=0 && t!=PT_METL && t!=PT_ARAY && t!=PT_IRON && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_PUMP && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_GLOW && t!= PT_FOG && t!=PT_PIPE && t!=PT_FRZW &&(t!=PT_ICEI&&parts[i].ctype!=PT_FRZW)&&t!=PT_INST && t!=PT_SHLD1&& t!=PT_SHLD2&& t!=PT_SHLD3&& t!=PT_SHLD4 && //AntB Edit
+                    t!=PT_SUWR && t!=PT_LEAD && t!=PT_LLED && t!=PT_ZINC && t!=PT_GSTL && t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO && t!=PT_SBTY && t!=PT_EMIT ) //AntB Edit (elec) - Do not kill if life <= 0
                 {
                     kill_part(i);
                     continue;
@@ -1603,7 +1605,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                 pt = parts[i].temp -= 2.5f;
             }
 
-            if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_BRMT || t==PT_PSCN || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_BMTL || t==PT_SPRK|| t == PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_LLED || t==PT_ZINC || t==PT_GSTL) //AntB Edit (elec)
+            if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_BRMT || t==PT_PSCN || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_BMTL || t==PT_SPRK|| t == PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_LLED || t==PT_ZINC || t==PT_GSTL || t==PT_EMIT) //AntB Edit (elec)
             {
                 nx = x % CELL;
                 if(nx == 0)
@@ -1621,7 +1623,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     ny = y/CELL;
                 if(nx>=0 && ny>=0 && nx<XRES/CELL && ny<YRES/CELL)
                 {
-                    if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_PSCN || t==PT_BRMT || t==PT_BMTL||t==PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_LLED || t==PT_ZINC || t==PT_GSTL) //AntB Edit (elec) - SPRK conductivity check
+                    if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_PSCN || t==PT_BRMT || t==PT_BMTL||t==PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_LLED || t==PT_ZINC || t==PT_GSTL || t==PT_EMIT) //AntB Edit (elec) - SPRK conductivity check
                     {
                         if(emap[ny][nx]==12 && !parts[i].life)
                         {
@@ -3517,7 +3519,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                             }
                             if(parts_avg(r>>8, i,PT_INSL) != PT_INSL && parts_avg(r>>8, i,PT_RBRI) != PT_RBRI) //AntB Edit
                             {
-                                if(t==PT_SPRK && (rt==PT_METL||rt==PT_IRON||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_NBLE||rt==PT_SUWR||rt==PT_ZINC||rt==PT_GSTL) && parts[r>>8].life==0 && //AntB Edit (elec)
+                                if(t==PT_SPRK && (rt==PT_METL||rt==PT_IRON||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_NBLE||rt==PT_SUWR||rt==PT_ZINC||rt==PT_EMIT) && parts[r>>8].life==0 && //AntB Edit (elec) - Standard conductivity
                                         (parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
                                 {
                                     if(!(rt==PT_PSCN&&parts[i].ctype==PT_NSCN)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN&&parts[i].temp>=373.0f)&&parts[i].ctype==PT_NTCT)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN&&parts[i].temp<=373.0f)&&parts[i].ctype==PT_PTCT)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN)&&parts[i].ctype==PT_INWR) && parts_avg(r>>8, i,PT_INSL) != PT_INSL && parts_avg(r>>8, i,PT_RBRI) != PT_RBRI &&!(parts[i].ctype==PT_SWCH&&(rt==PT_PSCN||rt==PT_NSCN)) ) //AntB Edit
@@ -3586,7 +3588,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                                 }
                                 if(t==PT_SPRK&&parts[i].ctype==PT_ETRD&&parts[i].life==5)
                                 {
-                                    if(rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_SUWR||rt==PT_LEAD||rt==PT_LLED ||t==PT_ZINC||t==PT_GSTL) //AntB Edit (elec) - ETRD conductivity
+                                    if(rt==PT_METL||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_SUWR||rt==PT_LEAD||rt==PT_LLED ||t==PT_ZINC||t==PT_GSTL||t==PT_EMIT) //AntB Edit (elec) - ETRD conductivity
                                     {
                                         t = parts[i].type = PT_ETRD;
                                         parts[i].ctype = PT_NONE;

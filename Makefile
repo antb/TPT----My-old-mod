@@ -17,8 +17,9 @@ powder-build: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -DINTERNAL -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64
 powder-debug-64: $(SOURCES)
 	$(COMPILER) -m64 -o$@ $(FLAGS_DBUG) -DLIN64 $(SOURCES) -Iincludes/
-powder-debug: $(SOURCES)
-	$(COMPILER) -m32 -o$@ $(FLAGS_DBUG) -DLIN32 $(SOURCES) -Iincludes/ 
+powder-debug: $(SOURCES) $(HEADERS) $(ABMOD)
+	$(COMPILER) -m32 -o$@ $(FLAGS_DBUG) $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) -DLIN32 $(SOURCES) -Iincludes/ 
+
 powder-sse3: $(SOURCES)
 	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN32
 	strip $@

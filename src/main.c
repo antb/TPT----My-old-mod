@@ -1027,8 +1027,8 @@ int main(int argc, char *argv[])
 #ifdef BETA
     int is_beta = 0;
 #endif
-    char uitext[64] = "";
-    char heattext[128] = "";
+    char uitext[128] = "";
+    char heattext[192] = "";
     int currentTime = 0;
     int FPS = 0;
     int pastFPS = 0;
