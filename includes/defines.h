@@ -9,7 +9,7 @@
 
 #define ANTB_VERSION 6 //AntB Edit -- Bwahahahaaah!
 #define SAVE_VERSION 44
-#define MINOR_VERSION 0
+#define MINOR_VERSION 10 //Start at 10 to prevent "New Version" update
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
 //#define BETA
 
