@@ -393,7 +393,7 @@ if(t==PT_DESL)
             }
 
 if(t==PT_SPRK && parts[i].ctype==PT_EMIT)
-    create_part(r>>8,x+(rand()/(RAND_MAX/3)-1),y+(rand()/(RAND_MAX/3)-1), PT_PHOT);
+    create_part(-1,x+rand()%3-1,y+rand()%3-1, PT_PHOT);
 
 //Neons
 if((t==PT_NEUT || t==PT_MUNE) && (
