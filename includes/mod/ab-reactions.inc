@@ -395,6 +395,43 @@ if(t==PT_DESL)
 if(t==PT_SPRK && parts[i].ctype==PT_EMIT)
     create_part(-1,x+rand()%3-1,y+rand()%3-1, PT_PHOT);
 
+if(t==PT_FIRE && parts[i].life<=5 && parts[i].tmp==1)
+    parts[i].type=PT_NONE;
+
+if(t==PT_FART)
+    for(nx=-2; nx<3; nx++)
+        for(ny=-2; ny<3; ny++)
+            if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+            {
+                if(parts[i].tmp<10 && !parts[i].life)
+                    parts[i].life=rand()/(RAND_MAX/50)+20;
+
+                r = pmap[y+ny][x+nx];
+                if((r>>8)>=NPART)
+                    continue;
+                if((r&0xFF)==PT_FIRE || (r&0xFF)==PT_PLSM)
+                {
+                    pv[y/CELL][x/CELL]=(parts[i].tmp*2);
+                    create_part(i,x,y,PT_FIRE);
+                    parts[i].life=rand()/(RAND_MAX/25)+20;
+                    parts[i].tmp=1;
+                    continue;
+                }
+
+                if(!r && parts[i].tmp >= 10)
+                {
+                    int tempX = x+rand()%3-1;
+                    int tempY = y+rand()%3-1;                    
+                    if(create_part(-1, tempX, tempY, PT_FART))
+                    {
+                        r = pmap[tempY][tempX];
+                        parts[r>>8].tmp=parts[i].tmp*0.9;
+                        parts[i].tmp*=0.9;
+                        nx=3;
+                        ny=3;
+                    }
+                }
+            }
 //Neons
 if((t==PT_NEUT || t==PT_MUNE) && (
    (r&0xFF)==PT_RNEO || (r&0xFF)==PT_GNEO || (r&0xFF)==PT_BNEO ||

@@ -31,4 +31,6 @@
 /* DBty */ {ST_SOLID,	PT_NONE, 0.0f,	  PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_PLSM, 2273.0f},
 /* RBty */ {ST_SOLID,	PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_PLSM, 2273.0f},
 /* NP2  */ {ST_LIQUID,  PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
-/* EMIT */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* Emit */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
+/* Fart */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
+

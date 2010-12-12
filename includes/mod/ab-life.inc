@@ -26,3 +26,7 @@ if(t==PT_MUNE)
     parts[i].vy = r*sinf(a);
 }
 
+if(t==PT_FART)
+    parts[i].tmp=rand()/(RAND_MAX/200)+500;
+
+
