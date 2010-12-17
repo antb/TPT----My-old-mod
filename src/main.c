@@ -1626,7 +1626,7 @@ int main(int argc, char *argv[])
             cr = pmap[y/sdl_scale][x/sdl_scale];
             if(!((cr>>8)>=NPART || !cr))
             {
-                sprintf(heattext, "%s(%s) Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp: %d", ptypes[cr&0xFF].name, ((cr&0xFF)!=PT_PHOT)?ptypes[parts[cr>>8].ctype].name:"";, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp); //AntB Edit
+                sprintf(heattext, "%s(%s) Pressure: %3.2f, Temp: %4.2f C, Life: %d, Tmp: %d", ptypes[cr&0xFF].name, (((cr&0xFF)!=PT_PHOT)?ptypes[parts[cr>>8].ctype].name:""), pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].tmp); //AntB Edit
             }
             else
             {
