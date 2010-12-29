@@ -636,6 +636,31 @@ int parse_save(void *save, int size, int replace, int x0, int y0)
                     player[18] = parts[i].y+12;
 
                 }
+		if(parts[i].type == PT_STKM2)
+                {
+                    //player[2] = PT_DUST;
+
+                    player2[3] = parts[i].x-1;  //Setting legs positions
+                    player2[4] = parts[i].y+6;
+                    player2[5] = parts[i].x-1;
+                    player2[6] = parts[i].y+6;
+
+                    player2[7] = parts[i].x-3;
+                    player2[8] = parts[i].y+12;
+                    player2[9] = parts[i].x-3;
+                    player2[10] = parts[i].y+12;
+
+                    player2[11] = parts[i].x+1;
+                    player2[12] = parts[i].y+6;
+                    player2[13] = parts[i].x+1;
+                    player2[14] = parts[i].y+6;
+
+                    player2[15] = parts[i].x+3;
+                    player2[16] = parts[i].y+12;
+                    player2[17] = parts[i].x+3;
+                    player2[18] = parts[i].y+12;
+
+                }
             }
             else
                 p += 2;
@@ -704,7 +729,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0)
                         if(new_format) {
                             ttv = (d[p++])<<8;
                             ttv |= (d[p++]);
-                            parts[i-1].temp = ttv;
+                            parts[i-1].temp = ttv + 0.15;
                         } else {
                             parts[i-1].temp = (d[p++]*((MAX_TEMP+(-MIN_TEMP))/255))+MIN_TEMP;
                         }
@@ -1072,6 +1097,7 @@ int main(int argc, char *argv[])
     int pastFPS = 0;
     int past = 0;
     pixel *vid_buf=calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	pixel *pers_bg=calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
     void *http_ver_check;
     char *ver_data=NULL, *tmp;
     int i, j, bq, fire_fc=0, do_check=0, old_version=0, http_ret=0, major, minor, old_ver_len;
@@ -1217,8 +1243,8 @@ int main(int argc, char *argv[])
         }
         else if(cmode==CM_PERS)
         {
-            memcpy(vid_buf, fire_bg, XRES*YRES*PIXELSIZE);
-            memset(vid_buf+(XRES*YRES), 0, ((XRES+BARSIZE)*YRES*PIXELSIZE)-(XRES*YRES*PIXELSIZE));
+            memcpy(vid_buf, pers_bg, (XRES+BARSIZE)*YRES*PIXELSIZE);
+            memset(vid_buf+((XRES+BARSIZE)*YRES), 0, ((XRES+BARSIZE)*YRES*PIXELSIZE)-((XRES+BARSIZE)*YRES*PIXELSIZE));
         }
         else
         {
@@ -1243,11 +1269,11 @@ int main(int argc, char *argv[])
         {
             if(!fire_fc)
             {
-                dim_copy(fire_bg, vid_buf);
+                dim_copy_pers(pers_bg, vid_buf);
             }
             else
             {
-                memcpy(fire_bg, vid_buf, XRES*YRES*PIXELSIZE);
+                memcpy(pers_bg, vid_buf, (XRES+BARSIZE)*YRES*PIXELSIZE);
             }
             fire_fc = (fire_fc+1) % 3;
         }
@@ -1291,11 +1317,11 @@ int main(int argc, char *argv[])
                 break;
             }
         }
-        if(sdl_key=='d' && isplayer)
-        {
-            death = 1;
-            //death = !(death);
-        }
+        //if(sdl_key=='d' && isplayer)
+        //{
+        //    death = 1;
+        //    //death = !(death);
+        //}
         if(sdl_key=='f')
         {
             framerender = 1;
@@ -1331,7 +1357,7 @@ int main(int argc, char *argv[])
                     free(load_data);
             }
         }
-        if(sdl_key=='s')
+        if(sdl_key=='s' && (sdl_mod & (KMOD_CTRL)))
         {
             if(it > 50)
                 it = 50;
@@ -1461,10 +1487,8 @@ int main(int argc, char *argv[])
                     bsy = 0;
             }
         }
-	if(sdl_key=='d')
+	if(sdl_key=='d'&&(sdl_mod & (KMOD_CTRL)))
 		DEBUG_MODE = !DEBUG_MODE;
-	if(sdl_key=='r')
-		GENERATION = 0;
 	if(sdl_key=='i')
 	{
 		int nx, ny;
@@ -1478,10 +1502,15 @@ int main(int argc, char *argv[])
 	}
 	if((sdl_mod & (KMOD_RCTRL) )&&( sdl_mod & (KMOD_RALT)))
 		active_menu = 11;
-	if(sdl_key==SDLK_INSERT)
+	if(sdl_key==SDLK_INSERT || sdl_key==SDLK_BACKQUOTE)
 	    REPLACE_MODE = !REPLACE_MODE;
 	if(sdl_key=='g')
-            GRID_MODE = (GRID_MODE+1)%10;
+	{
+	    if(sdl_mod & (KMOD_SHIFT))
+		GRID_MODE = (GRID_MODE+9)%10;
+	    else 
+		GRID_MODE = (GRID_MODE+1)%10;
+	}
 	if(sdl_key=='t')
             VINE_MODE = !VINE_MODE;
         if(sdl_key==SDLK_SPACE)
@@ -1507,6 +1536,18 @@ int main(int argc, char *argv[])
                 }
             }
         }
+	if(sdl_key=='r'&&(sdl_mod & (KMOD_CTRL))&&(sdl_mod & (KMOD_SHIFT)))
+        {
+            save_mode = 1;
+            copy_mode = 4;//invert
+        }
+	else if(sdl_key=='r'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
+        {
+            save_mode = 1;
+            copy_mode = 3;//rotate
+        }
+	else if(sdl_key=='r')
+		GENERATION = 0;
         if(sdl_key=='x'&&(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)))
         {
             save_mode = 1;
@@ -1850,6 +1891,22 @@ int main(int argc, char *argv[])
                     copy_mode = 0;
                     clear_area(save_x*CELL, save_y*CELL, save_w*CELL, save_h*CELL);
                 }
+		else if(copy_mode==3)//rotation
+                {
+			if(save_h>save_w)
+				save_w = save_h;
+		    rotate_area(save_x*CELL, save_y*CELL, save_w*CELL, save_w*CELL,0);//just do squares for now
+		    save_mode = 0;
+		    copy_mode = 0;			
+		}
+		else if(copy_mode==4)//invertion
+                {
+			if(save_h>save_w)
+				save_w = save_h;
+		    rotate_area(save_x*CELL, save_y*CELL, save_w*CELL, save_w*CELL,1);//just do squares for now
+		    save_mode = 0;
+		    copy_mode = 0;			
+		}
                 else
                 {
                     stamp_save(save_x*CELL, save_y*CELL, save_w*CELL, save_h*CELL);
@@ -2130,7 +2187,14 @@ int main(int argc, char *argv[])
 
         if(save_mode)
         {
-            xor_rect(vid_buf, save_x*CELL, save_y*CELL, save_w*CELL, save_h*CELL);
+	    if(copy_mode==3||copy_mode==4)//special drawing for rotate, can remove once it can do rectangles
+	    {
+		    if(save_h>save_w)
+				save_w = save_h;
+		    xor_rect(vid_buf, save_x*CELL, save_y*CELL, save_w*CELL, save_w*CELL);
+	    }
+	    else
+		    xor_rect(vid_buf, save_x*CELL, save_y*CELL, save_w*CELL, save_h*CELL);
             da = 51;
             db = 269;
         }
@@ -2256,7 +2320,7 @@ int main(int argc, char *argv[])
             }
 
             //I don't have beta/non-beta releases, so 1 line is all I need			
-    		sprintf(uitext, "AntB's Fork v%d.%d - Based on v%d\n%d Elements added by AntB (%d total)\nParts: %d FPS:%d",ANTB_VERSION,(MINOR_VERSION-10),SAVE_VERSION,(PT_NUM-BEC),PT_NUM,NUM_PARTS, FPSB);  //AntB Edit
+    		sprintf(uitext, "AntB's Fork v%d.%d - Based on v%d\n%d Elements added by AntB (%d total)\nParts: %d FPS:%d GoL Gen:%d",ANTB_VERSION,(MINOR_VERSION-10),SAVE_VERSION,(PT_NUM-BEC),PT_NUM,NUM_PARTS,FPSB,GENERATION);  //AntB Edit
 		    
             if(REPLACE_MODE)
 				strappend(uitext, " [REPLACE MODE]");
@@ -2295,6 +2359,13 @@ int main(int argc, char *argv[])
                 player[2] = sr;
             else
                 player[2] = PT_DUST;
+        }
+	if(isplayer2==0)
+        {
+            if(ptypes[sr].falldown>0 || sr == PT_NEUT || sr == PT_PHOT)
+                player2[2] = sr;
+            else
+                player2[2] = PT_DUST;
         }
 
     }

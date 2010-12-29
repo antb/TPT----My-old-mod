@@ -1402,6 +1402,31 @@ void draw_parts(pixel *vid)
 
                     isplayer = 1;  //It's a secret. Tssss...
                 }
+		else if(t==PT_STKM2)  //Just draw head here
+                {
+                    char buff[10];  //Buffer for HP
+
+                    if(mousex>(nx-3) && mousex<(nx+3) && mousey<(ny+3) && mousey>(ny-3))  //If mous is in the head
+                    {
+                        sprintf(buff, "%3d", parts[i].life);  //Show HP
+                        drawtext(vid, mousex-8-2*(parts[i].life<100)-2*(parts[i].life<10), mousey-12, buff, 255, 255, 255, 255);
+                    }
+
+                    for(r=-2; r<=1; r++)  //Here I use r variable not as I should, but I think you will excuse me :-p
+                    {
+                        s = XRES+BARSIZE;
+                        vid[(ny-2)*s+nx+r] = ptypes[(int)player2[2]].pcolors;
+                        vid[(ny+2)*s+nx+r+1] = ptypes[(int)player2[2]].pcolors;
+                        vid[(ny+r+1)*s+nx-2] = ptypes[(int)player2[2]].pcolors;
+                        vid[(ny+r)*s+nx+2] = ptypes[(int)player2[2]].pcolors;
+                    }
+                    draw_line(vid , nx, ny+3, player2[3], player2[4], 100, 100, 255, s);
+                    draw_line(vid , player2[3], player2[4], player2[7], player2[8], 100, 100, 255, s);
+                    draw_line(vid , nx, ny+3, player2[11], player2[12], 100, 100, 255, s);
+                    draw_line(vid , player2[11], player2[12], player2[15], player2[16], 100, 100, 255, s);
+
+                    isplayer2 = 1;  //It's a secret. Tssss...
+                }
 		if(cmode==CM_NOTHING && t!=PT_PIPE && t!=PT_SWCH && t!=PT_LCRY && t!=PT_PUMP && t!=PT_FILT && t!=PT_HSWC && t!=PT_PCLN && t!=PT_DEUT && t!=PT_WIFI)//nothing display but show needed color changes
 	   	{
 			if(t==PT_PHOT)
@@ -1435,25 +1460,23 @@ void draw_parts(pixel *vid)
 		else if(cmode==CM_GRAD)//forgot to put else, broke nothing view
 		{
 			float frequency = 0.05;
-			int q = parts[i].temp;
+			int q = parts[i].temp-40;
 			cr = sin(frequency*q) * 16 + PIXR(ptypes[t].pcolors);
 			cg = sin(frequency*q) * 16 + PIXG(ptypes[t].pcolors);
 			cb = sin(frequency*q) * 16 + PIXB(ptypes[t].pcolors);
 			if(cr>=255)
-					cr = 255;
+				cr = 255;
 			if(cg>=255)
-					cg = 255;
+				cg = 255;
 			if(cb>=255)
-					cb = 255;
+				cb = 255;
 			if(cr<=0)
-					cr = 0;
+				cr = 0;
 			if(cg<=0)
-					cg = 0;
+				cg = 0;
 			if(cb<=0)
-					cb = 0;
+				cb = 0;
 			blendpixel(vid, nx, ny, cr, cg, cb, 255);
-			
-			
 		}
                 else if(t==PT_MWAX&&cmode == CM_FANCY)
                 {
@@ -1471,7 +1494,7 @@ void draw_parts(pixel *vid)
                     }
 
                 }
-		else if(t==PT_CRAC)
+		else if(t==PT_SPNG)
 		{
                     cr = PIXR(ptypes[t].pcolors) - parts[i].life*15;
                     cg = PIXG(ptypes[t].pcolors) - parts[i].life*15;
@@ -1593,7 +1616,7 @@ void draw_parts(pixel *vid)
 			cg = sin(frequency*q + 2) * 127 + 128;
 			cb = sin(frequency*q + 4) * 127 + 128;
 			blendpixel(vid, nx, ny, cr, cg, cb, 255);	
-			if(mousex==(nx) && mousey==(ny))
+			if(mousex==(nx) && mousey==(ny) && DEBUG_MODE)
                     {
 			int z;
                         for(z = 0; z<NPART; z++) {
@@ -1623,7 +1646,28 @@ void draw_parts(pixel *vid)
 			cr = cr>255?255:cr;
 			cg = cg>255?255:cg;
 			cb = cb>255?255:cb;
-			blendpixel(vid, nx, ny, cr, cg, cb, 255);
+			 if(fabs(parts[i].vx)+fabs(parts[i].vy)>0 &&(cmode == CM_FIRE||cmode==CM_BLOB || cmode==CM_FANCY)) {
+			fg = 0;
+			fb = 0;
+			fr = 0;
+                        fg = cg/40 * fabs(parts[i].vx)+fabs(parts[i].vy);
+                        fb = cb/40 * fabs(parts[i].vx)+fabs(parts[i].vy);
+                        fr = cr/40 * fabs(parts[i].vx)+fabs(parts[i].vy);
+			vid[ny*(XRES+BARSIZE)+nx] = PIXRGB((int)restrict_flt(cr, 0, 255), (int)restrict_flt(cg, 0, 255), (int)restrict_flt(cb, 0, 255));
+                        x = nx/CELL;
+                        y = ny/CELL;
+                        fg += fire_g[y][x];
+                        if(fg > 255) fg = 255;
+                        fire_g[y][x] = fg;
+                        fb += fire_b[y][x];
+                        if(fb > 255) fb = 255;
+                        fire_b[y][x] = fb;
+                        fr += fire_r[y][x];
+                        if(fr > 255) fr = 255;
+                        fire_r[y][x] = fr;
+			}
+			else
+				blendpixel(vid, nx, ny, cr, cg, cb, 255);
 		}
 		else if(t==PT_PIPE)
 		{
@@ -2356,6 +2400,81 @@ void draw_parts(pixel *vid)
                         blendpixel(vid, nx-1, ny-1, cr, cg, cb, 32);
                     }
                 }
+				else if(t==PT_BOMB)
+				{
+					if(parts[i].tmp==0){
+						cr = PIXR(ptypes[t].pcolors);
+						cg = PIXG(ptypes[t].pcolors);
+						cb = PIXB(ptypes[t].pcolors);
+						if(cmode != CM_CRACK){
+							int newx = 0;
+							float gradv = 100;
+							blendpixel(vid, nx+1, ny, cr, cg, cb, 223);
+							blendpixel(vid, nx-1, ny, cr, cg, cb, 223);
+							blendpixel(vid, nx, ny+1, cr, cg, cb, 223);
+							blendpixel(vid, nx, ny-1, cr, cg, cb, 223);
+							
+							blendpixel(vid, nx+1, ny-1, cr, cg, cb, 112);
+							blendpixel(vid, nx-1, ny-1, cr, cg, cb, 112);
+							blendpixel(vid, nx+1, ny+1, cr, cg, cb, 112);
+							blendpixel(vid, nx-1, ny+1, cr, cg, cb, 112);
+							for(newx = 0; gradv>0.5; newx++){
+								addpixel(vid, nx+newx, ny, cr, cg, cb, gradv);
+								addpixel(vid, nx-newx, ny, cr, cg, cb, gradv);
+								
+								addpixel(vid, nx, ny+newx, cr, cg, cb, gradv);
+								addpixel(vid, nx, ny-newx, cr, cg, cb, gradv);
+								gradv = gradv/1.1f;
+							}
+						} else {
+							blendpixel(vid, nx, ny, cr, cg, cb, 255);
+						}
+					}
+					else if(parts[i].tmp==1){
+						cr = PIXR(ptypes[t].pcolors);
+						cg = PIXG(ptypes[t].pcolors);
+						cb = PIXB(ptypes[t].pcolors);
+						if(cmode != CM_CRACK){
+							int newx = 0;
+							float gradv = 4*parts[i].life;
+							for(newx = 0; gradv>0.5; newx++){
+								addpixel(vid, nx+newx, ny, cr, cg, cb, gradv);
+								addpixel(vid, nx-newx, ny, cr, cg, cb, gradv);
+								
+								addpixel(vid, nx, ny+newx, cr, cg, cb, gradv);
+								addpixel(vid, nx, ny-newx, cr, cg, cb, gradv);
+								gradv = gradv/1.5f;
+							}
+						} else {
+							blendpixel(vid, nx, ny, cr, cg, cb, 255);
+						}
+					}
+					else {
+						blendpixel(vid, nx, ny, 255, 255, 255, 255);
+					}
+
+				}
+				else if(ptypes[t].properties&PROP_HOT_GLOW && parts[i].temp>473.0f)
+				{
+					float frequency = 3.1415/(2*pstates[t].ltemp-473.0);
+					int q = (parts[i].temp>pstates[t].ltemp)?pstates[t].ltemp-473:parts[i].temp-473;
+					cr = sin(frequency*q) * 226 + PIXR(ptypes[t].pcolors);
+					cg = sin(frequency*q*4.55 +3.14) * 34 + PIXG(ptypes[t].pcolors);
+					cb = sin(frequency*q*2.22 +3.14) * 64 + PIXB(ptypes[t].pcolors);
+					if(cr>=255)
+						cr = 255;
+					if(cg>=255)
+						cg = 255;
+					if(cb>=255)
+						cb = 255;
+					if(cr<=0)
+						cr = 0;
+					if(cg<=0)
+						cg = 0;
+					if(cb<=0)
+						cb = 0;
+					blendpixel(vid, nx, ny, cr, cg, cb, 255);
+				}
                 else if(t==PT_FIRE && parts[i].life)
                 {
                     float ttemp = (float)((int)(parts[i].life/2));
@@ -2535,6 +2654,31 @@ void draw_parts(pixel *vid)
                     draw_line(vid , player[11], player[12], player[15], player[16], R, G, B, s);
 
                     isplayer = 1;  //It's a secret. Tssss...
+                }
+		else if(t==PT_STKM2)  //Stick man should be visible in heat mode
+                {
+                    char buff[10];  //Buffer for HP
+
+                    if(mousex>(nx-3) && mousex<(nx+3) && mousey<(ny+3) && mousey>(ny-3))  //If mous is in the head
+                    {
+                        sprintf(buff, "%3d", parts[i].life);  //Show HP
+                        drawtext(vid, mousex-8-2*(parts[i].life<100)-2*(parts[i].life<10), mousey-12, buff, 255, 255, 255, 255);
+                    }
+
+                    for(r=-2; r<=1; r++)
+                    {
+                        s = XRES+BARSIZE;
+                        vid[(ny-2)*s+nx+r] = PIXRGB (R, G, B);
+                        vid[(ny+2)*s+nx+r+1] =  PIXRGB (R, G, B);
+                        vid[(ny+r+1)*s+nx-2] =  PIXRGB (R, G, B);
+                        vid[(ny+r)*s+nx+2] =  PIXRGB (R, G, B);
+                    }
+                    draw_line(vid , nx, ny+3, player2[3], player2[4], R, G, B, s);
+                    draw_line(vid , player2[3], player2[4], player2[7], player2[8], R, G, B, s);
+                    draw_line(vid , nx, ny+3, player2[11], player2[12], R, G, B, s);
+                    draw_line(vid , player2[11], player2[12], player2[15], player2[16], R, G, B, s);
+
+                    isplayer2 = 1;  //It's a secret. Tssss...
                 }
                 else
                 {
@@ -2750,6 +2894,24 @@ void dim_copy(pixel *dst, pixel *src)
     }
 }
 
+void dim_copy_pers(pixel *dst, pixel *src)
+{
+    int i,r,g,b;
+    for(i=0; i<(XRES+BARSIZE)*YRES; i++)
+    {
+        r = PIXR(src[i]);
+        g = PIXG(src[i]);
+        b = PIXB(src[i]);
+        if(r>0)
+            r--;
+        if(g>0)
+            g--;
+        if(b>0)
+            b--;
+        dst[i] = PIXRGB(r,g,b);
+    }
+}
+
 void render_zoom(pixel *img)
 {
     int x, y, i, j;
@@ -2932,6 +3094,21 @@ pixel *prerender_save(void *save, int size, int *width, int *height)
             if(j<PT_NUM && j>0)
             {
                 if(j==PT_STKM)
+                {
+                    //Stickman drawing
+                    for(k=-2; k<=1; k++)
+                    {
+                        fb[(y-2)*w+x+k] = PIXRGB(255, 224, 178);
+                        fb[(y+2)*w+x+k+1] = PIXRGB(255, 224, 178);
+                        fb[(y+k+1)*w+x-2] = PIXRGB(255, 224, 178);
+                        fb[(y+k)*w+x+2] = PIXRGB(255, 224, 178);
+                    }
+                    draw_line(fb , x, y+3, x-1, y+6, 255, 255, 255, w);
+                    draw_line(fb , x-1, y+6, x-3, y+12, 255, 255, 255, w);
+                    draw_line(fb , x, y+3, x+1, y+6, 255, 255, 255, w);
+                    draw_line(fb , x+1, y+6, x+3, y+12, 255, 255, 255, w);
+                }
+		else if(j==PT_STKM2)
                 {
                     //Stickman drawing
                     for(k=-2; k<=1; k++)
