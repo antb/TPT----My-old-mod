@@ -562,6 +562,9 @@ void draw_svf_ui(pixel *vid_buf)
     case CM_GRAD:
         drawtext(vid_buf, XRES-29+BARSIZE/*481*/, YRES+(MENUSIZE-13), "\xD3", 255, 50, 255, 255);
         break;
+    case CM_LIFE:
+        drawtext(vid_buf, XRES-29+BARSIZE/*481*/, YRES+(MENUSIZE-13), "\x00", 255, 50, 255, 255);
+        break;
     }
     drawrect(vid_buf, XRES-32+BARSIZE/*478*/, YRES+(MENUSIZE-16), 14, 14, 255, 255, 255, 255);
 
@@ -1850,15 +1853,36 @@ void set_cmode(int cm)
         strcpy(itc_msg, "Persistent Display");
     }
     else if(cmode==CM_PRESS)
+	{
         strcpy(itc_msg, "Pressure Display");
+	}
     else if(cmode==CM_NOTHING)
+	{
         strcpy(itc_msg, "Nothing Display");
+	}
     else if(cmode==CM_CRACK)
+	{
         strcpy(itc_msg, "Alternate Velocity Display");
+	}
     else if(cmode==CM_GRAD)
+	{
         strcpy(itc_msg, "Heat Gradient Display");
+	}
+    else if(cmode==CM_LIFE)
+	{
+		if(DEBUG_MODE)
+		{
+			strcpy(itc_msg, "Life Display");
+		}
+		else
+		{
+			set_cmode(CM_CRACK);
+		}
+	}
     else
+	{
         strcpy(itc_msg, "Velocity Display");
+	}
 }
 
 char *download_ui(pixel *vid_buf, char *uri, int *len)

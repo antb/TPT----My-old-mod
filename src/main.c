@@ -67,7 +67,7 @@ static const char *it_msg =
     "\n\boUse 'Z' for a zoom tool. Click to make the drawable zoom window stay around. Use the wheel to change the zoom strength\n"
     "Use 'S' to save parts of the window as 'stamps'.\n"
     "'L' will load the most recent stamp, 'K' shows a library of stamps you saved.\n"
-    "'C' will cycle the display mode (Fire, Blob, Velocity and Pressure). The numbers 1 to 7 will do the same\n"
+    "'C' will cycle the display mode (Fire, Blob, Velocity, ect.). The numbers on the keyboard do the same\n"
     "Use the mouse scroll wheel to change the tool size for particles.\n"
     "The spacebar can be used to pause physics.\n"
     "'P' will take a screenshot and save it into the current directory.\n"
@@ -1357,7 +1357,7 @@ int main(int argc, char *argv[])
                     free(load_data);
             }
         }
-        if(sdl_key=='s' && (sdl_mod & (KMOD_CTRL)))
+        if(sdl_key=='s' && (sdl_mod & (KMOD_CTRL)) || (sdl_key=='s' && !isplayer2))
         {
             if(it > 50)
                 it = 50;
@@ -1402,6 +1402,10 @@ int main(int argc, char *argv[])
 	if(sdl_key=='0')
         {
             set_cmode(CM_CRACK);
+        }
+	if(sdl_key=='1'&& (sdl_mod & (KMOD_SHIFT)) && DEBUG_MODE)
+        {
+            set_cmode(CM_LIFE);
         }
 	if(sdl_key==SDLK_TAB)
 	{
@@ -1487,7 +1491,7 @@ int main(int argc, char *argv[])
                     bsy = 0;
             }
         }
-	if(sdl_key=='d'&&(sdl_mod & (KMOD_CTRL)))
+	if(sdl_key=='d'&&(sdl_mod & (KMOD_CTRL)) || (sdl_key=='d' && !isplayer2))
 		DEBUG_MODE = !DEBUG_MODE;
 	if(sdl_key=='i')
 	{
@@ -1586,10 +1590,32 @@ int main(int argc, char *argv[])
                 }
         }
 #ifdef INTERNAL
+	int counterthing;
         if(sdl_key=='v')
-            vs = !vs;
+	{
+		if(sdl_mod & (KMOD_SHIFT)){
+			if(vs>=1)
+				vs = 0;
+			else 
+				vs = 2;
+		}
+		else{
+			if(vs>=1)
+				vs = 0;
+			else 
+				vs = 1;
+		}
+		counterthing = 0;
+	}
         if(vs)
-            dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
+	{
+	    if(counterthing+1>=vs)
+	    {
+		dump_frame(vid_buf, XRES, YRES, XRES+BARSIZE);
+		counterthing = 0;
+	    }
+	    counterthing = (counterthing+1)%3;
+	}
 #endif
 
         if(sdl_wheel)
@@ -2027,10 +2053,16 @@ int main(int argc, char *argv[])
 					}
                     if(x>=(XRES+BARSIZE-(510-476)) && x<=(XRES+BARSIZE-(510-491)) && !bq)
                     {
-                        if(b & SDL_BUTTON_LMASK)
+                        if(b & SDL_BUTTON_LMASK){
                             set_cmode((cmode+1) % CM_COUNT);
-                        if(b & SDL_BUTTON_RMASK)
-                            set_cmode((cmode+(CM_COUNT-1)) % CM_COUNT);
+						}
+                        if(b & SDL_BUTTON_RMASK){
+							if((cmode+(CM_COUNT-1)) % CM_COUNT == CM_LIFE) {
+								set_cmode(CM_GRAD);
+							} else {
+								set_cmode((cmode+(CM_COUNT-1)) % CM_COUNT);
+							}
+						}
                         save_presets(0);
                     }
                     if(x>=(XRES+BARSIZE-(510-494)) && x<=(XRES+BARSIZE-(510-509)) && !bq)
@@ -2101,7 +2133,7 @@ int main(int argc, char *argv[])
                     {
 			if(sdl_mod & (KMOD_CAPS))
 				c = 0;
-                        if(c!=WL_STREAM&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM&&!REPLACE_MODE)
+                        if(c!=WL_STREAM+100&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM&&!REPLACE_MODE)
                             flood_parts(x, y, c, -1, -1);
                         lx = x;
                         ly = y;
