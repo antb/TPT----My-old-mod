@@ -7,6 +7,22 @@ if (t==PT_NEUT || t==PT_MUNE)
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, 650.0f);//3.0f;
 	}
 
+if(t==PT_CLOU)
+    for(nx=-2;nx<3;nx++)
+        for(ny=-2;ny<3;ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+    				continue;
+                if(parts[i].tmp)
+                {
+                    if(create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_WATR))
+                        parts[i].tmp--;
+                }
+            }
+
+
 if(t==PT_DBTY)
     for(nx=-2;nx<3;nx++)
         for(ny=-2;ny<3;ny++)

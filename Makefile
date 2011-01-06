@@ -17,13 +17,13 @@ WIN32_TARG := powder-sse.exe powder-sse2.exe
 powder-build: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -DINTERNAL -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64
 
-powder-debug-64: $(SOURCES)
+powder-debug-64: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -m64 -o$@ $(FLAGS_DBUG) -DLIN64 $(SOURCES) -Iincludes/
 
-powder-debug: $(SOURCES)
+powder-debug: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(FLAGS_DEBUG) $(SOURCES) -DLIN32
 
-powder-sse3: $(SOURCES)
+powder-sse3: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN32
 	strip $@
 
@@ -39,14 +39,13 @@ powder-64-sse3-opengl: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64 -lGL -lGLU -DOpenGL
 	strip $@
 	
-powder-64-sse3: $(SOURCES)
+powder-64-sse3: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64 
 	strip $@
 	
-powder-64-sse2: $(SOURCES)
+powder-64-sse2: $(SOURCES) $(HEADERS) $(ABMOD)
 	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE2) $(SOURCES) -DLIN64
 	strip $@
-	
 
 powder-icc: $(SOURCES) $(HEADERS) $(ABMOD)
        /opt/intel/Compiler/11.1/073/bin/intel64/icc -m64 -o$@ -Iincludes/ -O2 -march=core2 -msse3 -mfpmath=sse -lSDL -lbz2 -lm -xW $(SOURCES) -std=c99 -D_POSIX_C_SOURCE=200112L
