@@ -18,7 +18,7 @@ if(t==PT_CLOU)
 
                 if(10 > (rand()/(RAND_MAX/1000)))
                 {
-                    if(parts[i].tmp <= 5)
+                    if(parts[i].temp <= 5)
                         create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_SNOW);
                     else if(parts[i].temp >=90 && parts[i].temp < 100)
                     {
@@ -30,7 +30,6 @@ if(t==PT_CLOU)
                     else
                         create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_WATR);
                 }
-                parts[i].tmp = rand()/(RAND_MAX/1000);
             }
 
 
