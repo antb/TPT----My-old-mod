@@ -17,8 +17,8 @@ if(t==PT_MUPT)
 if(t==PT_CLOU)
 {
     parts[i].tmp = (rand()/(RAND_MAX/150))+50;
-//    float a = (rand()/(RAND_MAX/15))*0.5;
-//    parts[i].vx = (rand()/(RAND_MAX/6))*cosf(a);
+    float a = (rand()/(RAND_MAX/15))*0.5;
+    parts[i].vx = (rand()/(RAND_MAX/6))*cosf(a);
 }
 if(t==PT_NP2)
     parts[i].life=200;

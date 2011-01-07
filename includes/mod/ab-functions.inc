@@ -1,5 +1,5 @@
 /* AntB's TPT Fork - Custom functions > powder.c */
-#ifdef WIN32
+#if defined(WIN32) && !defined(__GNUC__)
 _inline void change_particle(int from, int to, int r, int reverse, int chance);
 #else
 inline void change_particle(int from, int to, int r, int reverse, int chance);
