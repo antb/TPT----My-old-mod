@@ -14,12 +14,23 @@ if(t==PT_CLOU)
 			{
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
-    				continue;
-                if(parts[i].tmp)
+    				continue;                
+
+                if(10 > (rand()/(RAND_MAX/1000)))
                 {
-                    if(create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_WATR))
-                        parts[i].tmp--;
+                    if(parts[i].tmp <= 5)
+                        create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_SNOW);
+                    else if(parts[i].temp >=90 && parts[i].temp < 100)
+                    {
+                        if(75 > rand()/(RAND_MAX/100))
+                            create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_WATR);
+                        else
+                            create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_THDR);
+                    }
+                    else
+                        create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_WATR);
                 }
+                parts[i].tmp = rand()/(RAND_MAX/1000);
             }
 
 

@@ -14,14 +14,8 @@ if(t==PT_MUPT)
     parts[i].vy = 3.0f*sinf(a);
 }
 
-if(t==PT_CLOU)
-{
-    parts[i].tmp = (rand()/(RAND_MAX/150))+50;
-    float a = (rand()/(RAND_MAX/15))*0.5;
-    parts[i].vx = (rand()/(RAND_MAX/6))*cosf(a);
-}
 if(t==PT_NP2)
-    parts[i].life=200;
+    parts[i].life=2000;
 
 if(t==PT_MUNE)
 {
