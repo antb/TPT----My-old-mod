@@ -31,7 +31,11 @@
 {"NP2",   PIXPACK(0xD7DE09),  0.5f, 0.05f * CFDS, 0.90f,  0.75f,  0.00f,  1.00f,  0.00f,  0.000000f * CFDS, 2,  0,    0,  0,  0,  1, 49,  SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  70,   "Explosives - Napalm",                                                        TYPE_LIQUID,                            NULL},
 {"EMIT",  PIXPACK(0x505050),  0.0f, 0.00f * CFDS, 0.90f,  0.00f,  0.70f,  0.00f,  0.00f,  0.000000f * CFDS, 0,  0,    0,  0,  30, 1, 100, SC_CELEC,   R_TEMP+0.0f    +273.15f,  70,   "Emitter - Releases PHOT when sparked.",                                      TYPE_SOLID|PROP_CONDUCTS,               NULL},
 {"FART",  PIXPACK(0x44FF44),  0.5f, 0.00f * CFDS, 0.00f,  0.00f,  0.02f,  0.00f,  3.00f,  0.000001f * CFDS, 0,  0,    0,  0,  0,  1, 1,   SC_CUSTOM,  R_TEMP+25.0f   +273.15f,  80,   "Farts/Methane - Explosive Gas - Grows weaker as it expands.",                TYPE_GAS,                               NULL},
-{"CLOU",  PIXPACK(0xCCCCFF), -1.0f, 0.75f * CFDS, 0.01f,  1.00f,  0.05f,  0.00f,  0.00f,  0.000000f * CFDS, 1,  0,    0,  0,  0,  1, 50,  SC_CUSTOM,  0.0f           +273.15f,  50,   "Cloud. Releases WATR and moves around",                                      TYPE_GAS|PROP_NEUTPENETRATE,            NULL},
+{"CLOU",  PIXPACK(0xCCCCFF),  0.0f, 0.00f * CFDS, 0.00f,  0.00f,  0.70f,  0.00f,  0.00f,  0.000000f * CFDS, 1,  0,    0,  0,  0,  1, 50,  SC_CUSTOM,  0.0f           +273.15f,  50,   "Cloud. Releases WATR and moves around",                                      TYPE_GAS|PROP_NEUTPENETRATE,            NULL},
+
+{"DHLE",  PIXPACK(0x996666),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,    0,  0,  0,  1, 100, SC_CUSTOM,  9000.0f,                  40,   "Deathless O_O B2/S123456789", TYPE_SOLID|PROP_LIFE, NULL},
+{"SERV",  PIXPACK(0xF2F5A9),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,    0,  0,  0,  1, 100, SC_CUSTOM,  9000.0f,                  40,   "Serviette B234/S", TYPE_SOLID|PROP_LIFE, NULL},
+
 //Name    Colour              Advec Airdrag       Airloss Loss    Collid  Grav    Diffus  Hotair            Fal Burn  Exp Mel Hrd M  W    Section     H                   Ins(real world, by triclops200) Description                                               Flags (TYPE then PROPs)
 /* fal --> 0=Solid/Gas 1=Powder 2 = Liquid  */
 

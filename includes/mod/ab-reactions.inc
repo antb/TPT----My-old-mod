@@ -8,30 +8,46 @@ if (t==PT_NEUT || t==PT_MUNE)
 	}
 
 if(t==PT_CLOU)
-    for(nx=-2;nx<3;nx++)
-        for(ny=-2;ny<3;ny++)
+    for(nx=-5;nx<6;nx++)
+        for(ny=-5;ny<6;ny++)
 			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
 			{
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
-    				continue;                
-
-                if(10 > (rand()/(RAND_MAX/1000)))
+    				continue;  
+                if((r&0xFF)==PT_CLOU)
                 {
-                    if(parts[i].temp <= 5)
-                        create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_SNOW);
-                    else if(parts[i].temp >=90 && parts[i].temp < 100)
+    // ---Movement--- (Fails)
+                    if(nx < 0)
+                        parts[i].vx-=(rand()/(RAND_MAX/7.8f)-3.9f);
+                    else if(nx > 0)
+                        parts[i].vx-=(rand()/(RAND_MAX/7.8f)-3.9f);
+
+                    if(ny < 0)
+                        parts[i].vx-=(rand()/(RAND_MAX/7.8f)-3.9f);
+                    else if(ny > 0)
+                        parts[i].vx-=(rand()/(RAND_MAX/7.8f)-3.9f);
+                }//*/
+    // ---Production ---
+                
+//                if(10 > (rand()/(RAND_MAX/10000)))
+                if((pv[y/CELL][x/CELL]+200) > (rand()/(RAND_MAX/500000)))
+                {
+/*                    if(pv[y/CELL][x/CELL] <= -40.0f)
+                        create_part(i,x,y,PT_FOG);
+                    else if(pv[y/CELL][x/CELL] <= -2.0f)
+                        create_part(-1,x+partgen(),y+partgen(), PT_SNOW);
+                    else if(pv[y/CELL][x/CELL] >= 40.0f)
                     {
-                        if(75 > rand()/(RAND_MAX/100))
-                            create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_WATR);
+                        if(50 > rand()/(RAND_MAX/100))
+                            create_part(-1,x+partgen(),y+partgen(), PT_WATR);
                         else
-                            create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_THDR);
+                            create_part(-1,x+partgen(),y+partgen(), PT_THDR);
                     }
                     else
-                        create_part(-1,x+((rand()%3)-1),y+((rand()%3)-1), PT_WATR);
+*/                        create_part(-1,x+partgen(),y+partgen(), PT_WATR);
                 }
             }
-
 
 if(t==PT_DBTY)
     for(nx=-2;nx<3;nx++)

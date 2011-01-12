@@ -9,7 +9,7 @@
 
 #define ANTB_VERSION 6 //AntB Edit -- Bwahahahaaah!
 #define SAVE_VERSION 45
-#define MINOR_VERSION 15 //Start at 10 to prevent "New Version" update
+#define MINOR_VERSION 16 //Start at 10 to prevent "New Version" update
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
 #define BETA
 
@@ -62,7 +62,7 @@ extern unsigned char ZSIZE;
 #define STAMP_Y 4
 #define STAMP_MAX 120
 
-#define NGOL 20
+#define NGOL 22 //AntB Edit
 
 #define CIRCLE_BRUSH 0
 #define SQUARE_BRUSH 1

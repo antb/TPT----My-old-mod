@@ -579,7 +579,7 @@ static part_state pstates[PT_NUM] =
 };
 static int grule[NGOL][9] = 
 {
-//       0,1,2,3,4,5,6,7,8    live=1  spawn=2 spawn&live=3
+//   0,1,2,3,4,5,6,7,8    live=1  spawn=2 spawn&live=3
 	{0,0,0,0,0,0,0,0,0},//blank
 	{0,0,1,3,0,0,0,0,0},//GOL
 	{0,0,1,3,0,0,2,0,0},//HLIF
@@ -600,6 +600,8 @@ static int grule[NGOL][9] =
 	{0,3,0,0,0,0,0,0,0},//GNAR
 	{0,3,0,3,0,3,0,3,0},//REPL
 	{1,0,0,2,2,3,1,1,3},//MYST
+    {1,1,1,3,1,1,1,1,1},//DHLE -- AntB
+    {0,0,2,2,2,0,0,0,0},//SERV -- AntB
 };
 static int goltype[NGOL] = 
 {
@@ -622,6 +624,8 @@ static int goltype[NGOL] =
 	PT_GNAR,
 	PT_REPL,
 	PT_MYST,
+    PT_DHLE,    //AntB
+    PT_SERV     //Edit
 };
 static int loverule[9][9] =
 {

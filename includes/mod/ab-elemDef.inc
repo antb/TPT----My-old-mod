@@ -35,6 +35,9 @@
 #define PT_FART BEC+29
 #define PT_CLOU BEC+30
 
-#define PT_NUM  BEC+31
+#define PT_DHLE BEC+31
+#define PT_SERV BEC+32
+
+#define PT_NUM  BEC+33
 
 
