@@ -15,13 +15,16 @@ if(t==PT_CLOU)
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
     				continue;  
+                int xClou, yClou;
                 if((r&0xFF)==PT_CLOU)
-                {
+/*                {
     // ---Movement--- (Fails)
+                    xClou = rand()/(RAND_MAX/7.8f)-3.9f;
+                    yClou = rand()/(RAND_MAX/7.8f)-3.9f;
                     if(nx < 0)
-                        parts[i].vx-=(rand()/(RAND_MAX/7.8f)-3.9f);
+                        parts[i].vx-=xClou;
                     else if(nx > 0)
-                        parts[i].vx-=(rand()/(RAND_MAX/7.8f)-3.9f);
+                        parts[i].vx-=;
 
                     if(ny < 0)
                         parts[i].vx-=(rand()/(RAND_MAX/7.8f)-3.9f);
@@ -30,22 +33,31 @@ if(t==PT_CLOU)
                 }//*/
     // ---Production ---
                 
-//                if(10 > (rand()/(RAND_MAX/10000)))
-                if((pv[y/CELL][x/CELL]+200) > (rand()/(RAND_MAX/500000)))
+                if(10 > (rand()/(RAND_MAX/10000)))
                 {
 /*                    if(pv[y/CELL][x/CELL] <= -40.0f)
                         create_part(i,x,y,PT_FOG);
                     else if(pv[y/CELL][x/CELL] <= -2.0f)
-                        create_part(-1,x+partgen(),y+partgen(), PT_SNOW);
+                        create_part(-1,x+xClou,y+yClou, PT_SNOW);
                     else if(pv[y/CELL][x/CELL] >= 40.0f)
                     {
                         if(50 > rand()/(RAND_MAX/100))
-                            create_part(-1,x+partgen(),y+partgen(), PT_WATR);
+                        {
+                            xClou = partgen();
+                            yClou = partgen();
+                            create_part(-1,x+xClou,y+yClou, PT_WATR);
+                        }
                         else
-                            create_part(-1,x+partgen(),y+partgen(), PT_THDR);
+                        {
+                            xClou = partgen();
+                            yClou = partgen();
+                            create_part(-1,x+xClou,y+yClou, PT_THDR);
+                        }
                     }
                     else
-*/                        create_part(-1,x+partgen(),y+partgen(), PT_WATR);
+*/                        xClou = partgen();
+                        yClou = partgen();
+                        create_part(-1,xClou+x,yClou+y, PT_WATR);
                 }
             }
 
