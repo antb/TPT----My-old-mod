@@ -21,7 +21,7 @@
 {"Y",     PIXPACK(0x202000),  0.0f, 0.00f * CFDS, 0.00f,  0.00f,  1.00f,  0.00f,  0.00f,  0.000000f * CFDS, 0,  0,    0,  0,  1,  1, 100, SC_NEON,    R_TEMP+0.0f    +273.15f,  106,  "Yellow",                                                                     TYPE_SOLID|PROP_NEUTPENETRATE,          NULL},
 //End Neons
 {"LLED",  PIXPACK(0x170D0D),  0.5f, 0.05f * CFDS, 0.90f,  0.00f,  0.00f,  3.00f,  0.00f,  0.000000f * CFDS, 2,  0,    0,  0,  1,  1, 100, SC_CELEC,   R_TEMP+650.61f +273.15f,  255,  "Molten Lead",                                                                TYPE_LIQUID|PROP_CONDUCTS|PROP_BLACK,   NULL},
-{"X",     PIXPACK(0xC000C0),  0.5f, 0.05f * CFDS, 0.90f,  0.50f,  0.10f,  0.20f,  0.00f,  0.000000f * CFDS, 2,  0,    0,  0,  0,  1, 65,  SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  100,  "Special - Unknown?",                                                         TYPE_PART,                              NULL},
+{"X",     PIXPACK(0xC000C0),  0.5f, 0.05f * CFDS, 0.90f,  0.50f,  0.10f,  0.20f,  0.00f,  0.000000f * CFDS, 1,  0,    0,  0,  0,  1, 65,  SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  100,  "Special - Virus like element",                                               TYPE_PART,                              NULL},
 {"ZINC",  PIXPACK(0x8080A0),  0.0f, 0.00f * CFDS, 0.90f,  0.00f,  0.50f,  0.00f,  0.00f,  0.000000f * CFDS, 0,  0,    0,  1,  20, 1, 100, SC_CELEC,   R_TEMP+0.0f    +273.15f,  70,   "Conductive, reacts with SLTW, meltable",                                     TYPE_SOLID|PROP_CONDUCTS,               NULL},
 {"GSTL",  PIXPACK(0x404070),  0.0f, 0.00f * CFDS, 0.90f,  0.00f,  0.50f,  0.00f,  0.00f,  0.000000f * CFDS, 0,  0,    0,  1,  10, 1, 100, SC_CELEC,   R_TEMP+0.0f    +273.15f,  70,   "Galvanised Steel.",                                                          TYPE_SOLID|PROP_CONDUCTS,               NULL},
 {"ERTH",  PIXPACK(0x4A2F10),  0.0f, 0.00f * CFDS, 0.00f,  0.00f,  0.50f,  0.00f,  0.00f,  0.000000f * CFDS, 0,  0,    0,  1,  50, 1, 100, SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  70,   "Solids - Earth.",                                                            TYPE_SOLID,                             NULL},
@@ -35,6 +35,8 @@
 
 {"DHLE",  PIXPACK(0x996666),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,    0,  0,  0,  1, 100, SC_CUSTOM,  9000.0f,                  40,   "Deathless O_O B2/S123456789", TYPE_SOLID|PROP_LIFE, NULL},
 {"SERV",  PIXPACK(0xF2F5A9),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,    0,  0,  0,  1, 100, SC_CUSTOM,  9000.0f,                  40,   "Serviette B234/S", TYPE_SOLID|PROP_LIFE, NULL},
+
+{"REMX",  PIXPACK(0xC000C0),  0.5f, 0.05f * CFDS, 0.90f,  0.50f,  0.10f,  0.20f,  0.00f,  0.000000f * CFDS, 1,  0,    0,  0,  0,  1, 65,  SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  100,  "Special - Restores X",                                                      TYPE_PART,                              NULL},
 
 //Name    Colour              Advec Airdrag       Airloss Loss    Collid  Grav    Diffus  Hotair            Fal Burn  Exp Mel Hrd M  W    Section     H                   Ins(real world, by triclops200) Description                                               Flags (TYPE then PROPs)
 /* fal --> 0=Solid/Gas 1=Powder 2 = Liquid  */

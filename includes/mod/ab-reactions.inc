@@ -304,41 +304,68 @@ if(t==PT_SUWR)
 		parts[i].life = 4;
 
 if(t==PT_VIRU)
-{
-	for(nx=-2;nx<3;nx++)
-		for(ny=-2;ny<3;ny++)
+	for(nx=-1;nx<2;nx++)
+		for(ny=-1;ny<2;ny++)
 			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
 			{
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
 					continue;
-				if(parts[r>>8].type!=PT_VIRU && parts[r>>8].tmp!=512)
+				if((r&0xFF)!=PT_VIRU && parts[r>>8].tmp < 128 &&
+                    ((r&0xFF)!= PT_CLNE && (r&0xFF)!= PT_BCLN && (r&0xFF)!= PT_PCLN &&
+                     (r&0xFF)!= PT_DMND && (r&0xFF)!= PT_VOID &&
+                     (r&0xFF)!= PT_BHOL && (r&0xFF)!= PT_WHOL &&
+                     (r&0xFF)!= PT_PIPE && (r&0xFF)!= PT_PRTI && (r&0xFF)!= PT_PRTO &&
+                     (r&0xFF)!= PT_STKM && (r&0xFF)!= PT_STKM2 &&
+                     (r&0xFF)!= PT_REMX //Reserved for the reverser element.
+                    )
+                  )
 				{
 					parts[r>>8].ctype=parts[r>>8].type;
 					parts[r>>8].type=PT_VIRU;
+                    parts[r>>8].tmp=650;
 				}
-				if(parts[r>>8].tmp==512)
-					parts[i].tmp=512;
-				if(parts[i].tmp==512)
-					parts[i].type=parts[i].ctype;
-			}
-}
 
-if(t==PT_PHOT)
+                if(parts[r>>8].ctype == PT_VIRU && parts[i].tmp == 650)
+                    parts[i].tmp = 505;
+
+                if(parts[i].tmp >= 450 && parts[i].tmp <= 500)
+                {
+                    parts[i].type = parts[i].ctype;
+                    parts[i].ctype = PT_VIRU;
+                    parts[i].tmp = 449;
+                }
+			}
+
+if((parts[i].ctype==PT_VIRU || t==PT_VIRU) && parts[i].tmp > 0 && parts[i].tmp <= 510)
 {
-	for(nx=-2;nx<3;nx++)
-		for(ny=-2;ny<3;ny++)
+    parts[i].tmp--;
+    for(nx=-2;nx<3;nx++)
+        for(ny=-2;ny<3;ny++)
 			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
 			{
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
 					continue;
-				if(parts[r>>8].type==PT_VIRU)
+                if(parts[r>>8].tmp == 650)
+                    parts[r>>8].tmp== 505;
+            }
+}
+
+if(t==PT_REMX)
+    for(nx=-2;nx<3;nx++)
+        for(ny=-2;ny<3;ny++)
+			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+					continue;
+				if(parts[r>>8].type==PT_VIRU && parts[r>>8].tmp == 650)
 				{
-					parts[r>>8].tmp=512;
+					parts[r>>8].tmp=510;
 				}
 			}
-}
+
 
 if(t==PT_MUPT || t==PT_MUNE)
 {

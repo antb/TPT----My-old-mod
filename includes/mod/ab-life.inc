@@ -14,6 +14,9 @@ if(t==PT_MUPT)
     parts[i].vy = 3.0f*sinf(a);
 }
 
+if(t==PT_VIRU)
+    parts[i].tmp = 650;
+
 if(t==PT_NP2)
     parts[i].life=2000;
 

@@ -36,4 +36,4 @@
 /* Clou */ {ST_GAS,     PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* GOL  */ {ST_NONE,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 /* GOL  */ {ST_NONE,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
-
+/* X    */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
