@@ -8,59 +8,62 @@ if (t==PT_NEUT || t==PT_MUNE)
 	}
 
 if(t==PT_CLOU)
-    for(nx=-5;nx<6;nx++)
-        for(ny=-5;ny<6;ny++)
+{
+// ---MOVEMENT---
+    int setX = 0;
+    int setY = 0;
+    for(nx=-10;x<11;nx++)
+        for(ny=-10;x<11;ny++)
+            if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+			{
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+    				continue;
+                if((r&0xFF)==PT_CLOU)
+                {
+                    setY+=ny;
+                    setX+=nx;
+                }
+            }
+
+// ---PRODUCTION---
+    for(nx=-1;nx<2;nx++)
+        for(ny=-1;ny<2;ny++)
 			if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
 			{
 				r = pmap[y+ny][x+nx];
 				if((r>>8)>=NPART || !r)
     				continue;  
-                int xClou, yClou;
-                if((r&0xFF)==PT_CLOU)
-/*                {
-    // ---Movement--- (Fails)
-                    xClou = rand()/(RAND_MAX/7.8f)-3.9f;
-                    yClou = rand()/(RAND_MAX/7.8f)-3.9f;
-                    if(nx < 0)
-                        parts[i].vx-=xClou;
-                    else if(nx > 0)
-                        parts[i].vx-=;
-
-                    if(ny < 0)
-                        parts[i].vx-=(rand()/(RAND_MAX/7.8f)-3.9f);
-                    else if(ny > 0)
-                        parts[i].vx-=(rand()/(RAND_MAX/7.8f)-3.9f);
-                }//*/
-    // ---Production ---
                 
-                if(10 > (rand()/(RAND_MAX/10000)))
+                if(10 > (rand()/(RAND_MAX/3000)))
                 {
-/*                    if(pv[y/CELL][x/CELL] <= -40.0f)
+                    if(parts[i].temp <= 273.15f && pv[y/CELL][x/CELL] < -12.0f)
                         create_part(i,x,y,PT_FOG);
-                    else if(pv[y/CELL][x/CELL] <= -2.0f)
-                        create_part(-1,x+xClou,y+yClou, PT_SNOW);
-                    else if(pv[y/CELL][x/CELL] >= 40.0f)
+                    else if(parts[i].temp <= 273.15f)
+                        create_part(-1,x+rand()%5-2,y+rand()%3, PT_SNOW);
+                    else if(parts[i].temp >= 80+273.15f)
                     {
-                        if(50 > rand()/(RAND_MAX/100))
-                        {
-                            xClou = partgen();
-                            yClou = partgen();
-                            create_part(-1,x+xClou,y+yClou, PT_WATR);
-                        }
+                        if(10 < rand()/(RAND_MAX/1000))
+                            create_part(-1,x+rand()%5-2,y+rand()%3, PT_WATR);
                         else
-                        {
-                            xClou = partgen();
-                            yClou = partgen();
-                            create_part(-1,x+xClou,y+yClou, PT_THDR);
-                        }
+                            create_part(-1,x+rand()%5-2,y+rand()%3, PT_THDR);
                     }
                     else
-*/                        xClou = partgen();
-                        yClou = partgen();
-                        create_part(-1,xClou+x,yClou+y, PT_WATR);
+                        create_part(-1,x+rand()%5-2,y+rand()%3, PT_WATR);
                 }
+
             }
 
+    if(10 > (rand()/(RAND_MAX/90)))
+    {
+        if(setX==0)
+            parts[i].x+=(rand()%3)-1;
+        if(setY==0)
+            parts[i].y+=(rand()%3)-1;
+    }
+    parts[i].x+=setX;
+    parts[i].y+=setY;
+}
 if(t==PT_DBTY)
     for(nx=-2;nx<3;nx++)
         for(ny=-2;ny<3;ny++)
@@ -490,12 +493,12 @@ if(t==PT_FART)
                 r = pmap[y+ny][x+nx];
                 if((r>>8)>=NPART)
                     continue;
-                if((r&0xFF)==PT_FIRE || (r&0xFF)==PT_PLSM)
+                if((r&0xFF)==PT_FIRE)
                 {
                     pv[y/CELL][x/CELL]=(parts[i].tmp*2);
-                    create_part(i,x,y,PT_FIRE);
+                    parts[i].type=PT_FIRE;
                     parts[i].life=rand()/(RAND_MAX/25)+20;
-                    parts[i].tmp=1;
+                    parts[i].tmp=0;
                     continue;
                 }
 
