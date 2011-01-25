@@ -39,7 +39,8 @@
 #define PT_SERV BEC+32
 
 #define PT_REMX BEC+33
+#define PT_BULT BEC+34
 
-#define PT_NUM  BEC+34
+#define PT_NUM  BEC+35
 
 

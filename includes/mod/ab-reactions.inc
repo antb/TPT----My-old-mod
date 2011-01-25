@@ -5,7 +5,32 @@ if (t==PT_NEUT || t==PT_MUNE)
 		kill_part(i);
 		if(!legacy_enable)
 			parts[r>>8].temp = restrict_flt(parts[r>>8].temp+parts[i].temp/2, MIN_TEMP, 650.0f);//3.0f;
+
 	}
+
+if(t==PT_BULT)
+{
+    for(nx=-2;nx<3;nx++)
+        for(ny=-2;ny<3;ny++)
+            if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
+            {
+				r = pmap[y+ny][x+nx];
+				if((r>>8)>=NPART || !r)
+    				continue;
+                if((r&0xFF)==PT_GUNP)
+                {
+                    if(nx<0)
+                        parts[i].tmp|0x01;
+                    if(nx>0)
+                        parts[i].tmp|0x02;
+                    if(ny<0)
+                        parts[i].tmp|0x04;
+                    if(ny>0)
+                        parts[i].tmp|0x08;
+                }
+            }
+            
+}
 
 if(t==PT_CLOU)
 {
@@ -499,6 +524,7 @@ if(t==PT_FART)
                     parts[i].type=PT_FIRE;
                     parts[i].life=rand()/(RAND_MAX/25)+20;
                     parts[i].tmp=0;
+                    parts[i].temp=700.0f;
                     continue;
                 }
 

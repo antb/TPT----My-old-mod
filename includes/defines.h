@@ -11,7 +11,7 @@
 #define SAVE_VERSION 45
 #define MINOR_VERSION 16 //Start at 10 to prevent "New Version" update
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
-#define BETA
+//#define BETA //Comment out to prever "new version" dialog.
 
 #define SERVER "powdertoy.co.uk"
 
