@@ -24,6 +24,7 @@ int pfree;
 
 unsigned pmap[YRES][XRES];
 unsigned cb_pmap[YRES][XRES];
+unsigned photons[YRES][XRES];
 
 #include "mod/ab-functions.inc"
 
@@ -35,7 +36,9 @@ static int pn_junction_sprk(int x, int y, int pt)
     r >>= 8;
     if(parts[r].type != pt)
         return 0;
-
+    if(parts[r].life != 0)
+        return 0;
+	
     parts[r].ctype = pt;
     parts[r].type = PT_SPRK;
     parts[r].life = 4;
@@ -153,7 +156,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 
     if(!e)
     {
-        if(!legacy_enable && parts[i].type==PT_PHOT)
+        if(!legacy_enable && parts[i].type==PT_PHOT && r)
         {
             if((r & 0xFF) == PT_COAL || (r & 0xFF) == PT_BCOL)
                 parts[r>>8].temp = parts[i].temp;
@@ -488,17 +491,23 @@ inline int create_part(int p, int x, int y, int t)
         {
             if(t==SPC_HEAT&&parts[pmap[y][x]>>8].temp<MAX_TEMP)
             {
-				if((pmap[y][x]&0xFF)==PT_PUMP)
-					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp + 0.1f, MIN_TEMP, MAX_TEMP);
-                else 
-					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp + 4.0f, MIN_TEMP, MAX_TEMP);
+		if((pmap[y][x]&0xFF)==PT_PUMP) {
+			parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp + 0.1f, MIN_TEMP, MAX_TEMP);
+		} else if((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL))) {
+			parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp + 50.0f, MIN_TEMP, MAX_TEMP);
+		} else {
+			parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp + 4.0f, MIN_TEMP, MAX_TEMP);
+		}
             }
             if(t==SPC_COOL&&parts[pmap[y][x]>>8].temp>MIN_TEMP)
             {
-				if((pmap[y][x]&0xFF)==PT_PUMP)
-					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp - 0.1f, MIN_TEMP, MAX_TEMP);
-                else 
-					parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp - 4.0f, MIN_TEMP, MAX_TEMP);
+		if((pmap[y][x]&0xFF)==PT_PUMP) {
+			parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp - 0.1f, MIN_TEMP, MAX_TEMP);
+		} else if((sdl_mod & (KMOD_SHIFT)) && (sdl_mod & (KMOD_CTRL))) {
+			parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp - 50.0f, MIN_TEMP, MAX_TEMP);
+		} else {
+			parts[pmap[y][x]>>8].temp = restrict_flt(parts[pmap[y][x]>>8].temp - 4.0f, MIN_TEMP, MAX_TEMP);
+		}
             }
             return pmap[y][x]>>8;
         }
@@ -585,7 +594,9 @@ inline int create_part(int p, int x, int y, int t)
 				}
 			}
 		}
-		if(pfree == -1)
+	if(photons[y][x] && t==PT_PHOT)
+		return -1;
+	if(pfree == -1)
             return -1;
         i = pfree;
         pfree = parts[i].life;
@@ -600,6 +611,8 @@ inline int create_part(int p, int x, int y, int t)
 			}
             return -1;
 		}
+		if(photons[y][x] && t==PT_PHOT)
+			return -1;
         if(pfree == -1)
             return -1;
         i = pfree;
@@ -654,9 +667,15 @@ inline int create_part(int p, int x, int y, int t)
 	if(t==PT_SING)
 		parts[i].life = rand()%50+60;
 	if(t==PT_QRTZ)
-		parts[i].tmp = (rand()%11) -5;
+		parts[i].tmp = (rand()%11);
 	if(t==PT_PQRT)
-		parts[i].tmp = (rand()%11) -5;
+		parts[i].tmp = (rand()%11);
+	if(ptypes[t].properties&PROP_LIFE) {
+		int r;
+		for(r = 0;r<NGOL;r++)
+			if(t==goltype[r])
+				parts[i].tmp = grule[r+1][9] - 1;
+	}
     if(t==PT_FSEP)
         parts[i].life = 50;
     if(t==PT_COAL) {
@@ -701,7 +720,13 @@ inline int create_part(int p, int x, int y, int t)
         parts[i].vx = 3.0f*cosf(a);
         parts[i].vy = 3.0f*sinf(a);
     }
-	if(t==PT_STKM)
+    if(t==PT_BIZR||t==PT_BIZRG)
+	    parts[i].ctype = 0x47FFFF;
+    if(t!=PT_STKM&&t!=PT_STKM2 && t!=PT_PHOT)// && t!=PT_NEUT)  is this needed? it breaks floodfill, Yes photons should not be placed in the PMAP
+        pmap[y][x] = t|(i<<8);
+    if(t==PT_PHOT)
+		photons[y][x] = t|(i<<8);
+    else if(t==PT_STKM)
     {
         if(isplayer==0)
         {
@@ -923,7 +948,12 @@ inline void delete_part(int x, int y)
 
     if(x<0 || y<0 || x>=XRES || y>=YRES)
         return;
-    i = pmap[y][x];
+    if(photons[y][x]){
+	i = photons[y][x];
+    } else {
+	i = pmap[y][x];
+    }
+    
     if(!i || (i>>8)>=NPART)
         return;
     if((parts[i>>8].type==SLALT)||SLALT==0)
@@ -1256,69 +1286,42 @@ void update_particles_i(pixel *vid, int start, int inc)
 	if(ISGOL==1&&CGOL>=GSPEED)//GSPEED is frames per generation
 	{
 		int createdsomething = 0;
-		for(nx=4;nx<XRES-4;nx++)
-		for(ny=4;ny<YRES-4;ny++)
+		CGOL=0;
+		ISGOL=0;
+		for(nx=CELL;nx<XRES-CELL;nx++)
+		for(ny=CELL;ny<YRES-CELL;ny++)
 		{
-			CGOL=0;
-			ISGOL=0;
 			r = pmap[ny][nx];
 			if((r>>8)>=NPART || !r)
 			{
 				gol[nx][ny] = 0;
                                	continue;
 			}
-			else 
+			else
 				for( golnum=1;golnum<NGOL;golnum++)
 					if(parts[r>>8].type==goltype[golnum-1])
 					{
-						gol[nx][ny] = golnum;
-						for( nnx=-1;nnx<2;nnx++)
-						  for( nny=-1;nny<2;nny++)//it will count itself as its own neighbor, which is needed, but will have 1 extra for delete check
-						{
-							if(ny+nny<4&&nx+nnx<4){//any way to make wrapping code smaller?
-							  gol2[XRES-5][YRES-5][golnum] ++;
-							  gol2[XRES-5][YRES-5][0] ++;
+						if(parts[r>>8].tmp == grule[golnum][9]-1) {
+							gol[nx][ny] = golnum;
+							for( nnx=-1;nnx<2;nnx++)
+							for( nny=-1;nny<2;nny++)//it will count itself as its own neighbor, which is needed, but will have 1 extra for delete check
+							{
+								gol2[((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL][((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][golnum] ++;
+								gol2[((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL][((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][0] ++;
 							}
-							else if(ny+nny<4&&nx+nnx>=XRES-4){
-							  gol2[4][YRES-5][golnum] ++;
-							  gol2[4][YRES-5][0] ++;
-							}
-							else if(ny+nny>=YRES-4&&nx+nnx<4){
-							  gol2[XRES-5][4][golnum] ++;
-							  gol2[XRES-5][4][0] ++;
-							}
-							else if(nx+nnx<4){
-							  gol2[XRES-5][ny+nny][golnum] ++;
-							  gol2[XRES-5][ny+nny][0] ++;
-							}
-							else if(ny+nny<4){
-							  gol2[nx+nnx][YRES-5][golnum] ++;
-							  gol2[nx+nnx][YRES-5][0] ++;
-							}
-							else if(ny+nny>=YRES-4&&nx+nnx>=XRES-4){
-							  gol2[4][4][golnum] ++;
-							  gol2[4][4][0] ++;
-							}
-							else if(ny+nny>=YRES-4){
-							  gol2[nx+nnx][4][golnum] ++;
-							  gol2[nx+nnx][4][0] ++;
-							}
-							else if(nx+nnx>=XRES-4){
-							  gol2[4][ny+nny][golnum] ++;
-							  gol2[4][ny+nny][0] ++;
-							}
-							else{
-							  gol2[nx+nnx][ny+nny][golnum] ++;
-							  gol2[nx+nnx][ny+nny][0] ++;
-							}
+						} else {
+							parts[r>>8].tmp --;
+							if(parts[r>>8].tmp<=0)
+							parts[r>>8].type = PT_NONE;
 						}
 					}
 		}
-		for(nx=4;nx<XRES-4;nx++)
-		  for(ny=4;ny<YRES-4;ny++)
+		for(nx=CELL;nx<XRES-CELL;nx++)
+		  for(ny=CELL;ny<YRES-CELL;ny++)
 		{
+			r = pmap[ny][nx];
 			int neighbors = gol2[nx][ny][0];
-			if(neighbors==0)
+			if(neighbors==0 || !(ptypes[r&0xFF].properties&PROP_LIFE || !r&0xFF) || (r>>8)>=NPART)
 				continue;
 			for( golnum = 1;golnum<NGOL;golnum++)
 			  for( goldelete = 0;goldelete<9;goldelete++)
@@ -1328,8 +1331,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 						if(create_part(-1,nx,ny,goltype[golnum-1]))
 							createdsomething = 1;
 					}
-					else if(neighbors-1==goldelete&&gol[nx][ny]==golnum&&(grule[golnum][goldelete]==0||grule[golnum][goldelete]==2))//subtract 1 because it counted itself
-						parts[pmap[ny][nx]>>8].type = PT_NONE;
+					else if(neighbors-1==goldelete&&gol[nx][ny]==golnum&&(grule[golnum][goldelete]==0||grule[golnum][goldelete]==2)) {//subtract 1 because it counted itself
+						if(parts[r>>8].tmp==grule[golnum][9]-1)
+							parts[r>>8].tmp --;
+					}
+						if(parts[r>>8].tmp<=0)
+							parts[r>>8].type = PT_NONE;
 				}
 			gol2[nx][ny][0] = 0;
 			for( z = 1;z<NGOL;z++)
@@ -1371,8 +1378,8 @@ void update_particles_i(pixel *vid, int start, int inc)
             {
                 if(!(parts[i].life==10&&(parts[i].type==PT_LCRY||parts[i].type==PT_PCLN||parts[i].type==PT_HSWC||parts[i].type==PT_PUMP||parts[i].type==PT_RNEO||parts[i].type==PT_GNEO||parts[i].type==PT_BNEO||parts[i].type==PT_CNEO||parts[i].type==PT_MNEO||parts[i].type==PT_YNEO||parts[i].type==PT_SBTY)) && !(parts[i].life%4==0 && parts[i].type==PT_INST))
                     parts[i].life--;
-                if(parts[i].life<=0 && t!=PT_METL && t!=PT_ARAY && t!=PT_IRON && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_PUMP && t!=PT_WATR && t!=PT_RBDM && t!=PT_LRBD && t!=PT_SLTW && t!=PT_BRMT && t!=PT_PSCN && t!=PT_NSCN && t!=PT_NTCT && t!=PT_PTCT && t!=PT_BMTL && t!=PT_SPRK && t!=PT_LAVA && t!=PT_ETRD&&t!=PT_LCRY && t!=PT_INWR && t!=PT_QRTZ && t!=PT_GLOW && t!= PT_FOG && t!=PT_PIPE && t!=PT_FRZW &&(t!=PT_ICEI&&parts[i].ctype!=PT_FRZW)&&t!=PT_INST && t!=PT_SHLD1&& t!=PT_SHLD2&& t!=PT_SHLD3&& t!=PT_SHLD4 && //AntB Edit
-                    t!=PT_SUWR && t!=PT_LEAD && t!=PT_LLED && t!=PT_ZINC && t!=PT_GSTL && t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO && t!=PT_SBTY && t!=PT_EMIT ) //AntB Edit (elec) - Do not kill if life <= 0
+                if(parts[i].life<=0 && !(ptypes[t].properties&PROP_CONDUCTS) && t!=PT_ARAY && t!=PT_FIRW && t!=PT_PCLN && t!=PT_HSWC && t!=PT_PUMP && t!=PT_SPRK && t!=PT_LAVA && t!=PT_LCRY && t!=PT_QRTZ && t!=PT_GLOW && t!= PT_FOG && t!=PT_PIPE && t!=PT_FRZW &&(t!=PT_ICEI&&parts[i].ctype!=PT_FRZW)&&t!=PT_INST && t!=PT_SHLD1&& t!=PT_SHLD2&& t!=PT_SHLD3&& t!=PT_SHLD4 &&
+                    t!=PT_SUWR && t!=PT_LEAD && t!=PT_LLED && t!=PT_ZINC && t!=PT_GSTL && t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO && t!=PT_SBTY && t!=PT_EMIT ) //AntB Edit (elec) - Do not kill if life <= 0)
                 {
                     kill_part(i);
                     continue;
@@ -1420,18 +1427,9 @@ void update_particles_i(pixel *vid, int start, int inc)
                 continue;
             }
 
-            vx[y/CELL][x/CELL] *= ptypes[t].airloss;
-            vy[y/CELL][x/CELL] *= ptypes[t].airloss;
-	    if(t==PT_ANAR)
-	    {
-		vx[y/CELL][x/CELL] -= ptypes[t].airdrag*parts[i].vx;
-		vy[y/CELL][x/CELL] -= ptypes[t].airdrag*parts[i].vy; 
-	    }
-	    else
-	    {
-		vx[y/CELL][x/CELL] += ptypes[t].airdrag*parts[i].vx;
-		vy[y/CELL][x/CELL] += ptypes[t].airdrag*parts[i].vy;
-	    }
+	    vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
+	    vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vy;
+	    
             if(t==PT_GAS||t==PT_NBLE)
             {
 		if(pv[y/CELL][x/CELL]<3.5f)
@@ -1572,16 +1570,8 @@ void update_particles_i(pixel *vid, int start, int inc)
 						
 				}
 				
-				if(t==PT_ANAR)
-				{
-					parts[i].vx -= ptypes[t].advection*vx[y/CELL][x/CELL] + pGravX;
-					parts[i].vy -= ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
-				}
-				else{
-					parts[i].vx += ptypes[t].advection*vx[y/CELL][x/CELL] + pGravX;
-					parts[i].vy += ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
-					
-				}
+				parts[i].vx += ptypes[t].advection*vx[y/CELL][x/CELL] + pGravX;
+				parts[i].vy += ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
             }
 
             if(ptypes[t].diffusion)
@@ -1917,7 +1907,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                 pt = parts[i].temp -= 2.5f;
             }
 
-            if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_BRMT || t==PT_PSCN || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_BMTL || t==PT_SPRK|| t == PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_LLED || t==PT_ZINC || t==PT_GSTL || t==PT_EMIT) //AntB Edit (elec)
+            if((ptypes[t].properties&PROP_CONDUCTS) || t==PT_SPRK)
             {
                 nx = x % CELL;
                 if(nx == 0)
@@ -1935,7 +1925,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                     ny = y/CELL;
                 if(nx>=0 && ny>=0 && nx<XRES/CELL && ny<YRES/CELL)
                 {
-                    if(t==PT_WATR || t==PT_ETRD || t==PT_SLTW || t==PT_METL || t==PT_IRON || t==PT_RBDM || t==PT_LRBD || t==PT_NSCN || t==PT_NTCT || t==PT_PTCT || t==PT_PSCN || t==PT_BRMT || t==PT_BMTL||t==PT_NBLE || t==PT_INWR || t==PT_SUWR || t==PT_LEAD || t==PT_LLED || t==PT_ZINC || t==PT_GSTL || t==PT_EMIT) //AntB Edit (elec) - SPRK conductivity check
+                    if(t!=PT_SPRK)
                     {
                         if(emap[ny][nx]==12 && !parts[i].life)
                         {
@@ -1966,7 +1956,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                             r = pmap[y+ny][x+nx];
                             if((r>>8)>=NPART || !r)
                                 continue;
-                            if(((r&0xFF)==PT_METL || (r&0xFF)==PT_IRON || (r&0xFF)==PT_ETRD || (r&0xFF)==PT_PSCN || (r&0xFF)==PT_NSCN || (r&0xFF)==PT_NTCT || (r&0xFF)==PT_PTCT || (r&0xFF)==PT_BMTL || (r&0xFF)==PT_RBDM || (r&0xFF)==PT_LRBD || (r&0xFF)==PT_BRMT || (r&0xFF)==PT_NBLE || (r&0xFF)==PT_INWR || (r&0xFF)==PT_SUWR || (r&0xFF)==PT_LEAD || (r&0xFF)==PT_LLED || (r&0xFF)==PT_ZINC || (r&0xFF)==PT_GSTL) && parts[r>>8].ctype!=PT_SPRK) // AntB Edit - THDR conductivity
+                            if((ptypes[r&0xFF].properties&PROP_CONDUCTS) && parts[r>>8].life==0 && !((r&0xFF)==PT_WATR||(r&0xFF)==PT_SLTW) && parts[r>>8].ctype!=PT_SPRK)
                             {
                                 t = parts[i].type = PT_NONE;
                                 parts[r>>8].ctype = parts[r>>8].type;
@@ -3876,7 +3866,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                             if(parts_avg(i,r>>8,PT_INSL) != PT_INSL && parts_avg(i,r>>8,PT_RBRI) != PT_RBRI) // AntB edit
 
                             {
-                                if((rt==PT_METL||rt==PT_IRON||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_NBLE||rt==PT_SUWR||rt==PT_LEAD||rt==PT_LLED||rt==PT_ZINC||rt==PT_GSTL)&&parts[r>>8].life==0 && abs(nx)+abs(ny) < 4) //AntB Edit - BTRY Conductivity
+                                if((ptypes[rt].properties&PROP_CONDUCTS) && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[r>>8].life==0 && abs(nx)+abs(ny) < 4)
                                 {
                                     parts[r>>8].life = 4;
                                     parts[r>>8].ctype = rt;
@@ -3908,7 +3898,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                                     parts[i].life = 10;
                                 }
                             }
-			    else if(parts[r>>8].type == PT_SPRK && parts[r>>8].ctype==PT_SWCH && parts[i].life<10&&parts_avg(i,r>>8,PT_INSL)!=PT_INSL)
+			    else if(parts[r>>8].type == PT_SPRK && parts[r>>8].ctype==PT_SWCH && parts[i].life<10 && parts[i].life>0 &&parts_avg(i,r>>8,PT_INSL)!=PT_INSL)
 			    {
 				    parts[r>>8].type = parts[r>>8].ctype;
 				    parts[r>>8].life = 9;
@@ -4041,7 +4031,7 @@ void update_particles_i(pixel *vid, int start, int inc)
                             }
                             if(parts_avg(r>>8, i,PT_INSL) != PT_INSL && parts_avg(r>>8, i,PT_RBRI) != PT_RBRI) //AntB Edit
                             {
-                                if(t==PT_SPRK && (rt==PT_METL||rt==PT_IRON||rt==PT_ETRD||rt==PT_BMTL||rt==PT_BRMT||rt==PT_LRBD||rt==PT_RBDM||rt==PT_PSCN||rt==PT_NSCN||rt==PT_NBLE||rt==PT_SUWR||rt==PT_ZINC||rt==PT_EMIT) && parts[r>>8].life==0 && //AntB Edit (elec) - Standard conductivity
+                                if(t==PT_SPRK && (ptypes[rt].properties&PROP_CONDUCTS) && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[r>>8].life==0 &&
                                         (parts[i].life<3 || ((r>>8)<i && parts[i].life<4)) && abs(nx)+abs(ny)<4)
                                 {
                                     if(!(rt==PT_PSCN&&parts[i].ctype==PT_NSCN)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN&&parts[i].temp>=373.0f)&&parts[i].ctype==PT_NTCT)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN&&parts[i].temp<=373.0f)&&parts[i].ctype==PT_PTCT)&&!(rt!=PT_PSCN&&!(rt==PT_NSCN)&&parts[i].ctype==PT_INWR) && parts_avg(r>>8, i,PT_INSL) != PT_INSL && parts_avg(r>>8, i,PT_RBRI) != PT_RBRI &&!(parts[i].ctype==PT_SWCH&&(rt==PT_PSCN||rt==PT_NSCN)) ) //AntB Edit
@@ -5337,6 +5327,7 @@ void update_particles(pixel *vid)
     isplayer = 0;  //Needed for player spawning
     isplayer2 = 0;
     memset(pmap, 0, sizeof(pmap));
+    memset(photons, 0, sizeof(photons));
     r = rand()%2;
     NUM_PARTS = 0;
     for(j=0; j<NPART; j++)
@@ -5351,6 +5342,8 @@ void update_particles(pixel *vid)
                 if(t!=PT_NEUT || (pmap[y][x]&0xFF)!=PT_GLAS)
                     pmap[y][x] = t|(i<<8);
             }
+	    if(t==PT_PHOT)
+		    photons[y][x] = t|(i<<8);
 	    NUM_PARTS ++;
         }
         else
@@ -5870,16 +5863,25 @@ void rotate_area(int area_x, int area_y, int area_w, int area_h, int invert)
     unsigned rtpmap[area_w][area_h];
     unsigned char tbmap[area_h/CELL][area_w/CELL];
     unsigned char rtbmap[area_w/CELL][area_h/CELL];
+    float tfvy[area_h/CELL][area_w/CELL];
+    float tfvx[area_h/CELL][area_w/CELL];
     for(cy=0; cy<area_h; cy++)
     {
         for(cx=0; cx<area_w; cx++)//save walls to temp
         {
 	    if(area_x + cx<XRES&&area_y + cy<YRES)
 	    {
-		if(bmap[(cy+area_y)/CELL][(cx+area_x)/CELL])
+		if(bmap[(cy+area_y)/CELL][(cx+area_x)/CELL]){
 			tbmap[cy/CELL][cx/CELL] = bmap[(cy+area_y)/CELL][(cx+area_x)/CELL];
-		else 
+			if(bmap[(cy+area_y)/CELL][(cx+area_x)/CELL]==WL_FAN){
+				tfvx[cy/CELL][cx/CELL] = fvx[(cy+area_y)/CELL][(cx+area_x)/CELL];
+				tfvy[cy/CELL][cx/CELL] = fvy[(cy+area_y)/CELL][(cx+area_x)/CELL];
+			}
+		}else {
 			tbmap[cy/CELL][cx/CELL] = 0;
+			tfvx[cy/CELL][cx/CELL] = 0;
+			tfvy[cy/CELL][cx/CELL] = 0;
+		}
 	    }
         }
     }
@@ -5903,11 +5905,15 @@ void rotate_area(int area_x, int area_y, int area_w, int area_h, int invert)
 		{
 			rtbmap[cy/CELL][((area_h-1)-cx)/CELL] = tbmap[cy/CELL][cx/CELL];
 			rtpmap[cy][(area_h-1)-cx] = tpmap[(int)(cy+0.5f)][(int)(cx+0.5f)];
+			tfvx[cy/CELL][((area_h-1)-cx)/CELL] = -tfvx[cy/CELL][cx/CELL];
+			tfvy[cy/CELL][((area_h-1)-cx)/CELL] = tfvy[cy/CELL][cx/CELL];
 		}
 		else
 		{
 			rtbmap[((area_h-1)-cx)/CELL][cy/CELL] = tbmap[cy/CELL][cx/CELL];
 			rtpmap[(area_h-1)-cx][cy] = tpmap[(int)(cy+0.5f)][(int)(cx+0.5f)];
+			tfvy[((area_h-1)-cx)/CELL][cy/CELL] = -tfvx[cy/CELL][cx/CELL];
+			tfvx[((area_h-1)-cx)/CELL][cy/CELL] = tfvy[cy/CELL][cx/CELL];
 		}
 	}
     }
@@ -5923,6 +5929,8 @@ void rotate_area(int area_x, int area_y, int area_w, int area_h, int invert)
 				parts[rtpmap[(int)(cy+0.5f)][(int)(cx+0.5f)]>>8].y = area_y +cy;
 			}
 			bmap[(area_y+cy)/CELL][(area_x+cx)/CELL] = rtbmap[cy/CELL][cx/CELL];
+			fvy[(area_y+cy)/CELL][(area_x+cx)/CELL] = tfvy[cy/CELL][cx/CELL];
+			fvx[(area_y+cy)/CELL][(area_x+cx)/CELL] = tfvx[cy/CELL][cx/CELL];
 		}
 	}
     }
@@ -5966,13 +5974,13 @@ void create_box(int x1, int y1, int x2, int y2, int c)
 int flood_parts(int x, int y, int c, int cm, int bm)
 {
     int x1, x2, dy = (c<PT_NUM)?1:CELL;
-    int co = c;
+    int co = c, wall;
     if(cm==PT_INST&&co==PT_SPRK)
 	    if((pmap[y][x]&0xFF)==PT_SPRK)
 		    return 0;
     if(c>=UI_WALLSTART&&c<=UI_WALLSTART+UI_WALLCOUNT)
     {
-        c = c-100;
+        wall = c-100;
     }
     if(cm==-1)
     {
@@ -5989,7 +5997,7 @@ int flood_parts(int x, int y, int c, int cm, int bm)
     }
     if(bm==-1)
     {
-        if(c==WL_ERASE)
+        if(wall==WL_ERASE)
         {
             bm = bmap[y/CELL][x/CELL];
             if(!bm)
@@ -6200,7 +6208,15 @@ int create_parts(int x, int y, int rx, int ry, int c)
     {
 	if(rx==0&&ry==0)
 	{
-		create_part(-2, x, y, c);
+		if((pmap[y][x]&0xFF)==SLALT || SLALT==0)
+		{
+		    if((pmap[y][x]))
+		    {
+			delete_part(x, y);
+			if(c!=0)
+			create_part(-2, x, y, c);
+		    }
+		}
 	}
 	else
         for(j=-ry; j<=ry; j++)
