@@ -625,6 +625,7 @@ static int grule[NGOL][10] =
 	{0,0,2,0,2,0,3,0,0,3},//BRAN
     {1,1,1,3,1,1,1,1,1,2},//DHLE -- AntB
     {0,0,2,2,2,0,0,0,0,2},//SERV -- AntB
+    {0,1,2,1,1,0,0,0,0,1},//ANTB -- Obvious
 
 };
 static int goltype[NGOL] = 
@@ -654,7 +655,8 @@ static int goltype[NGOL] =
 	PT_FROG,
 	PT_BRAN,
     PT_DHLE,    //AntB
-    PT_SERV     //Edit
+    PT_SERV,     //Edit
+    PT_ANTB
 };
 static int loverule[9][9] =
 {

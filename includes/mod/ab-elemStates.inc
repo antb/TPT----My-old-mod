@@ -39,4 +39,5 @@
 /* GOL  */ {ST_NONE,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
 
 /* REMX */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
-/* BULT */ {ST_SOLID,   PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},
+
+/* GOL  */ {ST_NONE,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f,    PT_NONE, 0.0f},

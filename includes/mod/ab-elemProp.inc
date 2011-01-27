@@ -33,11 +33,12 @@
 {"FART",  PIXPACK(0x44FF44),  0.5f, 0.00f * CFDS, 0.00f,  0.00f,  0.02f,  0.00f,  3.00f,  0.000001f * CFDS, 0,  0,    0,  0,  0,  1, 1,   SC_CUSTOM,  R_TEMP+25.0f   +273.15f,  80,   "Gases - Farts/Methane - Explosive Gas - Grows weaker as it expands.",        TYPE_GAS,                               NULL},
 {"CLOU",  PIXPACK(0xCCCCFF),  0.0f, 0.00f * CFDS, 0.50f,  0.50f,  0.70f,  0.00f,  0.00f,  0.000000f * CFDS, 1,  0,    0,  0,  0,  1, 50,  SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  0,    "Gases -Cloud. Releases WATR and moves around",                               TYPE_GAS|PROP_NEUTPENETRATE,            NULL},
 
-{"DHLE",  PIXPACK(0x996666),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,    0,  0,  0,  1, 100, SC_CUSTOM,  9000.0f,                  40,   "Deathless O_O B2/S123456789",                                                TYPE_SOLID|PROP_LIFE,                   NULL},
-{"SERV",  PIXPACK(0xF2F5A9),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,    0,  0,  0,  1, 100, SC_CUSTOM,  9000.0f,                  40,   "Serviette B234/S",                                                           TYPE_SOLID|PROP_LIFE,                   NULL},
+{"DHLE",  PIXPACK(0x996666),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,    0,  0,  0,  1, 100, SC_CUSTOM,  9000.0f,                  40,   "Deathless O_O B2/S12345678/2",                                               TYPE_SOLID|PROP_LIFE,                   NULL},
+{"SERV",  PIXPACK(0xF2F5A9),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,    0,  0,  0,  1, 100, SC_CUSTOM,  9000.0f,                  40,   "Serviette B234/S/2",                                                         TYPE_SOLID|PROP_LIFE,                   NULL},
 
 {"REMX",  PIXPACK(0xC000C0),  0.5f, 0.05f * CFDS, 0.90f,  0.50f,  0.10f,  0.20f,  0.00f,  0.000000f * CFDS, 1,  0,    0,  0,  0,  1, 65,  SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  100,  "Special - Restores X",                                                       TYPE_PART,                              NULL},
-{"BULT",  PIXPACK(0x9090C0),  0.0f, 0.00f * CFDS, 0.50f,  0.50f,  1.00f,  0.00f,  0.00f,  0.000000f * CFDS, 1,  0,    0,  0,  0,  1, 15,  SC_CUSTOM,  R_TEMP+0.0f    +273.15f,  60,   "Powder - Bullets, Buckshot, whatever you want to call it. Fire with GUNP.",  TYPE_PART|PROP_HEAT_GLOW,               NULL},
+
+{"ANTB",  PIXPACK(0x9090FF),  0.0f,	0.00f * CFDS, 0.90f,  0.00f,  0.00f,  0.00f,  0.00f,  0.000000f	* CFDS,	0,	0,    0,  0,  0,  1, 100, SC_CUSTOM,  9000.0f,                  40,   "AntB's Own -- If you can make a glider it shall be yours :D --B2/S134/3",    TYPE_SOLID|PROP_LIFE,                   NULL},
 //Name    Colour              Advec Airdrag       Airloss Loss    Collid  Grav    Diffus  Hotair            Fal Burn  Exp Mel Hrd M  W    Section     H                   Ins(real world, by triclops200) Description                                               Flags (TYPE then PROPs)
 /* fal --> 0=Solid/Gas 1=Powder 2 = Liquid  */
 

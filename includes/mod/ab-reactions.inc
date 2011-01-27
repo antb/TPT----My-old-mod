@@ -8,30 +8,6 @@ if (t==PT_NEUT || t==PT_MUNE)
 
 	}
 
-if(t==PT_BULT)
-{
-    for(nx=-2;nx<3;nx++)
-        for(ny=-2;ny<3;ny++)
-            if(x+nx>=0 && y+ny>0 && x+nx<XRES && y+ny<YRES && (nx || ny))
-            {
-				r = pmap[y+ny][x+nx];
-				if((r>>8)>=NPART || !r)
-    				continue;
-                if((r&0xFF)==PT_GUNP)
-                {
-                    if(nx<0)
-                        parts[i].tmp|0x01;
-                    if(nx>0)
-                        parts[i].tmp|0x02;
-                    if(ny<0)
-                        parts[i].tmp|0x04;
-                    if(ny>0)
-                        parts[i].tmp|0x08;
-                }
-            }
-            
-}
-
 if(t==PT_CLOU)
 {
 // ---MOVEMENT---

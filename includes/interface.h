@@ -73,11 +73,11 @@ static menu_section msections[] =
     {"\xCC", "Special", 0, 1},
     {"\xD2", "Life", 0, 1},
     {"\xD2", "More Life", 0, 1},
-    {"\xC8", "Cracker", 0, 0},
-    {"\xC8", "Cracker!", 0, 0},
 	{"\x97", "AntB's Mod", 0, 1},
     {"\xC2", "AntB's Electrics", 0, 1},  
 	{"\xC5", "Neon Lights", 0, 1},
+    {"\xC8", "Cracker", 0, 0},
+    {"\xC8", "Cracker!", 0, 0},
 };
 
 struct ui_edit
