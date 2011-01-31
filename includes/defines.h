@@ -62,7 +62,7 @@ extern unsigned char ZSIZE;
 #define STAMP_Y 4
 #define STAMP_MAX 120
 
-#define NGOL 28 //AntB Edit
+#define NGOL 29 //AntB Edit
 
 #define CIRCLE_BRUSH 0
 #define SQUARE_BRUSH 1
@@ -140,6 +140,7 @@ int gol[XRES][YRES];
 int gol2[XRES][YRES][NGOL];
 int SEC;
 int SEC2;
+int console_mode;
 int REPLACE_MODE;
 int CURRENT_BRUSH;
 int GRID_MODE;

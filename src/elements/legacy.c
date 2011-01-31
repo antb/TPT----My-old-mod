@@ -1,10 +1,10 @@
-#include <powder.h>
+#include <element.h>
 
 // Interactions which only occur when legacy_enable is on
 int update_legacy_all(UPDATE_FUNC_ARGS) {
-	if (!legacy_enable) return 0;
 	int r, rx, ry, rt;
 	int t = parts[i].type;
+	if (!legacy_enable) return 0;
 	if (t==PT_WTRV) {
 		for (rx=-2; rx<3; rx++)
 			for (ry=-2; ry<3; ry++)
