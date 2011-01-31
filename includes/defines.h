@@ -7,9 +7,9 @@
 #define PATH_SEP "/"
 #endif
 
-#define ANTB_VERSION 6 //AntB Edit -- Bwahahahaaah!
+#define ANTB_VERSION 7 //AntB Edit -- Bwahahahaaah!
 #define SAVE_VERSION 45
-#define MINOR_VERSION 16 //Start at 10 to prevent "New Version" update
+#define MINOR_VERSION 10 //Start at 10 to prevent "New Version" update
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
 //#define BETA //Comment out to prever "new version" dialog.
 
@@ -113,16 +113,16 @@ extern int death;
 
 struct sign
 {
-    int x,y,ju;
-    char text[256];
+	int x,y,ju;
+	char text[256];
 };
 typedef struct sign sign;
 
 struct stamp
 {
-    char name[11];
-    pixel *thumb;
-    int thumb_w, thumb_h, dodelete;
+	char name[11];
+	pixel *thumb;
+	int thumb_w, thumb_h, dodelete;
 };
 typedef struct stamp stamp;
 
