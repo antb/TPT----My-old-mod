@@ -718,7 +718,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0)
 					ttv |= (d[p++]);
 					parts[i-1].tmp = ttv;
 					if(ptypes[parts[i-1].type].properties&PROP_LIFE && !parts[i-1].tmp)
-						for(q = 1; q<NGOL ; q++) {
+						for(q = 1; q<=NGOL ; q++) {
 							if(parts[i-1].type==goltype[q-1] && grule[q][9]==2)
 								parts[i-1].tmp = grule[q][9]-1;
 						}
@@ -1113,6 +1113,7 @@ int main(int argc, char *argv[])
 #endif
 	char uitext[255] = "";
 	char heattext[128] = "";
+	char coordtext[13] = "";
 	int currentTime = 0;
 	int FPS = 0;
 	int pastFPS = 0;
@@ -1121,7 +1122,7 @@ int main(int argc, char *argv[])
 	pixel *pers_bg=calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 	void *http_ver_check;
 	char *ver_data=NULL, *tmp;
-	char error[255] = "";
+	char console_error[255] = "";
 	int i, j, bq, fire_fc=0, do_check=0, old_version=0, http_ret=0, major, minor, old_ver_len;
 #ifdef INTERNAL
 	int vs = 0;
@@ -1698,264 +1699,16 @@ int main(int argc, char *argv[])
 		}
 		if(console_mode)
 		{
-			int nx,ny;
 			char *console;
-			char *console2;
-			char *console3;
-			char *console4;
-			char *console5;
 			//char error[255] = "error!";
 			sys_pause = 1;
-			console = console_ui(vid_buf,error);
+			console = console_ui(vid_buf,console_error);
 			console = mystrdup(console);
-			strcpy(error,"");
-			if(console && strcmp(console, "")!=0 && strncmp(console, " ", 1)!=0)
+			strcpy(console_error,"");
+			if(process_command(vid_buf,console,&console_error)==0)
 			{
-				console2 = strtok(console, " ");
-				console3 = strtok(NULL, " ");
-				console4 = strtok(NULL, " ");
-				console5 = strtok(NULL, " ");
-				if(strcmp(console2, "quit")==0)
-				{
-					free(console);
-					break;
-				}
-				else if(strcmp(console2, "load")==0 && console3)
-				{
-					j = atoi(console3);
-					if(j)
-					{
-						open_ui(vid_buf, console3, NULL);
-						console_mode = 0;
-					}
-				}
-				else if(strcmp(console2, "reset")==0 && console3)
-				{
-					if(strcmp(console3, "pressure")==0)
-					{
-						for (nx = 0; nx<XRES/CELL; nx++)
-							for (ny = 0; ny<YRES/CELL; ny++)
-							{
-								pv[ny][nx] = 0;
-							}
-						
-					}
-					else if(strcmp(console3, "velocity")==0)
-					{
-						for (nx = 0; nx<XRES/CELL; nx++)
-							for (ny = 0; ny<YRES/CELL; ny++)
-							{
-								vx[ny][nx] = 0;
-								vy[ny][nx] = 0;
-							}
-					}
-					else if(strcmp(console3, "sparks")==0)
-					{
-						for(i=0;i<NPART;i++)
-						{
-							if(parts[i].type==PT_SPRK)
-							{
-								parts[i].type = parts[i].ctype;
-								parts[i].life = 4;
-							}
-						}
-					}
-					else if(strcmp(console3, "temp")==0)
-					{
-						for(i=0;i<NPART;i++)
-						{
-							if(parts[i].type)
-							{
-								parts[i].temp = ptypes[parts[i].type].heat;
-							}
-						}
-					}
-				}
-				else if(strcmp(console2, "set")==0 && console3 && console4 && console5)
-				{
-					if(strcmp(console3, "life")==0)
-					{
-						if(strcmp(console4, "all")==0)
-						{
-							j = atoi(console5);
-							for(i=0;i<NPART;i++)
-							{
-								if(parts[i].type)
-									parts[i].life = j;
-							}
-						} else 
-						{
-							i = atoi(console4);
-							if(parts[i].type)
-							{
-								j = atoi(console5);
-								parts[i].life = j;
-							}
-						}
-					}				
-					if(strcmp(console3, "type")==0)
-					{
-						if(strcmp(console4, "all")==0)
-						{
-							j = atoi(console5);
-							for(i=0;i<NPART;i++)
-							{
-								if(parts[i].type)
-									parts[i].type = j;
-							}
-						} else 
-						{
-							i = atoi(console4);
-							if(parts[i].type)
-							{
-								j = atoi(console5);
-								parts[i].type = j;
-							}
-						}
-					}	
-					if(strcmp(console3, "temp")==0)
-					{
-						if(strcmp(console4, "all")==0)
-						{
-							j = atoi(console5);
-							for(i=0;i<NPART;i++)
-							{
-								if(parts[i].type)
-									parts[i].temp = j;
-							}
-						} else 
-						{
-							i = atoi(console4);
-							if(parts[i].type)
-							{
-								j = atoi(console5);
-								parts[i].temp = j;
-							}
-						}
-					}	
-					if(strcmp(console3, "tmp")==0)
-					{
-						if(strcmp(console4, "all")==0)
-						{
-							j = atoi(console5);
-							for(i=0;i<NPART;i++)
-							{
-								if(parts[i].type)
-									parts[i].tmp = j;
-							}
-						} else 
-						{
-							i = atoi(console4);
-							if(parts[i].type)
-							{
-								j = atoi(console5);
-								parts[i].tmp = j;
-							}
-						}
-					}	
-					if(strcmp(console3, "x")==0)
-					{
-						if(strcmp(console4, "all")==0)
-						{
-							j = atoi(console5);
-							for(i=0;i<NPART;i++)
-							{
-								if(parts[i].type)
-									parts[i].x = j;
-							}
-						} else 
-						{
-							i = atoi(console4);
-							if(parts[i].type)
-							{
-								j = atoi(console5);
-								parts[i].x = j;
-							}
-						}
-					}
-					if(strcmp(console3, "y")==0)
-					{
-						if(strcmp(console4, "all")==0)
-						{
-							j = atoi(console5);
-							for(i=0;i<NPART;i++)
-							{
-								if(parts[i].type)
-									parts[i].y = j;
-							}
-						} else 
-						{
-							i = atoi(console4);
-							if(parts[i].type)
-							{
-								j = atoi(console5);
-								parts[i].y = j;
-							}
-						}
-					}	
-					if(strcmp(console3, "ctype")==0)
-					{
-						if(strcmp(console4, "all")==0)
-						{
-							j = atoi(console5);
-							for(i=0;i<NPART;i++)
-							{
-								if(parts[i].type)
-									parts[i].ctype = j;
-							}
-						} else 
-						{
-							i = atoi(console4);
-							if(parts[i].type)
-							{
-								j = atoi(console5);
-								parts[i].ctype = j;
-							}
-						}
-					}	
-					if(strcmp(console3, "vx")==0)
-					{
-							if(strcmp(console4, "all")==0)
-						{
-							j = atoi(console5);
-							for(i=0;i<NPART;i++)
-							{
-								if(parts[i].type)
-									parts[i].vx = j;
-							}
-						} else 
-						{
-							i = atoi(console4);
-							if(parts[i].type)
-							{
-								j = atoi(console5);
-								parts[i].vx = j;
-							}
-						}
-					}	
-					if(strcmp(console3, "vy")==0)
-					{
-						if(strcmp(console4, "all")==0)
-						{
-							j = atoi(console5);
-							for(i=0;i<NPART;i++)
-							{
-								if(parts[i].type)
-									parts[i].vy = j;
-							}
-						} else 
-						{
-							i = atoi(console4);
-							if(parts[i].type)
-							{
-								j = atoi(console5);
-								parts[i].vy = j;
-							}
-						}
-					}
-				}
-				else
-					sprintf(error, "Invalid Command", console2);
+				free(console);
+				break;
 			}
 			free(console);
 			if(!console_mode)
@@ -1996,13 +1749,22 @@ int main(int argc, char *argv[])
 			}
 			if (!((cr>>8)>=NPART || !cr))
 			{
-                    int tctype = parts[cr>>8].ctype;
+                if (DEBUG_MODE)
+				{
+					int tctype = parts[cr>>8].ctype;
 					if (tctype>=PT_NUM)
 						tctype = 0;
 					sprintf(heattext, "%s (%s), Pressure: %3.2f, Temp: %4.2f C, Life: %d, #%d", ptypes[cr&0xFF].name, ptypes[tctype].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life ,cr>>8);
+					sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
+					//sprintf(heattext, "%s (%s), Pressure: %3.2f, Temp: %4.2f C, Life: %d", ptypes[cr&0xFF].name, ptypes[parts[cr>>8].ctype].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life);
+				} else {
+					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C", ptypes[cr&0xFF].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f);
+				}
 			}
 			else
 			{
+				if (DEBUG_MODE)
+					sprintf(coordtext, "X:%d Y:%d", x/sdl_scale, y/sdl_scale);
 				sprintf(heattext, "Empty, Pressure: %3.2f", pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL]);
 			}
 		}
@@ -2718,17 +2480,32 @@ int main(int argc, char *argv[])
 				{
 					fillrect(vid_buf, XRES-20-textwidth(heattext), 266, textwidth(heattext)+8, 15, 0, 0, 0, 140);
 					drawtext(vid_buf, XRES-16-textwidth(heattext), 270, heattext, 255, 255, 255, 200);
+					if(DEBUG_MODE)
+					{
+						fillrect(vid_buf, XRES-20-textwidth(coordtext), 280, textwidth(coordtext)+8, 13, 0, 0, 0, 140);
+						drawtext(vid_buf, XRES-16-textwidth(coordtext), 282, coordtext, 255, 255, 255, 200);
+					}
 				}
 				else
 				{
 					fillrect(vid_buf, 12, 266, textwidth(heattext)+8, 15, 0, 0, 0, 140);
 					drawtext(vid_buf, 16, 270, heattext, 255, 255, 255, 200);
+					if(DEBUG_MODE)
+					{
+						fillrect(vid_buf, 12, 280, textwidth(coordtext)+8, 13, 0, 0, 0, 140);
+						drawtext(vid_buf, 16, 282, coordtext, 255, 255, 255, 200);
+					}
 				}
 			}
 			else
 			{
 				fillrect(vid_buf, XRES-20-textwidth(heattext), 12, textwidth(heattext)+8, 15, 0, 0, 0, 140);
 				drawtext(vid_buf, XRES-16-textwidth(heattext), 16, heattext, 255, 255, 255, 200);
+				if(DEBUG_MODE)
+				{
+					fillrect(vid_buf, XRES-20-textwidth(coordtext), 26, textwidth(coordtext)+8, 11, 0, 0, 0, 140);
+					drawtext(vid_buf, XRES-16-textwidth(coordtext), 27, coordtext, 255, 255, 255, 200);	
+				}
 			}
 			fillrect(vid_buf, 12, 12, 200, 50, 0, 0, 0, 140);
 			drawtext(vid_buf, 16, 16, uitext, 32, 216, 255, 200);
@@ -2755,5 +2532,302 @@ int main(int argc, char *argv[])
 
 	http_done();
 	return 0;
+}
+int process_command(pixel *vid_buf,char *console,char *console_error) {
+	int nx,ny,i,j;
+	char *console2;
+	char *console3;
+	char *console4;
+	char *console5;
+	//sprintf(console_error, "%s", console);
+	if(console && strcmp(console, "")!=0 && strncmp(console, " ", 1)!=0)
+	{
+		console2 = strtok(console, " ");
+		console3 = strtok(NULL, " ");
+		console4 = strtok(NULL, " ");
+		console5 = strtok(NULL, " ");
+		if(strcmp(console2, "quit")==0)
+		{
+			return 0;
+		}
+		else if(strcmp(console2, "file")==0 && console3)
+		{
+			FILE *f=fopen(console3, "r");
+			if(f)
+			{
+				char fileread[5000];//TODO: make this change with file size
+				char pch[5000];
+				fread(fileread,1,5000,f);
+				j = 0;
+				for(i=0; i<strlen(fileread); i++)
+				{
+					if(fileread[i] != '\n')
+						pch[i-j] = fileread[i];
+					else
+					{
+						process_command(vid_buf, pch, console_error);
+						memset(pch,0,sizeof(pch));
+						j = i+1;
+					}
+				}
+				//sprintf(console_error, "%s exists", console3);
+				fclose(f);
+			}
+			else
+				sprintf(console_error, "%s does not exist", console3);
+		}
+		else if(strcmp(console2, "load")==0 && console3)
+		{
+			j = atoi(console3);
+			if(j)
+			{
+				open_ui(vid_buf, console3, NULL);
+				console_mode = 0;
+			}
+		}
+		else if (strcmp(console2, "create")==0 && console3 && console4)
+		{
+			if (console_parse_type(console3, &j, console_error)
+				&& console_parse_coords(console4, &nx, &ny, console_error))
+			{
+				if (!j)
+					strcpy(console_error, "Cannot create particle with type NONE");
+				else if (create_part(-1,nx,ny,j)<0)
+					strcpy(console_error, "Could not create particle");
+			}
+		}
+		else if ((strcmp(console2, "delete")==0 || strcmp(console2, "kill")==0) && console3)
+		{
+			if (console_parse_partref(console3, &i, console_error))
+				kill_part(i);
+		}
+		else if(strcmp(console2, "reset")==0 && console3)
+		{
+			if(strcmp(console3, "pressure")==0)
+			{
+				for (nx = 0; nx<XRES/CELL; nx++)
+					for (ny = 0; ny<YRES/CELL; ny++)
+					{
+						pv[ny][nx] = 0;
+					}
+			}
+			else if(strcmp(console3, "velocity")==0)
+			{
+				for (nx = 0; nx<XRES/CELL; nx++)
+					for (ny = 0; ny<YRES/CELL; ny++)
+					{
+						vx[ny][nx] = 0;
+						vy[ny][nx] = 0;
+					}
+			}
+			else if(strcmp(console3, "sparks")==0)
+			{
+				for(i=0; i<NPART; i++)
+				{
+					if(parts[i].type==PT_SPRK)
+					{
+						parts[i].type = parts[i].ctype;
+						parts[i].life = 4;
+					}
+				}
+			}
+			else if(strcmp(console3, "temp")==0)
+			{
+				for(i=0; i<NPART; i++)
+				{
+					if(parts[i].type)
+					{
+						parts[i].temp = ptypes[parts[i].type].heat;
+					}
+				}
+			}
+		}
+		else if(strcmp(console2, "set")==0 && console3 && console4 && console5)
+		{
+			if(strcmp(console3, "life")==0)
+			{
+				if(strcmp(console4, "all")==0)
+				{
+					j = atoi(console5);
+					for(i=0; i<NPART; i++)
+					{
+						if(parts[i].type)
+							parts[i].life = j;
+					}
+				}
+				else
+				{
+					if (console_parse_partref(console4, &i, console_error))
+					{
+						j = atoi(console5);
+						parts[i].life = j;
+					}
+				}
+			}
+			if(strcmp(console3, "type")==0)
+			{
+				if(strcmp(console4, "all")==0)
+				{
+					if (console_parse_type(console5, &j, console_error))
+						for(i=0; i<NPART; i++)
+						{
+							if(parts[i].type)
+								parts[i].type = j;
+						}
+				}
+				else
+				{
+					if (console_parse_partref(console4, &i, console_error)
+						&& console_parse_type(console5, &j, console_error))
+					{
+						parts[i].type = j;
+					}
+				}
+			}
+			if(strcmp(console3, "temp")==0)
+			{
+				if(strcmp(console4, "all")==0)
+				{
+					j = atoi(console5);
+					for(i=0; i<NPART; i++)
+					{
+						if(parts[i].type)
+							parts[i].temp = j;
+					}
+				}
+				else
+				{
+					if (console_parse_partref(console4, &i, console_error))
+					{
+						j = atoi(console5);
+						parts[i].temp = j;
+					}
+				}
+			}
+			if(strcmp(console3, "tmp")==0)
+			{
+				if(strcmp(console4, "all")==0)
+				{
+					j = atoi(console5);
+					for(i=0; i<NPART; i++)
+					{
+						if(parts[i].type)
+							parts[i].tmp = j;
+					}
+				}
+				else
+				{
+					if (console_parse_partref(console4, &i, console_error))
+					{
+						j = atoi(console5);
+						parts[i].tmp = j;
+					}
+				}
+			}
+			if(strcmp(console3, "x")==0)
+			{
+				if(strcmp(console4, "all")==0)
+				{
+					j = atoi(console5);
+					for(i=0; i<NPART; i++)
+					{
+						if(parts[i].type)
+							parts[i].x = j;
+					}
+				}
+				else
+				{
+					if (console_parse_partref(console4, &i, console_error))
+					{
+						j = atoi(console5);
+						parts[i].x = j;
+					}
+				}
+			}
+			if(strcmp(console3, "y")==0)
+			{
+				if(strcmp(console4, "all")==0)
+				{
+					j = atoi(console5);
+					for(i=0; i<NPART; i++)
+					{
+						if(parts[i].type)
+							parts[i].y = j;
+					}
+				}
+				else
+				{
+					if (console_parse_partref(console4, &i, console_error))
+					{
+						j = atoi(console5);
+						parts[i].y = j;
+					}
+				}
+			}
+			if(strcmp(console3, "ctype")==0)
+			{
+				if(strcmp(console4, "all")==0)
+				{
+					if (console_parse_type(console5, &j, console_error))
+						for(i=0; i<NPART; i++)
+						{
+							if(parts[i].type)
+								parts[i].ctype = j;
+						}
+				}
+				else
+				{
+					if (console_parse_partref(console4, &i, console_error)
+						&& console_parse_type(console5, &j, console_error))
+					{
+						parts[i].ctype = j;
+					}
+				}
+			}
+			if(strcmp(console3, "vx")==0)
+			{
+				if(strcmp(console4, "all")==0)
+				{
+					j = atoi(console5);
+					for(i=0; i<NPART; i++)
+					{
+						if(parts[i].type)
+							parts[i].vx = j;
+					}
+				}
+				else
+				{
+					if (console_parse_partref(console4, &i, console_error))
+					{
+						j = atoi(console5);
+						parts[i].vx = j;
+					}
+				}
+			}
+			if(strcmp(console3, "vy")==0)
+			{
+				if(strcmp(console4, "all")==0)
+				{
+					j = atoi(console5);
+					for(i=0; i<NPART; i++)
+					{
+						if(parts[i].type)
+							parts[i].vy = j;
+					}
+				}
+				else
+				{
+					if (console_parse_partref(console4, &i, console_error))
+					{
+						j = atoi(console5);
+						parts[i].vy = j;
+					}
+				}
+			}
+		}
+		else
+			sprintf(console_error, "Invalid Command", console2);
+	}
+	return 1;
 }
 

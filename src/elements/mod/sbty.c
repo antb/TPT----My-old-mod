@@ -26,16 +26,12 @@ int update_SBTY(UPDATE_FUNC_ARGS)
 				if(rt==PT_SBTY)
 				{
 					if(parts[i].life==10&&parts[r>>8].life<10&&parts[r>>8].life>0)
-					{
 						parts[i].life = 9;
-					}
 					else if(parts[i].life==0&&parts[r>>8].life==10)
-					{
 						parts[i].life = 10;
-					}
 				}
 
-                if(ptypes[(parts[r>>8].type)].properties&PROP_CONDUCTS && parts[r>>8].type!=PT_PSCN && parts[r>>8].type!=PT_NSCN && parts[r>>8].life==0)
+                if((r&0xFF)==PT_METL && parts[i].life==10)
                 {
                     create_part(r>>8, x+rx, y+ry, PT_SPRK);
                     continue;

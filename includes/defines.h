@@ -8,10 +8,10 @@
 #endif
 
 #define ANTB_VERSION 7 //AntB Edit -- Bwahahahaaah!
-#define SAVE_VERSION 45
+#define SAVE_VERSION 46
 #define MINOR_VERSION 10 //Start at 10 to prevent "New Version" update
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
-//#define BETA //Comment out to prever "new version" dialog.
+//#define BETA //Comment out to prevent "new version" dialog.
 
 #define SERVER "powdertoy.co.uk"
 
@@ -62,7 +62,7 @@ extern unsigned char ZSIZE;
 #define STAMP_Y 4
 #define STAMP_MAX 120
 
-#define NGOL 29 //AntB Edit
+#define NGOL 28 //AntB Edit
 
 #define CIRCLE_BRUSH 0
 #define SQUARE_BRUSH 1
@@ -137,7 +137,7 @@ int GSPEED;
 int love[XRES/9][YRES/9];
 int lolz[XRES/9][YRES/9];
 int gol[XRES][YRES];
-int gol2[XRES][YRES][NGOL];
+int gol2[XRES][YRES][NGOL+1];
 int SEC;
 int SEC2;
 int console_mode;
