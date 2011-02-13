@@ -4,7 +4,7 @@ if(t==PT_RADI)
     parts[i].life = 1000;
 
 if(t==PT_DBTY)
-    parts[i].life = 10;
+    parts[i].life = 20;
 
 if(t==PT_MUPT)
 {

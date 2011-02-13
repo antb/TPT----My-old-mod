@@ -26,20 +26,24 @@ int update_NEON(UPDATE_FUNC_ARGS)
 			    r = pmap[y+ry][x+rx];
 			    if((r>>8)>=NPART || !r)
 				    continue;
-			    rt = r&0xFF;
-				if ((rt==PT_SPRK)
+                rt = parts[r>>8].type;
+				if(rt==PT_SPRK)
 				{
-					if (parts[r>>8].ctype==PT_PSCN)
+					if(parts[r>>8].ctype==PT_PSCN)
+					{
 						parts[i].life = 10;
-					else if (parts[r>>8].ctype==PT_NSCN)
+					}
+					else if(parts[r>>8].ctype==PT_NSCN)
+					{
 						parts[i].life = 9;
+					}
 				}
-			    if(rt==PT_RNEO || rt==PT_GNEO || rt==PT_BNEO || rt==PT_CNEO || rt==PT_YNEO || rt==PT_MNEO)
-			    {
+				if(ptypes[rt].properties&PROP_NEON)
+				{
 					if(parts[i].life==10&&parts[r>>8].life<10&&parts[r>>8].life>0)
 						parts[i].life = 9;
 					else if(parts[i].life==0&&parts[r>>8].life==10)
 						parts[i].life = 10;
-			    }
+				}
 		    }
 }

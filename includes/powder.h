@@ -225,6 +225,7 @@
 #define PROP_HOT_GLOW		0x0800 //2048 Hot Metal Glow
 #define PROP_LIFE			0x1000 //4096 Is a GoL type
 #define PROP_RADIOACTIVE	0x2000 //8192 Radioactive 
+#define PROP_NEON           0x4000 //16384 Is a NEON element -- AntB Edit
 #define FLAG_STAGNANT	1
 
 #define UPDATE_FUNC_ARGS int i, int x, int y, int surround_space
