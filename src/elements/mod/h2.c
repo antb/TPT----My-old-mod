@@ -19,5 +19,6 @@ int update_H2(UPDATE_FUNC_ARGS)
 				}
 			}
 		}
+    return 0;
 }
 

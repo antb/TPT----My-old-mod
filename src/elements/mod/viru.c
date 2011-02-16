@@ -10,7 +10,7 @@ int update_VIRU(UPDATE_FUNC_ARGS)
 				r = pmap[y+ry][x+rx];
 				if((r>>8)>=NPART || !r)
 					continue;
-				if((r&0xFF)!=PT_VIRU && parts[r>>8].tmp < 128 &&
+				if((r&0xFF)!=PT_VIRU && !(parts[r>>8].tmp) &&
                     ((r&0xFF)!= PT_CLNE && (r&0xFF)!= PT_BCLN && (r&0xFF)!= PT_PCLN &&
                      (r&0xFF)!= PT_DMND && (r&0xFF)!= PT_VOID &&
                      (r&0xFF)!= PT_BHOL && (r&0xFF)!= PT_WHOL &&
@@ -22,17 +22,17 @@ int update_VIRU(UPDATE_FUNC_ARGS)
 				{
 					parts[r>>8].ctype=parts[r>>8].type;
 					parts[r>>8].type=PT_VIRU;
-                    parts[r>>8].tmp=650;
+                    parts[r>>8].tmp=10;
 				}
 
-                if(parts[r>>8].ctype == PT_VIRU && parts[i].tmp == 650)
-                    parts[i].tmp = 505;
+                if(parts[r>>8].type == PT_VIRU && parts[i].tmp == 10)
+                    parts[i].tmp = 5;
 
-                if(parts[i].tmp >= 450 && parts[i].tmp <= 500)
+                if(parts[i].tmp == 5)
                 {
                     parts[i].type = parts[i].ctype;
-                    parts[i].ctype = PT_VIRU;
-                    parts[i].tmp = 449;
+                    parts[i].ctype = PT_VIRU;                        
                 }
 			}
+    return 0;
 }

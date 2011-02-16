@@ -56,9 +56,9 @@ static menu_wall mwalls[] =
 #define SC_CUSTOM 11
 #define SC_CELEC 12
 #define SC_NEON 13
-#define SC_TOTAL 14
+#define SC_TOTAL 15
 #define SC_CRACKER 16
-#define SC_CRACKER2 15
+#define SC_CRACKER2 14
 
 static menu_section msections[] =
 {
@@ -76,7 +76,8 @@ static menu_section msections[] =
 	{"\x97", "AntB's Mod", 0, 1},
     {"\xC2", "AntB's Electrics", 0, 1},  
 	{"\xC5", "Neon Lights", 0, 1},
-    {"\xC8", "Cracker", 0, 0},
+	{"\xC8", "", 0, 0},
+    {"\xC8", "Cracker!", 0, 0},
     {"\xC8", "Cracker!", 0, 0},
 };
 

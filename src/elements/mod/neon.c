@@ -46,4 +46,6 @@ int update_NEON(UPDATE_FUNC_ARGS)
 						parts[i].life = 10;
 				}
 		    }
+    return 0;
 }
+

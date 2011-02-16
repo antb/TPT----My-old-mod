@@ -13,6 +13,12 @@ int update_YEST(UPDATE_FUNC_ARGS) {
 				{
 					part_change_type(i,x,y,PT_DYST);
 				}
+/* AntB Edit */ if((r&0xFF)==PT_BGLA)
+                {
+                    parts[i].type = PT_BAGL;
+                    parts[r>>8].type = PT_BAGL;
+                }
+
 			}
 	if (parts[i].temp>303&&parts[i].temp<317) {
 		create_part(-1, x+rand()%3-1, y+rand()%3-1, PT_YEST);

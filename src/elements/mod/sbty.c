@@ -37,4 +37,5 @@ int update_SBTY(UPDATE_FUNC_ARGS)
                     continue;
                 }
            }
+    return 0;
 }

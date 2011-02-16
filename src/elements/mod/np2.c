@@ -3,7 +3,7 @@
 int update_NP2(UPDATE_FUNC_ARGS)
 {
     int r,rx,ry;
-    if(parts[i].life<=0)
+    if(parts[i].life<=1)
     {
         kill_part(i);
         create_part(-1, x, y, PT_FIRE);
@@ -27,4 +27,5 @@ int update_NP2(UPDATE_FUNC_ARGS)
                         kill_part(r>>8);
                 }
             }
+    return 0;
 }

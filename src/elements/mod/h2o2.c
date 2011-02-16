@@ -22,5 +22,6 @@ int update_H2O2(UPDATE_FUNC_ARGS)
 					}
 				}
 			}
+    return 0;
 }
 

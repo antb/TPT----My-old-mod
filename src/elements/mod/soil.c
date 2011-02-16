@@ -21,4 +21,5 @@ int update_SOIL(UPDATE_FUNC_ARGS)
                     parts[i].type=PT_VINE;
                 }
             }
+    return 0;
 }

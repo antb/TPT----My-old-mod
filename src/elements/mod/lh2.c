@@ -19,4 +19,6 @@ int update_LH2(UPDATE_FUNC_ARGS)
 				}
 			}
 		}
+    return 0;
 }
+

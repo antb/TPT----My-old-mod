@@ -18,4 +18,5 @@ int update_DBTY(UPDATE_FUNC_ARGS)
                     continue;
                 }
             }
+    return 0;
 }

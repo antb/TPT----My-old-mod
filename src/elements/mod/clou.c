@@ -57,5 +57,6 @@ int update_CLOU(UPDATE_FUNC_ARGS)
     }
     parts[i].x+=setX;
     parts[i].y+=setY;
+    return 0;
 }
 

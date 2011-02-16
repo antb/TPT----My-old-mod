@@ -15,8 +15,6 @@
 
 #define SERVER "powdertoy.co.uk"
 
-#undef PLOSS
-
 #define THUMB_CACHE_SIZE 256
 
 #define IMGCONNS 3
@@ -46,11 +44,11 @@ extern unsigned char ZSIZE;
 #define ISTP    (CELL/2)
 #define CFDS	(4.0f/CELL)
 
-#define TSTEPP 0.3f
-#define TSTEPV 0.4f
-#define VADV 0.3f
-#define VLOSS 0.999f
-#define PLOSS 0.9999f
+#define AIR_TSTEPP 0.3f
+#define AIR_TSTEPV 0.4f
+#define AIR_VADV 0.3f
+#define AIR_VLOSS 0.999f
+#define AIR_PLOSS 0.9999f
 
 #define GRID_X 5
 #define GRID_Y 4
@@ -86,6 +84,10 @@ typedef unsigned int pixel;
 #define GLASS_IOR      1.9
 #define GLASS_DISP     0.07
 
+#ifdef WIN32
+#define strcasecmp stricmp
+#endif
+
 typedef unsigned char uint8;
 
 extern int amd;
@@ -102,7 +104,7 @@ int GRAV_G2;
 int GRAV_B2;
 
 extern int legacy_enable;
-
+extern int sound_enable;
 extern int kiosk_enable;
 
 extern int sys_pause;

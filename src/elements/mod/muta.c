@@ -43,4 +43,5 @@ int update_MUTA(UPDATE_FUNC_ARGS)
 				}
 			}
 		}
+    return 0;
 }

@@ -14,5 +14,6 @@ update_RADO(UPDATE_FUNC_ARGS)
 				if(10>(rand()/(RAND_MAX/1000)))
 					create_part(r>>8, x+rx, y+ry, PT_NEUT);
 			}
+    return 0;
 }
 

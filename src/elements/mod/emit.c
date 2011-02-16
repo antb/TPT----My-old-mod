@@ -14,4 +14,5 @@ int update_EMIT(UPDATE_FUNC_ARGS)
                 if((r&0xFF)==PT_SPRK)
                     create_part(-1,x+rand()%3-1,y+rand()%3-1, PT_PHOT);
             }
+    return 0;
 }

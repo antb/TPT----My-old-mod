@@ -37,6 +37,15 @@ int update_PYRO(UPDATE_FUNC_ARGS) {
 						pv[y/CELL][x/CELL] += 0.25f * CFDS;
 					continue;
 				}
+/* AntB Edit */ if(parts[i].ctype==PT_ZINC)
+                    if((parts[r>>8].ctype==PT_BMTL ||
+                        parts[r>>8].ctype==PT_BRMT ||
+                        parts[r>>8].ctype==PT_METL
+                       ) && rt==PT_LAVA)
+                    {
+                        parts[i].ctype=PT_GSTL;
+                        parts[r>>8].ctype=PT_GSTL;
+                    }
 			}
 	if (legacy_enable) update_legacy_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
 	return 0;
