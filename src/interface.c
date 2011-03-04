@@ -60,8 +60,6 @@ char search_expr[256] = "";
 char *tag_names[TAG_MAX];
 int tag_votes[TAG_MAX];
 
-int Z_keysym = 'z';
-
 int zoom_en = 0;
 int zoom_x=(XRES-ZSIZE_D)/2, zoom_y=(YRES-ZSIZE_D)/2;
 int zoom_wx=0, zoom_wy=0;
@@ -1533,13 +1531,14 @@ void menu_ui(pixel *vid_buf, int i, int *sl, int *sr)
 
 void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, int my)
 {
-	int h,x,y,n=0,height,width,sy,rows=0;
+	int h,x,y,n=0,height,width,sy,rows=0,xoff=0,fwidth;
 	SEC = SEC2;
 	mx /= sdl_scale;
 	my /= sdl_scale;
 	rows = ceil((float)msections[i].itemcount/16.0f);
 	height = (ceil((float)msections[i].itemcount/16.0f)*18);
 	width = restrict_flt(msections[i].itemcount*31, 0, 16*31);
+	fwidth = msections[i].itemcount*31;
 	h = -1;
 	x = XRES-BARSIZE-18;
 	y = YRES+1;
@@ -1550,11 +1549,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
 		{
 			if (n!=SPC_AIR&&n!=SPC_HEAT&&n!=SPC_COOL&&n!=SPC_VACUUM)
 			{
-				if (x-18<=2)
+				/*if (x-18<=2)
 				{
 					x = XRES-BARSIZE-18;
 					y += 19;
-				}
+				}*/
 				x -= draw_tool_xy(vid_buf, x, y, n, mwalls[n-UI_WALLSTART].colour)+5;
 				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
 				{
@@ -1587,11 +1586,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
 		{
 			if (n==SPC_AIR||n==SPC_HEAT||n==SPC_COOL||n==SPC_VACUUM)
 			{
-				if (x-18<=0)
+				/*if (x-18<=0)
 				{
 					x = XRES-BARSIZE-18;
 					y += 19;
-				}
+				}*/
 				x -= draw_tool_xy(vid_buf, x, y, n, mwalls[n-UI_WALLSTART].colour)+5;
 				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
 				{
@@ -1621,11 +1620,11 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
 		{
 			if (ptypes[n].menusection==i&&ptypes[n].menu==1)
 			{
-				if (x-18<=0)
+				/*if (x-18<=0)
 				{
 					x = XRES-BARSIZE-18;
 					y += 19;
-				}
+				}*/
 				x -= draw_tool_xy(vid_buf, x, y, n, ptypes[n].pcolors)+5;
 				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
 				{
@@ -1654,37 +1653,36 @@ void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, 
 	}
 	else
 	{
+		if (fwidth > XRES-BARSIZE){
+			float overflow = fwidth-(XRES-BARSIZE), location = ((float)XRES-BARSIZE)/((float)(mx-(XRES-BARSIZE)));
+			xoff = (int)(overflow / location);
+		}
 		for (n = 0; n<PT_NUM; n++)
 		{
 			if (ptypes[n].menusection==i&&ptypes[n].menu==1)
 			{
-				if (x-18<=0)
+				x -= draw_tool_xy(vid_buf, x-xoff, y, n, ptypes[n].pcolors)+5;
+				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15)
 				{
-					x = XRES-BARSIZE-18;
-					y += 19;
-				}
-				x -= draw_tool_xy(vid_buf, x, y, n, ptypes[n].pcolors)+5;
-				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15)
-				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 0, 0, 255);
 					h = n;
 				}
-				if (!bq && mx>=x+32 && mx<x+58 && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT)))
+				if (!bq && mx>=x+32-xoff && mx<x+58-xoff && my>=y && my< y+15&&(sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT)))
 				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
 					h = n;
 				}
 				else if (n==SLALT)
 				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 255, 255, 255);
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 255, 255, 255);
 				}
 				else if (n==*sl)
 				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 255, 0, 0, 255);
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 255, 0, 0, 255);
 				}
 				else if (n==*sr)
 				{
-					drawrect(vid_buf, x+30, y-1, 29, 17, 0, 0, 255, 255);
+					drawrect(vid_buf, x+30-xoff, y-1, 29, 17, 0, 0, 255, 255);
 				}
 			}
 		}
@@ -1763,10 +1761,9 @@ int sdl_poll(void)
 			sdl_ascii=event.key.keysym.unicode;
 			if (event.key.keysym.sym == SDLK_CAPSLOCK)
 				sdl_caps = 1;
-			if (event.key.keysym.unicode=='z' || event.key.keysym.unicode=='Z')
+			if (event.key.keysym.sym=='z')
 			{
 				sdl_zoom_trig = 1;
-				Z_keysym = event.key.keysym.sym;
 			}
 			if ( event.key.keysym.sym == SDLK_PLUS)
 			{
@@ -1816,7 +1813,7 @@ int sdl_poll(void)
 		case SDL_KEYUP:
 			if (event.key.keysym.sym == SDLK_CAPSLOCK)
 				sdl_caps = 0;
-			if (event.key.keysym.sym == Z_keysym)
+			if (event.key.keysym.sym == 'z')
 				sdl_zoom_trig = 0;
 			if (event.key.keysym.sym == SDLK_RIGHT || event.key.keysym.sym == SDLK_LEFT)
 			{
@@ -1892,6 +1889,7 @@ void set_cmode(int cm)
 	else if (cmode==CM_PERS)
 	{
 		memset(fire_bg, 0, XRES*YRES*PIXELSIZE);
+		memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 		strcpy(itc_msg, "Persistent Display");
 	}
 	else if (cmode==CM_PRESS)
@@ -1925,6 +1923,7 @@ void set_cmode(int cm)
 	{
 		strcpy(itc_msg, "Velocity Display");
 	}
+	save_presets(0);
 }
 
 char *download_ui(pixel *vid_buf, char *uri, int *len)
@@ -2550,7 +2549,8 @@ int search_ui(pixel *vid_buf)
 				memset(v_buf, 0, ((YRES+MENUSIZE)*(XRES+BARSIZE))*PIXELSIZE);
 			}
 			is_p1 = (exp_res < GRID_X*GRID_Y);
-			free(results);
+			if (results)
+				free(results);
 			active = 0;
 		}
 
@@ -2825,6 +2825,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 			data = http_async_req_stop(http, &status, &data_size);
 			if (status == 200)
 			{
+				if (!data||!data_size) {
+					error_ui(vid_buf, 0, "Save data is empty (may be corrupt)");
+					break;
+				}
 				pixel *full_save = prerender_save(data, data_size, &imgw, &imgh);
 				if (full_save!=NULL) {
 					save_pic = rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
@@ -2843,15 +2847,16 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 		{
 			http_last_use_2 = time(NULL);
 			info_data = http_async_req_stop(http_2, &status_2, NULL);
-			if (status_2 == 200)
+			if (status_2 == 200 || !info_data)
 			{
 				info_ready = info_parse(info_data, info);
-				if (info_ready==-1) {
-					error_ui(vid_buf, 0, "Not found");
+				if (info_ready<=0) {
+					error_ui(vid_buf, 0, "Save info not found");
 					break;
 				}
 			}
-			free(info_data);
+			if (info_data)
+				free(info_data);
 			active_2 = 0;
 			free(http_2);
 			http_2 = NULL;
@@ -3547,7 +3552,7 @@ int execute_tagop(pixel *vid_buf, char *op, char *tag)
 		return 1;
 	}
 
-	if (result[2])
+	if (result && result[2])
 	{
 		strncpy(svf_tags, result+3, 255);
 		svf_id[15] = 0;
@@ -3605,14 +3610,16 @@ void execute_save(pixel *vid_buf)
 			free(result);
 		return;
 	}
-	if (result && strncmp(result, "OK", 2))
+	if (!result || strncmp(result, "OK", 2))
 	{
+		if (!result)
+			result = mystrdup("Could not save - no reply from server");
 		error_ui(vid_buf, 0, result);
 		free(result);
 		return;
 	}
 
-	if (result[2])
+	if (result && result[2])
 	{
 		strncpy(svf_id, result+3, 15);
 		svf_id[15] = 0;
@@ -3842,10 +3849,11 @@ typedef struct command_history command_history;
 command_history *last_command = NULL;
 char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show previous commands
 	int mx,my,b,cc,ci = -1;
+	pixel *old_buf=calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand;
 	ui_edit ed;
 	ed.x = 15;
-	ed.y = 210;
+	ed.y = 207;
 	ed.w = XRES;
 	ed.nx = 1;
 	ed.def = "";
@@ -3855,6 +3863,13 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 	ed.multiline = 0;
 	ed.cursor = 0;
 	//fillrect(vid_buf, -1, -1, XRES, 220, 0, 0, 0, 190);
+	memcpy(old_buf,vid_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
+	fillrect(old_buf, -1, -1, XRES, 220, 0, 0, 0, 190);
+	cc = 0;
+	while(cc < 80){
+		fillrect(old_buf, -1, -1+cc, XRES+BARSIZE, 2, 0, 0, 0, 160-(cc*2));
+		cc++;
+	}
 	while (!sdl_poll())
 	{
 		b = SDL_GetMouseState(&mx, &my);
@@ -3862,21 +3877,12 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 		my /= sdl_scale;
 		ed.focus = 1;
 
-		clearrect(vid_buf, 0, 0, XRES+BARSIZE, 220);//anyway to make it transparent?
-		draw_line(vid_buf, 1, 219, XRES, 219, 228, 228, 228, XRES+BARSIZE);
-		drawtext(vid_buf, 100, 15, "Welcome to The Powder Toy console v.2 (by cracker64)\n"
-		         "Current commands are quit, set, reset, load, create, file, kill, sound\n"
-		         "You can set type, temp, ctype, life, x, y, vx, vy using this format ('set life particle# 9001')\n"
-		         "You can also use 'all' instead of a particle number to do it to everything.\n"
-		         "You can now use particle names (ex. set type all deut)\n"
-		         "Reset works with pressure, velocity, sparks, temp (ex. 'reset pressure')\n"
-		         "To load a save use load saveID (ex. load 1337)\n"
-		         "Create particles with 'create deut x,y' where x and y are the coords\n"
-		         "Run scripts from file 'file filename'\n"
-		         "You can delete/kill a particle with 'kill x,y'"
-		         "Play a sound with (sound blah.wav)"
-		         ,255, 187, 187, 255);
-
+		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
+		draw_line(vid_buf, 0, 219, XRES+BARSIZE-1, 219, 228, 228, 228, XRES+BARSIZE);
+		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.3 (by cracker64)\n"
+				 "Current commands are quit, set, reset, load, create, file, kill, sound\n" //TODO: help command
+				 ,255, 255, 255, 255);
+		
 		cc = 0;
 		currentcommand = last_command;
 		while(cc < 10)
@@ -3900,8 +3906,11 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 			}
 		}
 
-		if(error)
-			drawtext(vid_buf, 15, 190, error,255, 187, 187, 255);
+		if(error && ed.str[0]=='\0')
+			drawtext(vid_buf, 20, 207, error, 255, 127, 127, 200);
+		
+		drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
+		
 		ui_edit_draw(vid_buf, &ed);
 		ui_edit_process(mx, my, b, &ed);
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
@@ -3912,11 +3921,13 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 			currentcommand->prev_command = last_command;
 			currentcommand->command = mystrdup(ed.str);
 			last_command = currentcommand;
+			free(old_buf);
 			return currentcommand->command;
 		}
 		if (sdl_key==SDLK_ESCAPE || sdl_key==SDLK_BACKQUOTE)
 		{
 			console_mode = 0;
+			free(old_buf);
 			return NULL;
 		}
 		if(sdl_key==SDLK_UP || sdl_key==SDLK_DOWN)
@@ -3951,6 +3962,8 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 			}
 		}
 	}
+	console_mode = 0;
+	free(old_buf);
 	return NULL;
 }
 

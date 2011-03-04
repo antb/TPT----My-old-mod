@@ -31,6 +31,7 @@ unsigned char fire_b[YRES/CELL][XRES/CELL];
 
 unsigned int fire_alpha[CELL*3][CELL*3];
 pixel *fire_bg;
+pixel *pers_bg;
 
 pixel *rescale_img(pixel *src, int sw, int sh, int *qw, int *qh, int f)
 {
@@ -447,6 +448,8 @@ void draw_tool(pixel *vid_buf, int b, int sl, int sr, unsigned pc, unsigned iswa
 int draw_tool_xy(pixel *vid_buf, int x, int y, int b, unsigned pc)
 {
 	int i, j, c;
+	if (x > XRES-26 || x < 0)
+		return 26;
 	if (b>=UI_WALLSTART)
 	{
 		b = b-100;
@@ -2367,15 +2370,15 @@ void draw_parts(pixel *vid)
 				}
 				else if (t==PT_GLOW)
 				{
-					fg = 0;
-					fb = 0;
-					fr = 0;
-					if (pv[ny/CELL][nx/CELL]>0) {
-						fg = 6 * pv[ny/CELL][nx/CELL];
-						fb = 4 * pv[ny/CELL][nx/CELL];
-						fr = 2 * pv[ny/CELL][nx/CELL];
-					}
-					vid[ny*(XRES+BARSIZE)+nx] = PIXRGB((int)restrict_flt(0x44 + fr*8, 0, 255), (int)restrict_flt(0x88 + fg*8, 0, 255), (int)restrict_flt(0x44 + fb*8, 0, 255));
+					fr = restrict_flt(parts[i].temp-(275.13f+32.0f), 0, 128)/50.0f;
+					fg = restrict_flt(parts[i].ctype, 0, 128)/50.0f;
+					fb = restrict_flt(parts[i].tmp, 0, 128)/50.0f;
+					
+					cr = restrict_flt(64.0f+parts[i].temp-(275.13f+32.0f), 0, 255);
+					cg = restrict_flt(64.0f+parts[i].ctype, 0, 255);
+					cb = restrict_flt(64.0f+parts[i].tmp, 0, 255);
+					
+					vid[ny*(XRES+BARSIZE)+nx] = PIXRGB(cr, cg, cb);
 					if (cmode == CM_FIRE||cmode==CM_BLOB || cmode==CM_FANCY)
 					{
 						x = nx/CELL;
@@ -2391,19 +2394,15 @@ void draw_parts(pixel *vid)
 						fire_r[y][x] = fr;
 					}
 					if (cmode == CM_BLOB) {
-						uint8 R = (int)restrict_flt(0x44 + fr*8, 0, 255);
-						uint8 G = (int)restrict_flt(0x88 + fg*8, 0, 255);
-						uint8 B = (int)restrict_flt(0x44 + fb*8, 0, 255);
+						blendpixel(vid, nx+1, ny, cr, cg, cb, 223);
+						blendpixel(vid, nx-1, ny, cr, cg, cb, 223);
+						blendpixel(vid, nx, ny+1, cr, cg, cb, 223);
+						blendpixel(vid, nx, ny-1, cr, cg, cb, 223);
 
-						blendpixel(vid, nx+1, ny, R, G, B, 223);
-						blendpixel(vid, nx-1, ny, R, G, B, 223);
-						blendpixel(vid, nx, ny+1, R, G, B, 223);
-						blendpixel(vid, nx, ny-1, R, G, B, 223);
-
-						blendpixel(vid, nx+1, ny-1, R, G, B, 112);
-						blendpixel(vid, nx-1, ny-1, R, G, B, 112);
-						blendpixel(vid, nx+1, ny+1, R, G, B, 112);
-						blendpixel(vid, nx-1, ny+1, R, G, B, 112);
+						blendpixel(vid, nx+1, ny-1, cr, cg, cb, 112);
+						blendpixel(vid, nx-1, ny-1, cr, cg, cb, 112);
+						blendpixel(vid, nx+1, ny+1, cr, cg, cb, 112);
+						blendpixel(vid, nx-1, ny+1, cr, cg, cb, 112);
 					}
 				}
 				else if (t==PT_LCRY)

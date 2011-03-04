@@ -56,9 +56,9 @@ static menu_wall mwalls[] =
 #define SC_CUSTOM 11
 #define SC_CELEC 12
 #define SC_NEON 13
-#define SC_TOTAL 15
+#define SC_TOTAL 14
 #define SC_CRACKER 16
-#define SC_CRACKER2 14
+#define SC_CRACKER2 15
 
 static menu_section msections[] =
 {
@@ -159,8 +159,6 @@ extern char search_expr[256];
 
 extern char *tag_names[TAG_MAX];
 extern int tag_votes[TAG_MAX];
-
-extern int Z_keysym;
 
 extern int zoom_en;
 extern int zoom_x, zoom_y;

@@ -12,7 +12,7 @@ float player2[27];
 particle *parts;
 particle *cb_parts;
 
-int gravityMode = 1; // starts enabled in "vertical" mode...
+int gravityMode = 0; // starts enabled in "vertical" mode...
 int airMode = 0; 
 
 
@@ -80,6 +80,9 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 
 	if ((r&0xFF)==PT_VOID || (r&0xFF)==PT_BHOL)
 		return 1;
+
+	if(pt==PT_SPRK)//spark shouldn't move
+		return 0;
 
     if ((pt==PT_PHOT||pt==PT_MUPT)&&(       //AntB
                 (r&0xFF)==PT_MUPT ||        //Edit
@@ -256,6 +259,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 		if (parts[e].type == PT_PHOT)
 			return 1;
 
+		if ((pmap[ny][nx]>>8)==e) pmap[ny][nx] = 0;
 		parts[e].x += x-nx;
 		parts[e].y += y-ny;
 		pmap[(int)(parts[e].y+0.5f)][(int)(parts[e].x+0.5f)] = (e<<8)|parts[e].type;
@@ -456,7 +460,7 @@ _inline void part_change_type(int i, int x, int y, int t)
 inline void part_change_type(int i, int x, int y, int t)
 #endif
 {
-	if (x<0 || y<0 || x>=XRES || y>=YRES || i>=NPART)
+	if (x<0 || y<0 || x>=XRES || y>=YRES || i>=NPART || t<0 || t>=PT_NUM)
 		return;
 	parts[i].type = t;
 	if (t==PT_PHOT)// || t==PT_NEUT)
@@ -487,7 +491,7 @@ inline int create_n_parts(int n, int x, int y, float vx, float vy, int t)
 	if (n>680) {
 		n = 680;
 	}
-	if (x<0 || y<0 || x>=XRES || y>=YRES)
+	if (x<0 || y<0 || x>=XRES || y>=YRES || t<0 || t>=PT_NUM)
 		return -1;
 
 	for (c; c<n; c++) {
@@ -525,7 +529,7 @@ inline int create_part(int p, int x, int y, int t)
 {
 	int i;
 
-	if (x<0 || y<0 || x>=XRES || y>=YRES)
+	if (x<0 || y<0 || x>=XRES || y>=YRES || ((t<0 || t>=PT_NUM)&&t!=SPC_HEAT&&t!=SPC_COOL&&t!=SPC_AIR&&t!=SPC_VACUUM))
 		return -1;
 
 	if (t==SPC_HEAT||t==SPC_COOL)
@@ -1324,8 +1328,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 								for ( nnx=-1; nnx<2; nnx++)
 									for ( nny=-1; nny<2; nny++)//it will count itself as its own neighbor, which is needed, but will have 1 extra for delete check
 									{
-										gol2[((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL][((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][golnum] ++;
-										gol2[((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL][((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][0] ++;
+										rt = pmap[((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL];
+										if (!rt || ptypes[rt&0xFF].properties&PROP_LIFE)
+										{
+											gol2[((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL][((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][golnum] ++;
+											gol2[((nx+nnx+XRES-3*CELL)%(XRES-2*CELL))+CELL][((ny+nny+YRES-3*CELL)%(YRES-2*CELL))+CELL][0] ++;
+										}
 									}
 							} else {
 								parts[r>>8].tmp --;
@@ -1357,10 +1365,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 						if (r && parts[r>>8].tmp<=0)
 							parts[r>>8].type = PT_NONE;//using kill_part makes it not work
 					}
+				for( z = 0;z<=NGOL;z++)
+					gol2[nx][ny][z] = 0;//this improves performance A LOT compared to the memset, i was getting ~23 more fps with this.
 			}
 		if (createdsomething)
 			GENERATION ++;
-		memset(gol2, 0, sizeof(gol2));
+		//memset(gol2, 0, sizeof(gol2));
 	}
 	if (ISWIRE==1)
 	{
@@ -1453,21 +1463,18 @@ void update_particles_i(pixel *vid, int start, int inc)
 			//Gravity mode by Moach
 			switch (gravityMode)
 			{
-			default:
-			case 0:
-				pGravX = pGravY = 0.0f;
-				break;
-			case 1:
-				pGravX = 0.0f;
-				pGravY = ptypes[t].gravity;
-				break;
-			case 2:
-
-				pGravD = 0.01f - hypotf((x - XCNTR), (y - YCNTR));
-
-				pGravX = ptypes[t].gravity * ((float)(x - XCNTR) / pGravD);
-				pGravY = ptypes[t].gravity * ((float)(y - YCNTR) / pGravD);
-
+				default:
+				case 0:
+					pGravX = 0.0f;
+					pGravY = ptypes[t].gravity;
+					break;
+				case 1:
+					pGravX = pGravY = 0.0f;
+					break;
+				case 2:
+					pGravD = 0.01f - hypotf((x - XCNTR), (y - YCNTR));
+					pGravX = ptypes[t].gravity * ((float)(x - XCNTR) / pGravD);
+					pGravY = ptypes[t].gravity * ((float)(y - YCNTR) / pGravD);
 			}
 
 			parts[i].vx *= ptypes[t].loss;
@@ -1578,10 +1585,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 						}
 						else if (t==PT_LAVA) {
 							if (parts[i].ctype && parts[i].ctype<PT_NUM && parts[i].ctype!=PT_LAVA) {
-								if (ptransitions[parts[i].ctype].tht==PT_LAVA&&pt>=ptransitions[parts[i].ctype].thv) s = 0;
-								else if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv) s = 0;
+								if (parts[i].ctype==PT_THRM&&pt>=ptransitions[PT_BMTL].thv) s = 0;
+								else if (ptransitions[parts[i].ctype].tht==PT_LAVA) {
+									if (pt>=ptransitions[parts[i].ctype].thv) s = 0;
+								}
 								else if (pt>=973.0f) s = 0; // freezing point for lava with any other (not listed in ptransitions as turning into lava) ctype
-								else {
+								if (s) {
 									t = parts[i].ctype;
 									parts[i].ctype = PT_NONE;
 									if (t==PT_THRM) {
@@ -1791,6 +1800,9 @@ killed:
 				}
 			}
 
+			rt = parts[i].flags & FLAG_STAGNANT;
+			parts[i].flags &= ~FLAG_STAGNANT;
+
 			if ((t==PT_PHOT||t==PT_NEUT)) {
 				if (t == PT_PHOT) {
 					rt = pmap[fin_y][fin_x] & 0xFF;
@@ -1994,7 +2006,9 @@ killed:
 								if (try_move(i, x, y, j, clear_y))
 								{
 									parts[i].x = clear_xf+(j-clear_x);
+									parts[i].y = clear_yf;
 									nx = j;
+									ny = clear_y;
 									s = 1;
 									break;
 								}
@@ -2006,11 +2020,11 @@ killed:
 							else
 								r = -1;
 							if (s)
-								for (j=clear_y+r; j>=0 && j<YRES && j>=clear_y-rt && j<clear_y+rt; j+=r)
+								for (j=ny+r; j>=0 && j<YRES && j>=ny-rt && j<ny+rt; j+=r)
 								{
-									if (try_move(i, x, y, nx, j))
+									if (try_move(i, nx, ny, nx, j))
 									{
-										parts[i].y = clear_yf+(j-clear_y);
+										parts[i].y += j-ny;
 										break;
 									}
 									if ((pmap[j][nx]&255)!=t || (bmap[j/CELL][nx/CELL] && bmap[j/CELL][nx/CELL]!=WL_STREAM))
@@ -2019,24 +2033,25 @@ killed:
 										break;
 									}
 								}
-							else if (clear_x!=x&&clear_y!=y && try_move(i, x, y, clear_x, clear_y)) {
+							else if ((clear_x!=x||clear_y!=y) && try_move(i, x, y, clear_x, clear_y)) {
 								// if interpolation was done and haven't yet moved, try moving to last clear position
 								parts[i].x = clear_xf;
 								parts[i].y = clear_yf;
 							}
+							else
+								parts[i].flags |= FLAG_STAGNANT;
 							parts[i].vx *= ptypes[t].collision;
 							parts[i].vy *= ptypes[t].collision;
-							if (!s)
-								parts[i].flags |= FLAG_STAGNANT;
 						}
 						else
 						{
-							if (clear_x!=x&&clear_y!=y && try_move(i, x, y, clear_x, clear_y)) {
+							if ((clear_x!=x||clear_y!=y) && try_move(i, x, y, clear_x, clear_y)) {
 								// if interpolation was done, try moving to last clear position
 								parts[i].x = clear_xf;
 								parts[i].y = clear_yf;
 							}
-							parts[i].flags |= FLAG_STAGNANT;
+							else
+								parts[i].flags |= FLAG_STAGNANT;
 							parts[i].vx *= ptypes[t].collision;
 							parts[i].vy *= ptypes[t].collision;
 						}
@@ -2719,7 +2734,7 @@ void create_box(int x1, int y1, int x2, int y2, int c)
 	}
 	for (j=y1; j<=y2; j++)
 		for (i=x1; i<=x2; i++)
-			create_parts(i, j, 1, 1, c);
+			create_parts(i, j, 0, 0, c);
 }
 
 int flood_parts(int x, int y, int c, int cm, int bm)
@@ -2760,7 +2775,7 @@ int flood_parts(int x, int y, int c, int cm, int bm)
 			bm = 0;
 	}
 
-	if (((pmap[y][x]&0xFF)!=cm || bmap[y/CELL][x/CELL]!=bm )||( (sdl_mod & (KMOD_CAPS)) && cm!=SLALT))
+	if (((pmap[y][x]&0xFF)!=cm || bmap[y/CELL][x/CELL]!=bm )||( (sdl_mod & (KMOD_CAPS)) && cm!=SLALT && !(cm==PT_INST&&co==PT_SPRK)))
 		return 1;
 
 	// go left as far as possible
@@ -2785,7 +2800,12 @@ int flood_parts(int x, int y, int c, int cm, int bm)
 	// fill span
 	for (x=x1; x<=x2; x++)
 	{
-		if (!create_parts(x, y, 0, 0, co))
+		if(cm==PT_INST&&co==PT_SPRK)
+		{
+			if(create_part(-1,x, y, co)==-1)
+				return 0;
+		}
+		else if (!create_parts(x, y, 0, 0, co))
 			return 0;
 	}
 	// fill children
@@ -2861,6 +2881,10 @@ int create_parts(int x, int y, int rx, int ry, int c)
 		b = WL_FANHELPER;
 		dw = 1;
 	}
+	if (c == PT_WIND)
+	{
+		return 1;
+	}
 	if (dw==1)
 	{
 		rx = rx/CELL;
@@ -2932,10 +2956,14 @@ int create_parts(int x, int y, int rx, int ry, int c)
 			for (j=-ry; j<=ry; j++)
 				for (i=-rx; i<=rx; i++)
 					if ((CURRENT_BRUSH==CIRCLE_BRUSH && (pow(i,2))/(pow(rx,2))+(pow(j,2))/(pow(ry,2))<=1)||(CURRENT_BRUSH==SQUARE_BRUSH&&i*j<=ry*rx))
+					{
+						if( x+i<0 || y+j<0 || x+i>=XRES || y+j>=YRES)
+							continue;
 						if (!REPLACE_MODE)
 							create_part(-2, x+i, y+j, c);
 						else if ((pmap[y+j][x+i]&0xFF)==SLALT&&SLALT!=0)
 							create_part(-2, x+i, y+j, c);
+					}
 		return 1;
 	}
 
@@ -2974,6 +3002,8 @@ int create_parts(int x, int y, int rx, int ry, int c)
 				for (i=-rx; i<=rx; i++)
 					if ((CURRENT_BRUSH==CIRCLE_BRUSH && (pow(i,2))/(pow(rx,2))+(pow(j,2))/(pow(ry,2))<=1)||(CURRENT_BRUSH==SQUARE_BRUSH&&i*j<=ry*rx))
 					{
+						if( x+i<0 || y+j<0 || x+i>=XRES || y+j>=YRES)
+							continue;
 						if ((pmap[y+j][x+i]&0xFF)!=SLALT&&SLALT!=0)
 							continue;
 						if ((pmap[y+j][x+i]))
