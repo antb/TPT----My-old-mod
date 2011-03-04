@@ -48,7 +48,6 @@
 #define WL_ALLOWGAS	140
 
 
-
 #define PT_NONE	0
 #define PT_DUST	1
 #define PT_WATR	2
@@ -306,7 +305,7 @@ int update_legacy_all(UPDATE_FUNC_ARGS);
 struct particle
 {
 	int type;
-	int life, ctype;
+	int life, life2, ctype, ctype2;
 	float x, y, vx, vy;
 	float temp;
 	float pavg[2];

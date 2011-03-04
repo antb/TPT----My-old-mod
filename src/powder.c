@@ -1392,7 +1392,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 					continue;
 				}
 			}
-
+//Secondary life variable
+            if(t==PT_VIRU && (parts[i].ctype2 && parts[i].life2==10))
+            {
+                parts[i].life2--;
+            }
+//END
 			x = (int)(parts[i].x+0.5f);
 			y = (int)(parts[i].y+0.5f);
 

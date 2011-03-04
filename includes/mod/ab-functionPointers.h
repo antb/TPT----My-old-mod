@@ -16,5 +16,6 @@ int update_RADO(UPDATE_FUNC_ARGS);
 int update_REMX(UPDATE_FUNC_ARGS);
 int update_SBTY(UPDATE_FUNC_ARGS);
 int update_SOIL(UPDATE_FUNC_ARGS);
+int update_SUWR(UPDATE_FUNC_ARGS);
 int update_VIRU(UPDATE_FUNC_ARGS);
 

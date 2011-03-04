@@ -1,4 +1,4 @@
-#include <powder.h>
+#include <element.h>
 
 int update_GROW(UPDATE_FUNC_ARGS)
 {
@@ -12,7 +12,7 @@ int update_GROW(UPDATE_FUNC_ARGS)
 				if((r>>8)>=NPART || !r)
 					continue;
 				if((r&0xFF)!=PT_GROW && (r&0xFF)!=PT_CLNE && (r&0xFF)!=PT_PCLN && (r&0xFF)!=PT_NONE && (r&0xFF)!=PT_DMND && (r&0xFF))
-					create_part(i,x+rx,y+ry,(r&0xFF));			   
+					create_part(i,x,y,(r&0xFF));
 			}
     return 0;
 }

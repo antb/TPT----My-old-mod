@@ -1935,7 +1935,7 @@ int main(int argc, char *argv[])
 					int tctype = parts[cr>>8].ctype;
 					if (tctype>=PT_NUM)
 						tctype = 0;
-					sprintf(heattext, "%s (%s), Pressure: %3.2f, Temp: %4.2f C, Life: %d, #%d, Tmp: %d", ptypes[cr&0xFF].name, ptypes[tctype].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, cr>>8, parts[cr>>8].tmp);
+					sprintf(heattext, "%s (%s|%s), Pressure: %3.2f, Temp: %4.2f C, Life: %d (%d), #%d, Tmp: %d", ptypes[cr&0xFF].name, ptypes[tctype].name, ptypes[parts[cr>>8].ctype2].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life, parts[cr>>8].life2, cr>>8, parts[cr>>8].tmp);
 					//sprintf(heattext, "%s (%s), Pressure: %3.2f, Temp: %4.2f C, Life: %d", ptypes[cr&0xFF].name, ptypes[parts[cr>>8].ctype].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life);
 				} else
 					sprintf(heattext, "%s, Pressure: %3.2f, Temp: %4.2f C, Life: %d", ptypes[cr&0xFF].name, pv[(y/sdl_scale)/CELL][(x/sdl_scale)/CELL], parts[cr>>8].temp-273.15f, parts[cr>>8].life);

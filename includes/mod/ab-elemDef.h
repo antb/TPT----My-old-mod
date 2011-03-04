@@ -24,18 +24,16 @@
 
 #define PT_LLED BEC+19
 #define PT_VIRU BEC+20
-#define PT_ZINC BEC+21
-#define PT_GSTL BEC+22
-#define PT_ERTH BEC+23
-#define PT_SOIL BEC+24
-#define PT_DBTY BEC+25
-#define PT_SBTY BEC+26 
-#define PT_NP2  BEC+27
-#define PT_EMIT BEC+28
-#define PT_FART BEC+29
-#define PT_CLOU BEC+30
+#define PT_ERTH BEC+21
+#define PT_SOIL BEC+22
+#define PT_DBTY BEC+23
+#define PT_SBTY BEC+24 
+#define PT_NP2  BEC+25
+#define PT_EMIT BEC+26
+#define PT_FART BEC+27
+#define PT_CLOU BEC+28
 
-#define PT_DHLE BEC+31
+#define PT_DHLE BEC+29
 #define PT_SERV BEC+32
 
 #define PT_REMX BEC+33
