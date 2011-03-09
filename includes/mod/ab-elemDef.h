@@ -34,11 +34,11 @@
 #define PT_CLOU BEC+28
 
 #define PT_DHLE BEC+29
-#define PT_SERV BEC+32
+#define PT_SERV BEC+30
 
-#define PT_REMX BEC+33
-#define PT_ANTB BEC+34
+#define PT_REMX BEC+31
+#define PT_ANTB BEC+32
 
-#define PT_NUM  BEC+35
+#define PT_NUM  BEC+33
 
 

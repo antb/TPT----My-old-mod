@@ -306,7 +306,7 @@ int update_legacy_all(UPDATE_FUNC_ARGS);
 struct particle
 {
 	int type;
-	int life, life2, ctype, ctype2;
+	int life, virus, ctype, ctype2;
 	float x, y, vx, vy;
 	float temp;
 	float pavg[2];

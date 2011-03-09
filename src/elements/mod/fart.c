@@ -16,10 +16,10 @@ int update_FART(UPDATE_FUNC_ARGS)
                 if((r&0xFF)==PT_FIRE)
                 {
                     pv[y/CELL][x/CELL]=(parts[i].tmp*2);
+                    parts[i].temp=1000.0f;
                     parts[i].type=PT_FIRE;
                     parts[i].life=rand()/(RAND_MAX/25)+20;
                     parts[i].tmp=0;
-                    parts[i].temp=700.0f;
                     continue;
                 }
 

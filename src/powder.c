@@ -1402,10 +1402,13 @@ void update_particles_i(pixel *vid, int start, int inc)
 					continue;
 				}
 			}
-//Secondary life variable
-            if(t==PT_VIRU && (parts[i].ctype2 && parts[i].life2==10))
+//Virus stuff
+            if(parts[i].virus)
             {
-                parts[i].life2--;
+                if(!(parts[i].virus==10))
+                    parts[i].virus--;
+                if(parts[i].virus==11)
+                    parts[i].virus=0;
             }
 //END
 			x = (int)(parts[i].x+0.5f);
