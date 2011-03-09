@@ -17,8 +17,12 @@ int update_SOIL(UPDATE_FUNC_ARGS)
                 }
                 if(parts[i].tmp>=3)
                 {
-                    parts[i].tmp=0;
                     parts[i].type=PT_VINE;
+                    if((r&0xFF)==PT_SOIL)
+                    {
+                        parts[i].tmp=0;
+                        parts[r>>8].tmp++;
+                    }    
                 }
             }
     return 0;

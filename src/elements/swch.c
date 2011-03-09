@@ -9,7 +9,7 @@ int update_SWCH(UPDATE_FUNC_ARGS) {
 				r = pmap[y+ry][x+rx];
 				if ((r>>8)>=NPART || !r)
 					continue;
-				if (parts_avg(i,r>>8,PT_INSL)!=PT_INSL) {
+				if (parts_avg(i,r>>8,PT_INSL)!=PT_INSL && parts_avg(i,r>>8,PT_RBRI)!=PT_RBRI) { //antb
 					rt = r&0xFF;
 					if (rt==PT_SWCH)
 					{

@@ -1,7 +1,7 @@
 #include <element.h>
 
 int update_SPRK(UPDATE_FUNC_ARGS) {
-	int r, rx, ry, rt, conduct_sprk, nearp, pavg, ct = parts[i].ctype;
+	int r, rx, ry, rt, conduct_sprk, nearp, pavg, rbri, ct = parts[i].ctype;
 	update_PYRO(UPDATE_FUNC_SUBCALL_ARGS);
 
 	if (parts[i].life<=0)
@@ -32,7 +32,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 	else if (ct==PT_ETRD&&parts[i].life==1)
 	{
 		nearp = nearest_part(i, PT_ETRD);
-		if (nearp!=-1&&parts_avg(i, nearp, PT_INSL)!=PT_INSL)
+		if (nearp!=-1&&parts_avg(i, nearp, PT_INSL)!=PT_INSL&&parts_avg(i, nearp, PT_RBRI)!=PT_RBRI) //antb
 		{
 			create_line(x, y, (int)(parts[nearp].x+0.5f), (int)(parts[nearp].y+0.5f), 0, 0, PT_PLSM);
 			part_change_type(i,x,y,ct);
@@ -80,7 +80,8 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 
 
 				pavg = parts_avg(r>>8, i,PT_INSL);
-				if ((rt==PT_SWCH||(rt==PT_SPRK&&parts[r>>8].ctype==PT_SWCH)) && pavg!=PT_INSL) // make sparked SWCH turn off correctly
+                rbri = parts_avg(r>>8, i,PT_RBRI); //antb
+				if ((rt==PT_SWCH||(rt==PT_SPRK&&parts[r>>8].ctype==PT_SWCH)) && pavg!=PT_INSL && rbri!=PT_RBRI) // make sparked SWCH turn off correctly //antb
 				{
 					if (rt==PT_SWCH&&ct==PT_PSCN&&parts[r>>8].life<10) {
 						parts[r>>8].life = 10;
@@ -101,12 +102,13 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 				// ct = spark from material, rt = spark to material. Make conduct_sprk = 0 if conduction not allowed
 
 				if (pavg == PT_INSL) conduct_sprk = 0;
-				if (!(ptypes[rt].properties&PROP_CONDUCTS||rt==PT_INST||rt==PT_QRTZ)) conduct_sprk = 0;
+                if (rbri == PT_RBRI) conduct_sprk = 0; //antb
+				if (!(ptypes[rt].properties&PROP_CONDUCTS||rt==PT_INST||rt==PT_QRTZ)) conduct_sprk = 0; //antb
 				if (abs(rx)+abs(ry)>=4 &&ct!=PT_SWCH&&rt!=PT_SWCH)
 					conduct_sprk = 0;
 
 
-				if (ct==PT_METL && (rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR||(rt==PT_SPRK&&(parts[r>>8].ctype==PT_NTCT||parts[r>>8].ctype==PT_PTCT))) && pavg!=PT_INSL)
+				if (ct==PT_METL && (rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR||(rt==PT_SPRK&&(parts[r>>8].ctype==PT_NTCT||parts[r>>8].ctype==PT_PTCT))) && pavg!=PT_INSL && rbri!=PT_RBRI) //antb
 				{
 					parts[r>>8].temp = 473.0f;
 					if (rt==PT_NTCT||rt==PT_PTCT)

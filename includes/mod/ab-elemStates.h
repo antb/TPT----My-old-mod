@@ -6,7 +6,7 @@
 /* MuPt */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
 /* Bagl */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
 /* MuNe */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
-/* RBRI */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      2273.0f, PT_LAVA},
+/* RBRI */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      2773.0f, PT_LAVA},
 /* LH2  */ {IPL,    NT,      IPH,      NT,      20.0f,   PT_H2O2, ITH,     NT},
 /* H2   */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      10.0f,   PT_LH2},
 /* H2O2 */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT}, 
@@ -30,7 +30,7 @@
 /* Zinc */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      1273.1f, PT_LAVA},
 /* GStl */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      2273.1f, PT_LAVA},
 /* Erth */ {-6.0f,  PT_SOIL, IPH,      NT,      ITL,     NT,      723.1f,  PT_LAVA},
-/* Soil */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      723.1f,  PT_LAVA},
+/* Soil */ {IPL,    NT,      6.0f,     PT_ERTH, ITL,     NT,      723.1f,  PT_LAVA},
 /* DBty */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      2273.0f, PT_PLSM},
 /* RBty */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      2273.0f, PT_PLSM},
 /* NP2  */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
@@ -41,6 +41,6 @@
 /* GOL  */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
 /* GOL  */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
 
-/* REMX */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
+/* RemX */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
 
 /* GOL  */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},

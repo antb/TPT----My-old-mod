@@ -10,7 +10,7 @@ int update_BTRY(UPDATE_FUNC_ARGS) {
 				if ((r>>8)>=NPART || !r)
 					continue;
 				rt = parts[r>>8].type;
-				if (parts_avg(i,r>>8,PT_INSL) != PT_INSL)
+				if (parts_avg(i,r>>8,PT_INSL) != PT_INSL && parts_avg(i,r>>8,PT_RBRI) != PT_RBRI) //antb
 				{
 					if ((ptypes[rt].properties&PROP_CONDUCTS) && !(rt==PT_WATR||rt==PT_SLTW||rt==PT_NTCT||rt==PT_PTCT||rt==PT_INWR) && parts[r>>8].life==0 && abs(rx)+abs(ry) < 4)
 					{

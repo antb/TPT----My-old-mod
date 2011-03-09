@@ -44,15 +44,15 @@ powder-res.o: src/Resources/powder-res.rc src/Resources/powder.ico
 	i586-mingw32msvc-windres src/Resources/powder-res.rc powder-res.o
 
 powder-sse3.exe: $(SOURCES) powder-res.o
-	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) powder-res.o -lmingw32 -llibregex -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) powder-res.o -lmingw32 -llibgnurx -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
 	strip $@
 	chmod 0644 $@
 powder-sse2.exe: $(SOURCES) powder-res.o
-	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE2) $(SOURCES) powder-res.o -lmingw32 -llibregex -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE2) $(SOURCES) powder-res.o -lmingw32 -llibgnurx -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
 	strip $@
 	chmod 0644 $@
 powder-sse.exe: $(SOURCES) powder-res.o
-	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE) $(SOURCES) powder-res.o -lmingw32 -llibregex -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE) $(SOURCES) powder-res.o -lmingw32 -llibgnurx -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
 	strip $@
 	chmod 0644 $@
 powder-x: $(SOURCES)
