@@ -1391,7 +1391,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			//printf("parts[%d].type: %d\n", i, parts[i].type);
 
 
-			if (parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_GOL && t!=PT_SPNG && t!=PT_DEUT && t!=PT_RADI && t!=PT_DBTY && t!=PT_NP2 && t!=PT_VIRU && t!=PT_RADI && t!=PT_DBTY && t!=PT_NP2 && t!=PT_VIRU) //AntB Edit -- Ignore Life
+			if (parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_GOL && t!=PT_SPNG && t!=PT_DEUT && t!=PT_SDUT && t!=PT_GDUT && t!=PT_RADI && t!=PT_DBTY && t!=PT_NP2 && t!=PT_VIRU && t!=PT_CPT1 && t!=PT_CPT2) //AntB Edit -- Ignore Life
 			{
 				if (!(parts[i].life==10&&(t==PT_SWCH||t==PT_LCRY||t==PT_PCLN||t==PT_HSWC||t==PT_PUMP||t==PT_RNEO||t==PT_GNEO||t==PT_BNEO||t==PT_CNEO||t==PT_MNEO||t==PT_YNEO||t==PT_SBTY))) //AntB Edit -- Ignore life if 10
 					parts[i].life--;

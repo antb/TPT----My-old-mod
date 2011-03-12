@@ -18,4 +18,7 @@ int update_SBTY(UPDATE_FUNC_ARGS);
 int update_SOIL(UPDATE_FUNC_ARGS);
 int update_SUWR(UPDATE_FUNC_ARGS);
 int update_VIRU(UPDATE_FUNC_ARGS);
-
+int update_SDUT(UPDATE_FUNC_ARGS);
+int update_GDUT(UPDATE_FUNC_ARGS);
+int update_CPT1(UPDATE_FUNC_ARGS);
+int update_CPT2(UPDATE_FUNC_ARGS);

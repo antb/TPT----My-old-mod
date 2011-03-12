@@ -8,10 +8,10 @@
 #endif
 
 #define ANTB_VERSION 7 //AntB Edit -- Bwahahahaaah!
-#define SAVE_VERSION 46
+#define SAVE_VERSION 47
 #define MINOR_VERSION 10 //Start at 10 to prevent "New Version" update
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
-//#define BETA //Comment out to prevent "new version" dialog.
+#define BETA
 
 #define SERVER "powdertoy.co.uk"
 

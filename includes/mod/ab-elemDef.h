@@ -38,7 +38,11 @@
 
 #define PT_REMX BEC+31
 #define PT_ANTB BEC+32
+#define PT_CPT1 BEC+33
+#define PT_CPT2 BEC+34
+#define PT_SDUT BEC+35
+#define PT_GDUT BEC+36
 
-#define PT_NUM  BEC+33
+#define PT_NUM  BEC+37
 
 

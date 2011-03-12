@@ -44,3 +44,10 @@
 /* RemX */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
 
 /* GOL  */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
+
+/* CPT1 */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      1772.1f, PT_LAVA},
+/* CPT2 */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
+/* SDUT */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
+/* GDUT */ {IPL,    NT,      IPH,      NT,      ITL,     NT,      ITH,     NT},
+//          <PV     To       >PV       To      <Temp     To      >Temp    To
+
