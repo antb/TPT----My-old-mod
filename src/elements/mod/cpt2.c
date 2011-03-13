@@ -26,7 +26,7 @@ int update_CPT2(UPDATE_FUNC_ARGS)
                         parts[i].ctype2 = 10;
                 }
 
-                if(/*parts[i].ctype2==0 &&*/ parts[i].life < capacity)
+                if(parts[i].life <= capacity)
                 {
                     if(rt==PT_SPRK && parts[rp].life==4 && ct==PT_METL)
                         parts[i].life++;
@@ -40,7 +40,7 @@ int update_CPT2(UPDATE_FUNC_ARGS)
                         parts[i].ctype2=10;
                     }
                 }
-                else if(parts[i].ctype2==10)
+                if(parts[i].ctype2==10)
                 {
                     if(parts[i].life && rt==PT_INWR && parts[rp].life==0)
                     {
