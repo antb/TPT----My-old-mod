@@ -6,7 +6,25 @@ else if (t==PT_SBTY)
     uint8 cb = 0x0B+(parts[i].life*10);
     blendpixel(vid, nx, ny, cr, cg, cb, 223);
 }
-        
+
+else if(t==PT_CPT1)
+{    
+    uint8 cr = 0x40+(parts[i].life*6);
+    uint8 cg = 0x01+(parts[i].life*6);
+    uint8 cb = 0x44+(parts[i].life*6);
+    cr+=0x44*(parts[i].tmp*2);
+    cg+=0x44*(parts[i].tmp*2);
+    cb+=0x44*(parts[i].tmp*2);
+    blendpixel(vid, nx, ny, cr, cg, cb, 223);
+}        
+else if(t==PT_CPT2)
+{
+    uint8 cr = (0x98/3)+(parts[i].life*15);
+    uint8 cg = (0x06/3)+(parts[i].life*19);
+    uint8 cb = (0x80/3)+(parts[i].life*10);
+    blendpixel(vid, nx, ny, cr, cg, cb, 223);
+}        
+
 else if (t==PT_LEAD || t==PT_LLED)
 {
     cr = 0x30;
