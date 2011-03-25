@@ -15,6 +15,8 @@
 #include <interface.h>
 #include <misc.h>
 
+
+//char pyready=1;
 SDLMod sdl_mod;
 int sdl_key, sdl_wheel, sdl_caps=0, sdl_ascii, sdl_zoom_trig=0;
 
@@ -479,7 +481,7 @@ void draw_svf_ui(pixel *vid_buf)
 	c = svf_login ? 255 : 128;
 	drawtext(vid_buf, 40, YRES+(MENUSIZE-14), "\x82", c, c, c, 255);
 	if (svf_open)
-		drawtext(vid_buf, 58, YRES+(MENUSIZE-12), svf_name, c, c, c, 255);
+		drawtextmax(vid_buf, 58, YRES+(MENUSIZE-12), 125, svf_name, c, c, c, 255);
 	else
 		drawtext(vid_buf, 58, YRES+(MENUSIZE-12), "[untitled simulation]", c, c, c, 255);
 	drawrect(vid_buf, 37, YRES+(MENUSIZE-16), 150, 14, c, c, c, 255);
@@ -505,7 +507,7 @@ void draw_svf_ui(pixel *vid_buf)
 
 	drawtext(vid_buf, 222, YRES+(MENUSIZE-15), "\x83", c, c, c, 255);
 	if (svf_tags[0])
-		drawtextmax(vid_buf, 240, YRES+(MENUSIZE-12), 154, svf_tags, c, c, c, 255);
+		drawtextmax(vid_buf, 240, YRES+(MENUSIZE-12), XRES+BARSIZE-405, svf_tags, c, c, c, 255);
 	else
 		drawtext(vid_buf, 240, YRES+(MENUSIZE-12), "[no tags set]", c, c, c, 255);
 
@@ -516,7 +518,7 @@ void draw_svf_ui(pixel *vid_buf)
 
 	drawtext(vid_buf, XRES-122+BARSIZE/*388*/, YRES+(MENUSIZE-13), "\x84", 255, 255, 255, 255);
 	if (svf_login)
-		drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), svf_user, 255, 255, 255, 255);
+		drawtextmax(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), 66, svf_user, 255, 255, 255, 255);
 	else
 		drawtext(vid_buf, XRES-104+BARSIZE/*406*/, YRES+(MENUSIZE-12), "[sign in]", 255, 255, 255, 255);
 	drawrect(vid_buf, XRES-125+BARSIZE/*385*/, YRES+(MENUSIZE-16), 91, 14, 255, 255, 255, 255);
@@ -1203,8 +1205,9 @@ finish:
 
 int save_name_ui(pixel *vid_buf)
 {
-	int x0=(XRES-420)/2,y0=(YRES-68-YRES/4)/2,b=1,bq,mx,my,ths,nd=0;
+	int x0=(XRES-420)/2,y0=(YRES-68-YRES/4)/2,b=1,bq,mx,my,ths,idtxtwidth,nd=0;
 	void *th;
+	char *save_id_text;
 	ui_edit ed;
 	ui_edit ed2;
 	ui_checkbox cb;
@@ -1240,6 +1243,10 @@ int save_name_ui(pixel *vid_buf)
 	ed2.cursor = strlen(svf_description);
 	ed2.multiline = 1;
 	strcpy(ed2.str, svf_description);
+	
+	save_id_text = malloc(strlen("Current save id: ")+strlen(svf_id)+1);
+	sprintf(save_id_text,"Current save id: %s",svf_id);
+	idtxtwidth = textwidth(save_id_text);
 
 	cb.x = x0+10;
 	cb.y = y0+53+YRES/4;
@@ -1275,6 +1282,12 @@ int save_name_ui(pixel *vid_buf)
 		drawrect(vid_buf, x0, y0+74+YRES/4, 192, 16, 192, 192, 192, 255);
 
 		draw_line(vid_buf, x0+192, y0, x0+192, y0+90+YRES/4, 150, 150, 150, XRES+BARSIZE);
+		
+		if (svf_id[0])
+		{
+			fillrect(vid_buf, (XRES+BARSIZE-idtxtwidth)/2-5, YRES+(MENUSIZE-16), idtxtwidth+10, 14, 0, 0, 0, 255);
+			drawtext(vid_buf, (XRES+BARSIZE-idtxtwidth)/2, YRES+MENUSIZE-12, save_id_text, 255, 255, 255, 255);
+		}
 
 		sdl_blit(0, 0, (XRES+BARSIZE), YRES+MENUSIZE, vid_buf, (XRES+BARSIZE));
 
@@ -1332,6 +1345,7 @@ int save_name_ui(pixel *vid_buf)
 		}
 	}
 	free(th);
+	if (save_id_text) free(save_id_text);
 	return 0;
 }
 
@@ -2732,7 +2746,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 	int nyd,nyu,ry,lv;
 	float ryf;
 
-	char *uri, *uri_2, *o_uri;
+	char *uri, *uri_2, *o_uri, *save_id_text;
 	void *data, *info_data;
 	save_info *info = malloc(sizeof(save_info));
 	void *http = NULL, *http_2 = NULL;
@@ -2750,6 +2764,9 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 	drawrect(vid_buf, 50, 50, (XRES/2)+1, (YRES/2)+1, 255, 255, 255, 155);
 	drawrect(vid_buf, 50+(XRES/2)+1, 50, XRES+BARSIZE-100-((XRES/2)+1), YRES+MENUSIZE-100, 155, 155, 155, 255);
 	drawtext(vid_buf, 50+(XRES/4)-textwidth("Loading...")/2, 50+(YRES/4), "Loading...", 255, 255, 255, 128);
+	
+	save_id_text = malloc(strlen("Save id: ")+strlen(save_id)+1);
+	sprintf(save_id_text,"Save id: %s",save_id);
 
 	ed.x = 57+(XRES/2)+1;
 	ed.y = YRES+MENUSIZE-118;
@@ -2825,11 +2842,12 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 			data = http_async_req_stop(http, &status, &data_size);
 			if (status == 200)
 			{
+				pixel *full_save;
 				if (!data||!data_size) {
 					error_ui(vid_buf, 0, "Save data is empty (may be corrupt)");
 					break;
 				}
-				pixel *full_save = prerender_save(data, data_size, &imgw, &imgh);
+				full_save = prerender_save(data, data_size, &imgw, &imgh);
 				if (full_save!=NULL) {
 					save_pic = rescale_img(full_save, imgw, imgh, &thumb_w, &thumb_h, 2);
 					data_ready = 1;
@@ -2939,6 +2957,10 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 			drawrect(vid_buf, XRES+BARSIZE-100, YRES+MENUSIZE-68, 50, 18, 255, 255, 255, 255);
 			drawtext(vid_buf, XRES+BARSIZE-90, YRES+MENUSIZE-63, "Submit", 255, 255, 255, 255);
 		}
+		
+		cix = textwidth(save_id_text);
+		fillrect(vid_buf, (XRES+BARSIZE-cix)/2-5, YRES+(MENUSIZE-16), cix+10, 14, 0, 0, 0, 255);
+		drawtext(vid_buf, (XRES+BARSIZE-cix)/2, YRES+MENUSIZE-12, save_id_text, 255, 255, 255, 255);
 
 		//Open Button
 		bc = openable?255:150;
@@ -3056,7 +3078,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 		if (queue_open) {
 			if (info_ready && data_ready) {
 				// Do Open!
-				status = parse_save(data, data_size, 1, 0, 0);
+				status = parse_save(data, data_size, 1, 0, 0, bmap, fvx, fvy, signs, parts, pmap);
 				if (!status) {
 					//if(svf_last)
 					//free(svf_last);
@@ -3125,6 +3147,7 @@ int open_ui(pixel *vid_buf, char *save_id, char *save_date)
 		if (!b)
 			break;
 	}
+	if (save_id_text) free(save_id_text);
 	//Close open connections
 	if (http)
 		http_async_req_close(http);
@@ -3570,21 +3593,21 @@ void execute_save(pixel *vid_buf)
 	char *result;
 
 	char *names[] = {"Name","Description", "Data:save.bin", "Thumb:thumb.bin", "Publish", "ID", NULL};
-	char *parts[6];
+	char *uploadparts[6];
 	int plens[6];
 
-	parts[0] = svf_name;
+	uploadparts[0] = svf_name;
 	plens[0] = strlen(svf_name);
-	parts[1] = svf_description;
+	uploadparts[1] = svf_description;
 	plens[1] = strlen(svf_description);
-	parts[2] = build_save(plens+2, 0, 0, XRES, YRES);
-	parts[3] = build_thumb(plens+3, 1);
-	parts[4] = (svf_publish==1)?"Public":"Private";
+	uploadparts[2] = build_save(plens+2, 0, 0, XRES, YRES, bmap, fvx, fvy, signs, parts);
+	uploadparts[3] = build_thumb(plens+3, 1);
+	uploadparts[4] = (svf_publish==1)?"Public":"Private";
 	plens[4] = strlen((svf_publish==1)?"Public":"Private");
 
 	if (svf_id[0])
 	{
-		parts[5] = svf_id;
+		uploadparts[5] = svf_id;
 		plens[5] = strlen(svf_id);
 	}
 	else
@@ -3592,16 +3615,16 @@ void execute_save(pixel *vid_buf)
 
 	result = http_multipart_post(
 	             "http://" SERVER "/Save.api",
-	             names, parts, plens,
+	             names, uploadparts, plens,
 	             svf_user_id, /*svf_pass*/NULL, svf_session_id,
 	             &status, NULL);
 
 	if (svf_last)
 		free(svf_last);
-	svf_last = parts[2];
+	svf_last = uploadparts[2];
 	svf_lsize = plens[2];
 
-	free(parts[3]);
+	free(uploadparts[3]);
 
 	if (status!=200)
 	{
@@ -3818,21 +3841,16 @@ void open_link(char *uri) {
 #ifdef WIN32
 	ShellExecute(0, "OPEN", uri, NULL, NULL, 0);
 #elif MACOSX
-	//char *cmd[] = { "open", uri, (char *)0 };
-	//execvp("open", cmd);
-	//LSOpenCFURLRef(CFURLCreateWithString(NULL, CFStringCreateWithCString(NULL, uri, 0) ,NULL), NULL); //TODO: Get this crap working
 	char *cmd = malloc(7+strlen(uri));
 	strcpy(cmd, "open ");
 	strappend(cmd, uri);
 	system(cmd);
 #elif LIN32
-	//execlp("xdg-open", "xdg-open", uri, (char *)0);
 	char *cmd = malloc(11+strlen(uri));
 	strcpy(cmd, "xdg-open ");
 	strappend(cmd, uri);
 	system(cmd);
 #elif LIN64
-	//execlp("xdg-open", "xdg-open", uri, (char *)0);
 	char *cmd = malloc(11+strlen(uri));
 	strcpy(cmd, "xdg-open ");
 	strappend(cmd, uri);
@@ -3847,10 +3865,12 @@ struct command_history {
 };
 typedef struct command_history command_history;
 command_history *last_command = NULL;
-char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show previous commands
-	int mx,my,b,cc,ci = -1;
+command_history *last_command2 = NULL;
+char *console_ui(pixel *vid_buf,char error[255],char console_more) {
+	int mx,my,b,cc,ci = -1,i;
 	pixel *old_buf=calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
 	command_history *currentcommand;
+	command_history *currentcommand2;
 	ui_edit ed;
 	ed.x = 15;
 	ed.y = 207;
@@ -3864,7 +3884,16 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 	ed.cursor = 0;
 	//fillrect(vid_buf, -1, -1, XRES, 220, 0, 0, 0, 190);
 	memcpy(old_buf,vid_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
+
 	fillrect(old_buf, -1, -1, XRES, 220, 0, 0, 0, 190);
+	
+	currentcommand2 = malloc(sizeof(command_history));
+	memset(currentcommand2, 0, sizeof(command_history));
+	currentcommand2->prev_command = last_command2;
+	currentcommand2->command = mystrdup(error);
+	last_command2 = currentcommand2;
+	
+	SDL_EnableKeyRepeat(SDL_DEFAULT_REPEAT_DELAY, SDL_DEFAULT_REPEAT_INTERVAL);
 	cc = 0;
 	while(cc < 80){
 		fillrect(old_buf, -1, -1+cc, XRES+BARSIZE, 2, 0, 0, 0, 160-(cc*2));
@@ -3879,9 +3908,14 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 
 		memcpy(vid_buf,old_buf,(XRES+BARSIZE)*YRES*PIXELSIZE);
 		draw_line(vid_buf, 0, 219, XRES+BARSIZE-1, 219, 228, 228, 228, XRES+BARSIZE);
-		drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.3 (by cracker64)\n"
-				 "Current commands are quit, set, reset, load, create, file, kill, sound\n" //TODO: help command
-				 ,255, 255, 255, 255);
+        if(pygood)
+            i=255;
+        else
+            i=0;
+        if(pyready)
+            drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.3 (by cracker64, python by Doxin)",255,i,i, 255);
+        else
+            drawtext(vid_buf, 15, 15, "Welcome to The Powder Toy console v.3 (by cracker64, python disabled)",255,i,i, 255);
 		
 		cc = 0;
 		currentcommand = last_command;
@@ -3905,11 +3939,35 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 				break;
 			}
 		}
+		cc = 0;
+		currentcommand2 = last_command2;
+		while(cc < 10)
+		{
+			if(currentcommand2==NULL)
+				break;
+			drawtext(vid_buf, 215, 175-(cc*12), currentcommand2->command, 255, 225, 225, 255);
+			if(currentcommand2->prev_command!=NULL)
+			{
+				if(cc<9) {
+					currentcommand2 = currentcommand2->prev_command;
+				} else if(currentcommand2->prev_command!=NULL) {
+					free(currentcommand2->prev_command);
+					currentcommand2->prev_command = NULL;
+				}
+				cc++;
+			}
+			else
+			{
+				break;
+			}
+		}
 
-		if(error && ed.str[0]=='\0')
-			drawtext(vid_buf, 20, 207, error, 255, 127, 127, 200);
-		
-		drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
+		//if(error && ed.str[0]=='\0')
+			//drawtext(vid_buf, 20, 207, error, 255, 127, 127, 200);
+		if(console_more==0)
+            drawtext(vid_buf, 5, 207, ">", 255, 255, 255, 240);
+        else
+            drawtext(vid_buf, 5, 207, "...", 255, 255, 255, 240);
 		
 		ui_edit_draw(vid_buf, &ed);
 		ui_edit_process(mx, my, b, &ed);
@@ -3922,12 +3980,14 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 			currentcommand->command = mystrdup(ed.str);
 			last_command = currentcommand;
 			free(old_buf);
+			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 			return currentcommand->command;
 		}
 		if (sdl_key==SDLK_ESCAPE || sdl_key==SDLK_BACKQUOTE)
 		{
 			console_mode = 0;
 			free(old_buf);
+			SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 			return NULL;
 		}
 		if(sdl_key==SDLK_UP || sdl_key==SDLK_DOWN)
@@ -3964,6 +4024,7 @@ char *console_ui(pixel *vid_buf,char error[255]) { //TODO: error messages, show 
 	}
 	console_mode = 0;
 	free(old_buf);
+	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 	return NULL;
 }
 
