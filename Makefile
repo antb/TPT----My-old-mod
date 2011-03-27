@@ -1,56 +1,65 @@
 SOURCES := src/*.c src/elements/*.c src/elements/mod/*.c
 
+PY_BIN := python2.7
+PY_VERSION := $(shell $(PY_BIN) -c "import sys;print sys.version[:3]")
+PY_LIBPATH := $(shell $(PY_BIN) -c "import os.path,sys;print os.path.join(sys.exec_prefix,\"lib\",\"python%s\"%sys.version[:3],\"config\")")
+PY_INCPATH := $(shell $(PY_BIN) -c "import os.path,sys;print os.path.join(sys.exec_prefix,\"include\",\"python%s\"%sys.version[:3])")
+PY_LDFLAGS := $(shell $(PY_BIN) -c "import distutils.sysconfig;print distutils.sysconfig.get_config_var('LINKFORSHARED')")
+PYCOMMAND := $(PY_BIN) getheader.py
+
 CFLAGS := -w -std=c99 -D_POSIX_C_SOURCE=200112L -Iincludes/ 
 OFLAGS := -O3 -ffast-math -ftree-vectorize -funsafe-math-optimizations
-<<<<<<< HEAD
-LFLAGS := -lSDL -lm -lbz2
-LFLAGS_X := -lm -lbz2 -lSDLmain
-=======
-LFLAGS := -lSDL -lm -lbz2 -lpython2.7 -L/usr/lib/python2.7/config -I/usr/include/python2.7
-LFLAGS_X := -lm -lbz2 -lSDLmain -I/Library/Frameworks/Python.framework/Versions/2.7/include/python2.7
->>>>>>> bc58ff1479d1de476aa2581fcbbb3edae0af9171
+LFLAGS := -lSDL -lm -lbz2 -lutil -lpython$(PY_VERSION) -L$(PY_LIBPATH) -I$(PY_INCPATH) $(PY_LDFLAGS)
+LFLAGS_X := -lm -lbz2 -lSDLmain -I/Library/Frameworks/Python.framework/Versions/$(PY_VERSION)/include/python$(PY_VERSION)
 MFLAGS_SSE3 := -march=native -DX86 -DX86_SSE3 -msse3
 MFLAGS_SSE2 := -march=native -DX86 -DX86_SSE2 -msse2
 MFLAGS_SSE := -march=native -DX86 -DX86_SSE
-FLAGS_DBUG := -Wall -std=c99 -D_POSIX_C_SOURCE=200112L -pg -DX86 -DX86_SSE3 -msse3 -lSDL -lm -lbz2 -g
+FLAGS_DBUG := -Wall -std=c99 -D_POSIX_C_SOURCE=200112L -pg -DX86 -DX86_SSE3 -msse3 -g
 COMPILER := gcc
 LINUX_TARG := powder-64-sse2 powder-sse powder-sse2
 WIN32_TARG := powder-sse.exe powder-sse2.exe
-PYCOMMAND := python getheader.py
 
 powder: $(SOURCES)
 	$(PYCOMMAND)
-	$(COMPILER) -DINTERNAL -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64
+	$(COMPILER) -DINTERNAL -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) $(LFLAGS) -DLIN64
+
 powder-debug-64: $(SOURCES)
 	$(PYCOMMAND) --64bit
-	$(COMPILER) -m64 -o$@ $(FLAGS_DBUG) -DLIN64 $(SOURCES) -Iincludes/
+	$(COMPILER) -m64 -o$@ $(FLAGS_DBUG) -DLIN64 $(SOURCES) -Iincludes/ $(LFLAGS)
+
 powder-debug: $(SOURCES)
 	$(PYCOMMAND)
-	$(COMPILER) -m32 -o$@ $(FLAGS_DBUG) -DLIN32 $(SOURCES) -Iincludes/ 
+	$(COMPILER) -DINTERNAL -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) $(LFLAGS) -DLIN64 $(FLAGS_DBUG)
+
 powder-sse3: $(SOURCES)
 	$(PYCOMMAND)
-	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN32
+	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) $(LFLAGS) -DLIN32
 	strip $@
 powder-sse2: $(SOURCES)
 	$(PYCOMMAND)
-	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE2) $(SOURCES) -DLIN32
+	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE2) $(SOURCES) $(LFLAGS) -DLIN32
 	strip $@
+
 powder-sse: $(SOURCES)
 	$(PYCOMMAND)
-	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE) $(SOURCES) -DLIN32
+	$(COMPILER) -m32 -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE) $(SOURCES) $(LFLAGS) -DLIN32
 	strip $@
+
 powder-64-sse3-opengl: $(SOURCES)
 	$(PYCOMMAND) --64bit
-	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64 -lGL -lGLU -DOpenGL
+	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) $(LFLAGS) -DLIN64 -lGL -lGLU -DOpenGL
 	strip $@
+
 powder-64-sse3: $(SOURCES)
 	$(PYCOMMAND) --64bit
-	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE3) $(SOURCES) -DLIN64 
+	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) $(LFLAGS) -DLIN64
 	strip $@
+
 powder-64-sse2: $(SOURCES)
 	$(PYCOMMAND) --64bit
-	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(LFLAGS) $(MFLAGS_SSE2) $(SOURCES) -DLIN64
+	$(COMPILER) -m64 -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE2) $(SOURCES) $(LFLAGS) -DLIN64
 	strip $@
+
 
 powder-icc: $(SOURCES)
 	/opt/intel/Compiler/11.1/073/bin/intel64/icc -m64 -o$@ -Iincludes/ -O2 -march=core2 -msse3 -mfpmath=sse -lSDL -lbz2 -lm -xW $(SOURCES) -std=c99 -D_POSIX_C_SOURCE=200112L
@@ -60,34 +69,29 @@ powder-res.o: src/Resources/powder-res.rc src/Resources/powder.ico
 
 powder-sse3.exe: $(SOURCES) powder-res.o
 	$(PYCOMMAND)
-	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) powder-res.o -lmingw32 -llibgnurx -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE3) $(SOURCES) powder-res.o -lmingw32 -llibregex -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
 	strip $@
 	chmod 0644 $@
+
 powder-sse2.exe: $(SOURCES) powder-res.o
 	$(PYCOMMAND)
-	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE2) $(SOURCES) powder-res.o -lmingw32 -llibgnurx -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE2) $(SOURCES) powder-res.o -lmingw32 -llibregex -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
 	strip $@
 	chmod 0644 $@
+
 powder-sse.exe: $(SOURCES) powder-res.o
 	$(PYCOMMAND)
-	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE) $(SOURCES) powder-res.o -lmingw32 -llibgnurx -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
+	i586-mingw32msvc-gcc -o$@ $(CFLAGS) $(OFLAGS) $(MFLAGS_SSE) $(SOURCES) powder-res.o -lmingw32 -llibregex -lws2_32 -lSDLmain $(LFLAGS) -mwindows -DWIN32
 	strip $@
 	chmod 0644 $@
+
 powder-x: $(SOURCES)
 	$(PYCOMMAND) --64bit
 	gcc -o $@ $(CFLAGS) $(OFLAGS) $(LFLAGS_X) $(MFLAGS) $(SOURCES) -DMACOSX -DPIX32BGRA -arch x86_64 -framework Cocoa -framework SDL -framework Python
 	strip $@ 
-	mv $@ build/Powder.app/Contents/MacOS/
+	mv $@ Releases/Powder.app/Contents/MacOS/
 powder-x-ogl: $(SOURCES)
 	$(PYCOMMAND) --64bit
 	gcc -o $@ $(CFLAGS) $(OFLAGS) $(LFLAGS_X) $(MFLAGS) $(SOURCES) -DOpenGL -DMACOSX -DPIX32BGRA -arch x86_64 -framework Cocoa -framework SDL -framework OpenGL -framework Python
 	strip $@ 
 
-winfarm: powder-sse.exe powder-sse2.exe powder-sse3.exe
-	mv *.exe Releases
-
-linfarm: powder-sse powder-sse2 powder-sse3
-	mv *sse* Releases
-	cp ./Releases/*sse3 ./
-
-farm: winfarm linfarm

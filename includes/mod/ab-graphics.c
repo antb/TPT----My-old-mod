@@ -9,11 +9,11 @@ else if (t==PT_SBTY)
 
 else if(t==PT_CPT1)
 {    
-    uint8 cr = 0x40+(parts[i].life*6);
+    uint8 cr = 0x01+(parts[i].life*6);
     uint8 cg = 0x01+(parts[i].life*6);
     uint8 cb = 0x44+(parts[i].life*6);
-    cr+=0x44*(parts[i].tmp*2);
-    cg+=0x44*(parts[i].tmp*2);
+    cr+=0x11*(parts[i].tmp*2);
+    cg+=0x11*(parts[i].tmp*2);
     cb+=0x44*(parts[i].tmp*2);
     blendpixel(vid, nx, ny, cr, cg, cb, 223);
 }        
