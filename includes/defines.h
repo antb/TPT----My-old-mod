@@ -10,26 +10,32 @@
 
 #define ANTB_VERSION 7 //AntB Edit -- Bwahahahaaah!
 #define SAVE_VERSION 47
-#define MINOR_VERSION 10 //Start at 10 to prevent "New Version" update
-#define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter.
-#define BETA
+#define MINOR_VERSION 11 //Start at 10 to prevent "New Version" update
+#define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter. (Or don't because of save borkage)
+//#define BETA
 
 #define SERVER "powdertoy.co.uk"
 
 #define THUMB_CACHE_SIZE 256
 
-//#define pyconsole
-
 #ifndef M_PI
 #define M_PI 3.14159265f
+#endif
+#ifndef M_GRAV
+#define M_GRAV 6.67300e-1
 #endif
 
 #define IMGCONNS 3
 #define TIMEOUT 100
 #define HTTP_TIMEOUT 10
 
+#ifdef RENDERER
+#define MENUSIZE 0
+#define BARSIZE 0
+#else
 #define MENUSIZE 40
 #define BARSIZE 17
+#endif
 #define XRES	612
 #define YRES	384
 #define NPART XRES*YRES
@@ -38,6 +44,8 @@
 #define YCNTR   192
 
 #define MAX_DISTANCE sqrt(pow(XRES, 2)+pow(YRES, 2))
+
+#define GRAV_DIFF
 
 #define MAXSIGNS 16
 #define TAG_MAX 256
@@ -65,7 +73,7 @@ extern unsigned char ZSIZE;
 
 #define STAMP_X 4
 #define STAMP_Y 4
-#define STAMP_MAX 120
+#define STAMP_MAX 240
 
 #define NGOL 28 //AntB Edit
 
@@ -73,10 +81,9 @@ extern unsigned char ZSIZE;
 #define SQUARE_BRUSH 1
 #define BRUSH_NUM 2
 
-#define PYCONSOLE
+//#define PYCONSOLE
 //#define PYEXT
-//WARNING pyext must be defined on 64bit!
-//also, don't add a comment on that line, it breaks
+//no longer needed
 
 #ifdef PIX16
 typedef unsigned short pixel;
@@ -100,6 +107,8 @@ typedef unsigned int pixel;
 #define strcasecmp stricmp
 #endif
 
+#define SDEUT
+
 typedef unsigned char uint8;
 
 extern int amd;
@@ -116,6 +125,7 @@ int GRAV_G2;
 int GRAV_B2;
 
 extern int legacy_enable;
+extern int ngrav_enable; //Newtonian gravity
 extern int sound_enable;
 extern int kiosk_enable;
 
@@ -140,6 +150,7 @@ struct stamp
 };
 typedef struct stamp stamp;
 
+int frameidx;
 int MSIGN;
 int CGOL;
 int ISGOL;
@@ -167,8 +178,6 @@ int player2spawn;
 int death2;
 int ISSPAWN1;
 int ISSPAWN2;
-extern char pyready;
-extern char pygood;
 extern sign signs[MAXSIGNS];
 extern stamp stamps[STAMP_MAX];
 extern int stamp_count;
@@ -177,8 +186,10 @@ extern char itc_msg[64];
 
 extern int do_open;
 extern int sys_pause;
+extern int sys_shortcuts;
 extern int legacy_enable; //Used to disable new features such as heat, will be set by commandline or save.
 extern int death, death2, framerender;
+extern pixel *vid_buf;
 
 extern unsigned char last_major, last_minor, update_flag;
 
@@ -194,5 +205,5 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 void clear_sim(void);
 void del_stamp(int d);
 void sdl_seticon(void);
-//int process_command(pixel *vid_buf, char *console, char *console_error, PyObject *pfunc);
+void play_sound(char *file);
 #endif

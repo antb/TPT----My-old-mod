@@ -1,6 +1,6 @@
 /* AntB's Fork - Defines > powder.h */
 
-#define BEC 147  // BEC = Base Element Count, set it the same as the last element in the source.
+#define BEC 149  // BEC = Base Element Count, set it the same as the last element in the source.
 
 #define PT_MUPT BEC+1
 #define PT_BAGL BEC+2
@@ -40,9 +40,7 @@
 #define PT_ANTB BEC+32
 #define PT_CPT1 BEC+33
 #define PT_CPT2 BEC+34
-#define PT_SDUT BEC+35
-#define PT_GDUT BEC+36
 
-#define PT_NUM  BEC+37
+#define PT_NUM  BEC+35
 
 

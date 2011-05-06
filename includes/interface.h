@@ -59,7 +59,7 @@ static menu_wall mwalls[] =
 #define SC_CRACKER 14
 #define SC_CRACKER2 15
 
-static menu_section msections[] =
+static menu_section msections[] = //itemcount and doshow do not do anything currently.
 {
     {"\xC1", "Walls", 0, 1},
     {"\xC2", "Electronics", 0, 1},
@@ -86,6 +86,14 @@ struct ui_edit
 	int focus, cursor, hide, multiline;
 };
 typedef struct ui_edit ui_edit;
+
+struct ui_copytext
+{
+	int x, y, width, height;
+	char text[256];
+	int state, hover;
+};
+typedef struct ui_copytext ui_copytext;
 
 struct save_info
 {
@@ -176,11 +184,17 @@ void ui_checkbox_draw(pixel *vid_buf, ui_checkbox *ed);
 
 void ui_checkbox_process(int mx, int my, int mb, int mbq, ui_checkbox *ed);
 
+void ui_copytext_draw(pixel *vid_buf, ui_copytext *ed);
+
+void ui_copytext_process(int mx, int my, int mb, int mbq, ui_copytext *ed);
+
 void draw_svf_ui(pixel *vid_buf);
 
 void error_ui(pixel *vid_buf, int err, char *txt);
 
 void info_ui(pixel *vid_buf, char *top, char *txt);
+
+void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt);
 
 void info_box(pixel *vid_buf, char *msg);
 
@@ -196,7 +210,7 @@ int save_name_ui(pixel *vid_buf);
 
 void menu_ui(pixel *vid_buf, int i, int *sl, int *sr);
 
-void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int b, int bq, int mx, int my);
+void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq, int mx, int my);
 
 int sdl_poll(void);
 
@@ -231,9 +245,9 @@ void open_link(char *uri);
 int report_ui(pixel *vid_buf, char *save_id);
 
 char *console_ui(pixel *vid_buf, char error[255],char console_more);
-int console_parse_coords(char *txt, int *x, int *y, char *err);
-int console_parse_type(char *txt, int *element, char *err);
-int console_parse_partref(char *txt, int *which, char *err);
 
+void simulation_ui(pixel *vid_buf);
+
+void decorations_ui(pixel *vid_buf, pixel *decorations, int *bsx, int *bsy);
 #endif
 

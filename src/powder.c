@@ -13,7 +13,7 @@ particle *parts;
 particle *cb_parts;
 
 int gravityMode = 0; // starts enabled in "vertical" mode...
-int airMode = 0; 
+int airMode = 0;
 
 
 unsigned char bmap[YRES/CELL][XRES/CELL];
@@ -47,7 +47,7 @@ static int pn_junction_sprk(int x, int y, int pt)
 	return 1;
 }
 
-static void photoelectric_effect(int nx, int ny)
+static void photoelectric_effect(int nx, int ny)//create sparks from PHOT when hitting PSCN and NSCN
 {
 	unsigned r = pmap[ny][nx];
 
@@ -81,7 +81,10 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 	if ((r&0xFF)==PT_VOID || (r&0xFF)==PT_BHOL)
 		return 1;
 
-	if(pt==PT_SPRK)//spark shouldn't move
+	if ((r&0xFF)==PT_WHOL && pt==PT_ANAR)
+		return 1;
+
+	if (pt==PT_SPRK)//spark shouldn't move
 		return 0;
 
     if ((pt==PT_PHOT||pt==PT_MUPT)&&(       //AntB
@@ -127,7 +130,7 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 			return 0;
 	}
 
-	if (r && ((r&0xFF) >= PT_NUM || (ptypes[pt].weight <= ptypes[(r&0xFF)].weight)))
+	if (r && ((r&0xFF) >= PT_NUM || (ptypes[pt].weight <= ptypes[(r&0xFF)].weight))) //the particle weight check
 		return 0;
 
 	if (pt == PT_PHOT)
@@ -158,9 +161,9 @@ int try_move(int i, int x, int y, int nx, int ny)
 	         (pmap[y][x]&0xFF)==PT_BMTL))
 		e = 2;
 
-	if (!e)
+	if (!e) //if no movement
 	{
-		if (!legacy_enable && parts[i].type==PT_PHOT && r)
+		if (!legacy_enable && parts[i].type==PT_PHOT && r)//PHOT heat conduction
 		{
 			if ((r & 0xFF) == PT_COAL || (r & 0xFF) == PT_BCOL)
 				parts[r>>8].temp = parts[i].temp;
@@ -171,7 +174,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 		return 0;
 	}
 
-	if (e == 2)
+	if (e == 2) //if occupy same space
 	{
 		if (parts[i].type == PT_PHOT && (r&0xFF)==PT_GLOW && !parts[r>>8].life)
 			if (rand() < RAND_MAX/30)
@@ -203,8 +206,9 @@ int try_move(int i, int x, int y, int nx, int ny)
 		}
 		return 1;
 	}
+	//else e=1 , we are trying to swap the particles, return 0 no swap/move, 1 is still overlap/move, because the swap takes place later
 
-	if ((r&0xFF)==PT_VOID)
+	if ((r&0xFF)==PT_VOID) //this is where void eats particles
 	{
 		if (parts[i].type == PT_STKM)
 		{
@@ -219,7 +223,7 @@ int try_move(int i, int x, int y, int nx, int ny)
 		parts[i].type=PT_NONE;
 		return 0;
 	}
-	if ((r&0xFF)==PT_BHOL)
+	if ((r&0xFF)==PT_BHOL) //this is where blackhole eats particles
 	{
 		if (parts[i].type == PT_STKM)
 		{
@@ -239,9 +243,19 @@ int try_move(int i, int x, int y, int nx, int ny)
 
 		return 0;
 	}
-	if ((pmap[ny][nx]&0xFF)==PT_CNCT)
+	if ((r&0xFF)==PT_WHOL && parts[i].type==PT_ANAR) //whitehole eats anar
+	{
+		parts[i].type=PT_NONE;
+		if (!legacy_enable)
+		{
+			parts[r>>8].temp = restrict_flt(parts[r>>8].temp- (MAX_TEMP-parts[i].temp)/2, MIN_TEMP, MAX_TEMP);
+		}
+
 		return 0;
-	if (parts[i].type==PT_CNCT && y<ny && (pmap[y+1][x]&0xFF)==PT_CNCT)
+	}
+	if ((r&0xFF)==PT_CNCT)//stops CNCT being displaced by other particles
+		return 0;
+	if (parts[i].type==PT_CNCT && y<ny && (pmap[y+1][x]&0xFF)==PT_CNCT)//check below CNCT for another CNCT
 		return 0;
 
 	if (bmap[ny/CELL][nx/CELL]==WL_EHOLE && !emap[y/CELL][x/CELL])
@@ -255,8 +269,8 @@ int try_move(int i, int x, int y, int nx, int ny)
 	if (parts[i].type == PT_PHOT)
 		return 1;
 
-	e = r >> 8;
-	if (r && e<NPART)
+	e = r >> 8; //e is now the particle number at r (pmap[ny][nx])
+	if (r && e<NPART)//the swap part, if we make it this far, swap
 	{
 		if (parts[e].type == PT_PHOT||parts[e].type == PT_NEUT)
 			return 1;
@@ -264,14 +278,20 @@ int try_move(int i, int x, int y, int nx, int ny)
 		if (parts[i].type==PT_NEUT) {
 			// target material is NEUTPENETRATE, meaning it gets moved around when neutron passes
 			unsigned s = pmap[y][x];
+			if ((s>>8)>=NPART) return 0;
 			if ((s&0xFF) && (s&0xFF)<PT_NUM && !(ptypes[s&0xFF].properties&PROP_NEUTPENETRATE))
-				return 1; // if the element currently underneath neutron isn't NEUTPENETRATE, don't move it around
-			if ((pmap[ny][nx]>>8)==e) pmap[ny][nx] = (s&~(0xFF))|parts[s>>8].type;
+				return 1; // if the element currently underneath neutron isn't NEUTPENETRATE, don't move anything except the neutron
+			// if nothing is currently underneath neutron, only move target particle
+			if (s)
+			{
+				pmap[ny][nx] = (s&~(0xFF))|parts[s>>8].type;
+				parts[s>>8].x = nx;
+				parts[s>>8].y = ny;
+			}
+			else pmap[ny][nx] = 0;
 			parts[e].x = x;
 			parts[e].y = y;
 			pmap[y][x] = (e<<8)|parts[e].type;
-			parts[s>>8].x = nx;
-			parts[s>>8].y = ny;
 			return 1;
 		}
 
@@ -434,7 +454,7 @@ int get_normal_interp(int pt, float x0, float y0, float dx, float dy, float *nx,
 	return get_normal(pt, x, y, dx, dy, nx, ny);
 }
 
-void kill_part(int i)
+void kill_part(int i)//kills particle number i
 {
 	int x, y;
 
@@ -458,6 +478,14 @@ void kill_part(int i)
 	{
 		ISSPAWN2 = 0;
 	}
+	if (parts[i].type == PT_SOAP)
+	{
+		if ((parts[i].ctype&2) == 2)
+			parts[parts[i].tmp].ctype ^= 4;
+
+		if ((parts[i].ctype&4) == 4)
+			parts[parts[i].tmp2].ctype ^= 2;
+	}
 	if (x>=0 && y>=0 && x<XRES && y<YRES) {
 		if ((pmap[y][x]>>8)==i)
 			pmap[y][x] = 0;
@@ -473,7 +501,7 @@ void kill_part(int i)
 #if defined(WIN32) && !defined(__GNUC__)
 _inline void part_change_type(int i, int x, int y, int t)
 #else
-inline void part_change_type(int i, int x, int y, int t)
+inline void part_change_type(int i, int x, int y, int t)//changes the type of particle number i, to t.  This also changes pmap at the same time.
 #endif
 {
 	if (x<0 || y<0 || x>=XRES || y>=YRES || i>=NPART || t<0 || t>=PT_NUM)
@@ -494,53 +522,9 @@ inline void part_change_type(int i, int x, int y, int t)
 }
 
 #if defined(WIN32) && !defined(__GNUC__)
-_inline int create_n_parts(int n, int x, int y, float vx, float vy, int t)
-#else
-inline int create_n_parts(int n, int x, int y, float vx, float vy, int t)
-#endif
-{
-	int i, c;
-	n = (n/10);
-	if (n<1) {
-		n = 1;
-	}
-	if (n>680) {
-		n = 680;
-	}
-	if (x<0 || y<0 || x>=XRES || y>=YRES || t<0 || t>=PT_NUM)
-		return -1;
-
-	for (c=0; c<n; c++) {
-		float r = (rand()%128+128)/127.0f;
-		float a = (rand()%360)*3.14159f/180.0f;
-		if (pfree == -1)
-			return -1;
-		i = pfree;
-		pfree = parts[i].life;
-
-		parts[i].x = (float)x;
-		parts[i].y = (float)y;
-		parts[i].type = t;
-		parts[i].life = rand()%480+480;
-		parts[i].vx = r*cosf(a);
-		parts[i].vy = r*sinf(a);
-		parts[i].ctype = 0;
-		parts[i].temp += (n*17);
-		parts[i].tmp = 0;
-		if (t!=PT_STKM&&t!=PT_STKM2 && t!=PT_PHOT && t!=PT_NEUT && !pmap[y][x])
-			pmap[y][x] = t|(i<<8);
-		else if ((t==PT_PHOT||t==PT_NEUT) && !photons[y][x])
-			photons[y][x] = t|(i<<8);
-
-		pv[y/CELL][x/CELL] += 6.0f * CFDS;
-	}
-	return 0;
-}
-
-#if defined(WIN32) && !defined(__GNUC__)
 _inline int create_part(int p, int x, int y, int t)
 #else
-inline int create_part(int p, int x, int y, int t)
+inline int create_part(int p, int x, int y, int t)//the function for creating a particle, use p=-1 for creating a new particle, -2 is from a brush, or a particle number to replace a particle.
 #endif
 {
 	int i;
@@ -668,7 +652,7 @@ inline int create_part(int p, int x, int y, int t)
 	{
 		parts[i].pavg[1] = pv[y/CELL][x/CELL];
 	}
-	if (t!=PT_STKM&&t!=PT_STKM2)
+	if (t!=PT_STKM&&t!=PT_STKM2)//set everything to default values first, except for stickman.
 	{
 		parts[i].x = (float)x;
 		parts[i].y = (float)y;
@@ -679,7 +663,14 @@ inline int create_part(int p, int x, int y, int t)
 		parts[i].ctype = 0;
 		parts[i].temp = ptypes[t].heat;
 		parts[i].tmp = 0;
+		parts[i].tmp2 = 0;
 	}
+	if (t==PT_SOAP)
+	{
+		parts[i].tmp = -1;
+		parts[i].tmp2 = -1;
+	}
+	//now set various properties that we want at spawn.
 	if (t==PT_ACID)
 	{
 		parts[i].life = 75;
@@ -699,8 +690,8 @@ inline int create_part(int p, int x, int y, int t)
 	}
 	if (ptypes[t].properties&PROP_LIFE) {
 		int r;
-		for(r = 0; r<NGOL; r++)
-			if(t==goltype[r])
+		for (r = 0; r<NGOL; r++)
+			if (t==goltype[r])
 				parts[i].tmp = grule[r+1][9] - 1;
 	}
 	if (t==PT_DEUT)
@@ -845,15 +836,16 @@ inline int create_part(int p, int x, int y, int t)
 	}
 	if (t==PT_BIZR||t==PT_BIZRG)
 		parts[i].ctype = 0x47FFFF;
+	//and finally set the pmap/photon maps to the newly created particle
 	if (t==PT_PHOT||t==PT_NEUT)
 		photons[y][x] = t|(i<<8);
-	if (t!=PT_STKM&&t!=PT_STKM2 && t!=PT_PHOT && t!=PT_NEUT) // is this needed? it breaks floodfill, Yes photons should not be placed in the PMAP
+	if (t!=PT_STKM&&t!=PT_STKM2 && t!=PT_PHOT && t!=PT_NEUT)
 		pmap[y][x] = t|(i<<8);
 
 	return i;
 }
 
-static void create_gain_photon(int pp)
+static void create_gain_photon(int pp)//photons from PHOT going through GLOW
 {
 	float xx, yy;
 	int i, lr, temp_bin, nx, ny;
@@ -899,7 +891,7 @@ static void create_gain_photon(int pp)
 	parts[i].ctype = 0x1F << temp_bin;
 }
 
-static void create_cherenkov_photon(int pp)
+static void create_cherenkov_photon(int pp)//photons from NEUT going through GLAS
 {
 	int i, lr, nx, ny;
 	float r, eff_ior;
@@ -946,7 +938,7 @@ static void create_cherenkov_photon(int pp)
 #if defined(WIN32) && !defined(__GNUC__)
 _inline void delete_part(int x, int y)
 #else
-inline void delete_part(int x, int y)
+inline void delete_part(int x, int y)//calls kill_part with the particle located at x,y
 #endif
 {
 	unsigned i;
@@ -961,11 +953,11 @@ inline void delete_part(int x, int y)
 
 	if (!i || (i>>8)>=NPART)
 		return;
-	if ((parts[i>>8].type==SLALT)||SLALT==0)
+	if ((parts[i>>8].type==SLALT)||SLALT==0)//specific deletiom
 	{
 		kill_part(i>>8);
 	}
-	else if (ptypes[parts[i>>8].type].menusection==SEC)
+	else if (ptypes[parts[i>>8].type].menusection==SEC)//specific menu deletion
 	{
 		kill_part(i>>8);
 	}
@@ -1074,7 +1066,7 @@ void set_emap(int x, int y)
 }
 
 #if defined(WIN32) && !defined(__GNUC__)
-_inline int parts_avg(int ci, int ni,int t)//t is the particle you are looking for
+_inline int parts_avg(int ci, int ni,int t)//t is the particle you are looking for, returns the particle between two particles
 #else
 inline int parts_avg(int ci, int ni,int t)
 #endif
@@ -1125,10 +1117,11 @@ int nearest_part(int ci, int t)
 	return id;
 }
 
+//the main function for updating particles
 void update_particles_i(pixel *vid, int start, int inc)
 {
 	int i, j, x, y, t, nx, ny, r, surround_space, s, lt, rt, nt, nnx, nny, q, golnum, goldelete, z, neighbors, createdsomething;
-	float mv, dx, dy, ix, iy, lx, ly, nrx, nry, dp, ctemph, ctempl;
+	float mv, dx, dy, ix, iy, lx, ly, nrx, nry, dp, ctemph, ctempl, gravtot;
 	int fin_x, fin_y, clear_x, clear_y;
 	float fin_xf, fin_yf, clear_xf, clear_yf;
 	float nn, ct1, ct2, swappage;
@@ -1140,9 +1133,9 @@ void update_particles_i(pixel *vid, int start, int inc)
 	int surround_hconduct[8];
 	float pGravX, pGravY, pGravD;
 
-	if (sys_pause&&!framerender)
+	if (sys_pause&&!framerender)//do nothing if paused
 		return;
-	if (ISGRAV==1)
+	if (ISGRAV==1)//crappy grav color handling, i will change this someday
 	{
 		ISGRAV = 0;
 		GRAV ++;
@@ -1188,7 +1181,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 		if (GRAV>180) GRAV = 0;
 
 	}
-	if (ISLOVE==1)
+	if (ISLOVE==1)//LOVE element handling
 	{
 		ISLOVE = 0;
 		for (ny=0; ny<YRES-4; ny++)
@@ -1238,7 +1231,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			}
 		}
 	}
-	if (ISLOLZ==1)
+	if (ISLOLZ==1)//LOLZ element handling
 	{
 		ISLOLZ = 0;
 		for (ny=0; ny<YRES-4; ny++)
@@ -1289,12 +1282,13 @@ void update_particles_i(pixel *vid, int start, int inc)
 			}
 		}
 	}
+	//game of life!
 	if (ISGOL==1&&++CGOL>=GSPEED)//GSPEED is frames per generation
 	{
 		int createdsomething = 0;
 		CGOL=0;
 		ISGOL=0;
-		for (nx=CELL; nx<XRES-CELL; nx++)
+		for (nx=CELL; nx<XRES-CELL; nx++)//go through every particle and set neighbor map
 			for (ny=CELL; ny<YRES-CELL; ny++)
 			{
 				r = pmap[ny][nx];
@@ -1307,7 +1301,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 					for ( golnum=1; golnum<=NGOL; golnum++)
 						if (parts[r>>8].type==goltype[golnum-1])
 						{
-							if(parts[r>>8].tmp == grule[golnum][9]-1) {
+							if (parts[r>>8].tmp == grule[golnum][9]-1) {
 								gol[nx][ny] = golnum;
 								for ( nnx=-1; nnx<2; nnx++)
 									for ( nny=-1; nny<2; nny++)//it will count itself as its own neighbor, which is needed, but will have 1 extra for delete check
@@ -1321,42 +1315,42 @@ void update_particles_i(pixel *vid, int start, int inc)
 									}
 							} else {
 								parts[r>>8].tmp --;
-								if(parts[r>>8].tmp<=0)
+								if (parts[r>>8].tmp<=0)
 									parts[r>>8].type = PT_NONE;//using kill_part makes it not work
 							}
 						}
 			}
-		for (nx=CELL; nx<XRES-CELL; nx++)
+		for (nx=CELL; nx<XRES-CELL; nx++)//go through every particle again, but check neighbor map, then update particles
 			for (ny=CELL; ny<YRES-CELL; ny++)
 			{
 				r = pmap[ny][nx];
 				neighbors = gol2[nx][ny][0];
-				if(neighbors==0 || !(ptypes[r&0xFF].properties&PROP_LIFE || !(r&0xFF)) || (r>>8)>=NPART)
+				if (neighbors==0 || !(ptypes[r&0xFF].properties&PROP_LIFE || !(r&0xFF)) || (r>>8)>=NPART)
 					continue;
 				for ( golnum = 1; golnum<=NGOL; golnum++)
+				{
+					goldelete = neighbors;
+					if (gol[nx][ny]==0&&grule[golnum][goldelete]>=2&&gol2[nx][ny][golnum]>=(goldelete%2)+goldelete/2)
 					{
-						goldelete = neighbors;
-						if (gol[nx][ny]==0&&grule[golnum][goldelete]>=2&&gol2[nx][ny][golnum]>=(goldelete%2)+goldelete/2)
-						{
-							if (create_part(-1,nx,ny,goltype[golnum-1]))
-								createdsomething = 1;
-						}
-						else if (gol[nx][ny]==golnum&&(grule[golnum][goldelete-1]==0||grule[golnum][goldelete-1]==2))//subtract 1 because it counted itself
-						{
-							if(parts[r>>8].tmp==grule[golnum][9]-1)
-								parts[r>>8].tmp --;
-						}
-						if (r && parts[r>>8].tmp<=0)
-							parts[r>>8].type = PT_NONE;//using kill_part makes it not work
+						if (create_part(-1,nx,ny,goltype[golnum-1]))
+							createdsomething = 1;
 					}
-				for( z = 0;z<=NGOL;z++)
+					else if (gol[nx][ny]==golnum&&(grule[golnum][goldelete-1]==0||grule[golnum][goldelete-1]==2))//subtract 1 because it counted itself
+					{
+						if (parts[r>>8].tmp==grule[golnum][9]-1)
+							parts[r>>8].tmp --;
+					}
+					if (r && parts[r>>8].tmp<=0)
+						parts[r>>8].type = PT_NONE;//using kill_part makes it not work
+				}
+				for ( z = 0; z<=NGOL; z++)
 					gol2[nx][ny][z] = 0;//this improves performance A LOT compared to the memset, i was getting ~23 more fps with this.
 			}
 		if (createdsomething)
 			GENERATION ++;
 		//memset(gol2, 0, sizeof(gol2));
 	}
-	if (ISWIRE==1)
+	if (ISWIRE==1)//wifi channel reseting
 	{
 		for ( q = 0; q<(int)(MAX_TEMP-73.15f)/100+2; q++)
 			if (!wireless[q][1])
@@ -1366,6 +1360,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			else
 				wireless[q][1] = 0;
 	}
+	//the main particle loop function, goes over all particles.
 	for (i=start; i<(NPART-starti); i+=inc)
 		if (parts[i].type)
 		{
@@ -1374,12 +1369,14 @@ void update_particles_i(pixel *vid, int start, int inc)
 			t = parts[i].type;
 			//printf("parts[%d].type: %d\n", i, parts[i].type);
 
-			if (parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_GOL && t!=PT_SPNG && t!=PT_QRTZ && t!=PT_DEUT && t!=PT_PRTO && t!=PT_PRTI &&t!=PT_SDUT && t!=PT_GDUT && t!=PT_RADI && t!=PT_DBTY && t!=PT_NP2 && t!=PT_VIRU && t!=PT_CPT1 && t!=PT_CPT2) //AntB Edit -- Ignore Life
+			//this if is whether or not life goes down automatically.
+			if (parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_GOL && t!=PT_SPNG && t!=PT_DEUT && t!=PT_PRTO && t!=PT_PRTI &&t!=PT_SDUT && t!=PT_GDUT && t!=PT_RADI && t!=PT_DBTY && t!=PT_NP2 && t!=PT_VIRU && t!=PT_CPT1 && t!=PT_CPT2)
 			{
-				if (!(parts[i].life==10&&(t==PT_SWCH||t==PT_LCRY||t==PT_PCLN||t==PT_HSWC||t==PT_PUMP||t==PT_RNEO||t==PT_GNEO||t==PT_BNEO||t==PT_CNEO||t==PT_MNEO||t==PT_YNEO||t==PT_SBTY))) //AntB Edit -- Ignore life if 10
+				//this if is for stopping life loss when at a certain life value
+				if (!(parts[i].life==10&&(t==PT_SWCH||t==PT_LCRY||t==PT_PCLN||t==PT_HSWC||t==PT_PUMP||t==PT_RNEO||t==PT_GNEO||t==PT_BNEO||t==PT_CNEO||t==PT_MNEO||t==PT_YNEO||t==PT_SBTY)))
 					parts[i].life--;
-				if (parts[i].life<=0 && !(ptypes[t].properties&PROP_CONDUCTS) && t!=PT_ARAY && t!=PT_FIRW && t!=PT_SWCH && t!=PT_PCLN && t!=PT_HSWC && t!=PT_PUMP && t!=PT_SPRK && t!=PT_LAVA && t!=PT_LCRY && t!=PT_QRTZ && t!=PT_GLOW && t!= PT_FOG && t!=PT_PIPE && t!=PT_FRZW &&(t!=PT_ICEI&&parts[i].ctype!=PT_FRZW)&&t!=PT_INST && t!=PT_SHLD1&& t!=PT_SHLD2&& t!=PT_SHLD3&& t!=PT_SHLD4 && t!=PT_SING &&
-                     t!=PT_RNEO && t!=PT_GNEO && t!=PT_BNEO && t!=PT_CNEO && t!=PT_MNEO && t!=PT_YNEO && t!=PT_SBTY && t!=PT_DBTY) //AntB Edit
+				//this if is for stopping death when life hits 0
+				if (parts[i].life<=0 && !(ptypes[t].properties&PROP_CONDUCTS) && t!=PT_SOAP && t!=PT_ARAY && t!=PT_FIRW && t!=PT_SWCH && t!=PT_PCLN && t!=PT_HSWC && t!=PT_PUMP && t!=PT_SPRK && t!=PT_LAVA && t!=PT_LCRY && t!=PT_QRTZ && t!=PT_GLOW && t!= PT_FOG && t!=PT_PIPE && t!=PT_FRZW &&!(t==PT_ICEI&&parts[i].ctype==PT_FRZW)&&t!=PT_INST && t!=PT_SHLD1&& t!=PT_SHLD2&& t!=PT_SHLD3&& t!=PT_SHLD4 && t!=PT_SING)
 				{
 					kill_part(i);
 					continue;
@@ -1397,7 +1394,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			x = (int)(parts[i].x+0.5f);
 			y = (int)(parts[i].y+0.5f);
 
-
+			//this kills any particle out of the screen, or in a wall where it isn't supposed to go
 			if (x<CELL || y<CELL || x>=XRES-CELL || y>=YRES-CELL ||
 			        (bmap[y/CELL][x/CELL] &&
 			         (bmap[y/CELL][x/CELL]==WL_WALL ||
@@ -1416,7 +1413,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if (bmap[y/CELL][x/CELL]==WL_DETECT && emap[y/CELL][x/CELL]<8)
 				set_emap(x/CELL, y/CELL);
 
-
+			//adding to velocity from the particle's velocity
 			vx[y/CELL][x/CELL] = vx[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vx;
 			vy[y/CELL][x/CELL] = vy[y/CELL][x/CELL]*ptypes[t].airloss + ptypes[t].airdrag*parts[i].vy;
 
@@ -1433,7 +1430,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 						pv[y/CELL+1][x/CELL+1] += ptypes[t].hotair*(3.5f-pv[y/CELL+1][x/CELL+1]);
 				}
 			}
-			else
+			else//add the hotair variable to the pressure map, like black hole, or white hole.
 			{
 				pv[y/CELL][x/CELL] += ptypes[t].hotair;
 				if (y+CELL<YRES)
@@ -1449,51 +1446,54 @@ void update_particles_i(pixel *vid, int start, int inc)
 			//Gravity mode by Moach
 			switch (gravityMode)
 			{
-				default:
-				case 0:
-					pGravX = 0.0f;
-					pGravY = ptypes[t].gravity;
-					break;
-				case 1:
-					pGravX = pGravY = 0.0f;
-					break;
-				case 2:
-					pGravD = 0.01f - hypotf((x - XCNTR), (y - YCNTR));
-					pGravX = ptypes[t].gravity * ((float)(x - XCNTR) / pGravD);
-					pGravY = ptypes[t].gravity * ((float)(y - YCNTR) / pGravD);
+			default:
+			case 0:
+				pGravX = 0.0f;
+				pGravY = ptypes[t].gravity;
+				break;
+			case 1:
+				pGravX = pGravY = 0.0f;
+				break;
+			case 2:
+				pGravD = 0.01f - hypotf((x - XCNTR), (y - YCNTR));
+				pGravX = ptypes[t].gravity * ((float)(x - XCNTR) / pGravD);
+				pGravY = ptypes[t].gravity * ((float)(y - YCNTR) / pGravD);
 			}
-
+			//Get some gravity from the gravity map
+			if(!(ptypes[t].properties & TYPE_SOLID))
+			{
+				pGravX += gravx[y/CELL][x/CELL];
+				pGravY += gravy[y/CELL][x/CELL];
+			}
+			//velocity updates for the particle
 			parts[i].vx *= ptypes[t].loss;
 			parts[i].vy *= ptypes[t].loss;
-
+			//particle gets velocity from the vx and vy maps
 			parts[i].vx += ptypes[t].advection*vx[y/CELL][x/CELL] + pGravX;
 			parts[i].vy += ptypes[t].advection*vy[y/CELL][x/CELL] + pGravY;
 
 
-			if (ptypes[t].diffusion)
+			if (ptypes[t].diffusion)//the random diffusion that gasses have
 			{
 				parts[i].vx += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
 				parts[i].vy += ptypes[t].diffusion*(rand()/(0.5f*RAND_MAX)-1.0f);
 			}
 
-			j = surround_space = nt = 0;
+			j = surround_space = nt = 0;//if nt is 1 after this, then there is a particle around the current particle, that is NOT the current particle's type, for water movement.
 			for (nx=-1; nx<2; nx++)
 				for (ny=-1; ny<2; ny++) {
 					if (nx||ny) {
 						surround[j] = r = pmap[y+ny][x+nx];
 						j++;
-						if (!bmap[(y+ny)/CELL][(x+nx)/CELL] || bmap[(y+ny)/CELL][(x+nx)/CELL]==WL_STREAM)
-						{
-							if (!(r&0xFF))
-								surround_space = 1;
-							if ((r&0xFF)!=t)
-								nt = 1;
-						}
+						if (!(r&0xFF))
+							surround_space = 1;//there is empty space
+						if ((r&0xFF)!=t)
+							nt = 1;//there is nothing or a different particle
 					}
 				}
 			if (!legacy_enable)
 			{
-				if (y-2 >= 0 && y-2 < YRES && (ptypes[t].properties&TYPE_LIQUID)) {
+				if (y-2 >= 0 && y-2 < YRES && (ptypes[t].properties&TYPE_LIQUID)) {//some heat convection for liquids
 					r = pmap[y-2][x];
 					if (!((r>>8)>=NPART || !r || parts[i].type != (r&0xFF))) {
 						if (parts[i].temp>parts[r>>8].temp) {
@@ -1504,6 +1504,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 					}
 				}
 
+				//heat transfer code
 				c_heat = 0.0f;
 				h_count = 0;
 				if (t&&(t!=PT_HSWC||parts[i].life==10)&&ptypes[t].hconduct>(rand()%250))
@@ -1583,10 +1584,10 @@ void update_particles_i(pixel *vid, int start, int inc)
 										parts[i].tmp = 0;
 										t = PT_BMTL;
 									}
-									if (parts[i].ctype==PT_PLUT)
+									if (t==PT_PLUT)
 									{
 										parts[i].tmp = 0;
-										t = parts[i].ctype = PT_LAVA;
+										t = PT_LAVA;
 									}
 								}
 							}
@@ -1594,13 +1595,12 @@ void update_particles_i(pixel *vid, int start, int inc)
 							else s = 0;
 						}
 						else s = 0;
-						if (s) parts[i].life = 0;
 					}
 					else s = 0;
 					if (s) { // particle type change occurred
-						parts[i].life = 0;
 						if (t==PT_ICEI||t==PT_LAVA)
 							parts[i].ctype = parts[i].type;
+						if (!(t==PT_ICEI&&parts[i].ctype==PT_FRZW)) parts[i].life = 0;
 						if (ptypes[t].state==ST_GAS&&ptypes[parts[i].type].state!=ST_GAS)
 							pv[y/CELL][x/CELL] += 0.50f;
 						part_change_type(i,x,y,t);
@@ -1639,8 +1639,9 @@ void update_particles_i(pixel *vid, int start, int inc)
 			if (ptypes[t].properties&PROP_LIFE)
 			{
 				parts[i].temp = restrict_flt(parts[i].temp-50.0f, MIN_TEMP, MAX_TEMP);
-				ISGOL=1;
+				ISGOL=1;//means there is a life particle on screen
 			}
+			//spark updates from walls
 			if ((ptypes[t].properties&PROP_CONDUCTS) || t==PT_SPRK)
 			{
 				nx = x % CELL;
@@ -1674,7 +1675,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 				}
 			}
 
-
+			//the basic explosion, from the .explosive variable
 			if ((ptypes[t].explosive&2) && pv[y/CELL][x/CELL]>2.5f)
 			{
 				parts[i].life = rand()%80+180;
@@ -1686,6 +1687,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 
 
 			s = 1;
+			gravtot = fabsf(gravy[y/CELL][x/CELL])+fabsf(gravx[y/CELL][x/CELL]);
 			if (pv[y/CELL][x/CELL]>ptransitions[t].phv&&ptransitions[t].pht>-1) {
 				// particle type change due to high pressure
 				if (ptransitions[t].pht!=PT_NUM)
@@ -1703,8 +1705,19 @@ void update_particles_i(pixel *vid, int start, int inc)
 				if (ptransitions[t].plt!=PT_NUM)
 					t = ptransitions[t].plt;
 				else s = 0;
-			}
-			else s = 0;
+			} else if (gravtot>(ptransitions[t].phv/4.0f)&&ptransitions[t].pht>-1) {
+				// particle type change due to high gravity
+				if (ptransitions[t].pht!=PT_NUM)
+					t = ptransitions[t].pht;
+				else if (t==PT_BMTL) {
+					if (gravtot>0.625f)
+						t = PT_BRMT;
+					else if (gravtot>0.25f && parts[i].tmp==1)
+						t = PT_BRMT;
+					else s = 0;
+				}
+				else s = 0;
+			} else s = 0;
 			if (s) { // particle type change occurred
 				parts[i].life = 0;
 				part_change_type(i,x,y,t);
@@ -1716,18 +1729,19 @@ void update_particles_i(pixel *vid, int start, int inc)
 				}
 			}
 
+			//call the particle update function, if there is one
 			if (ptypes[t].update_func)
 			{
 				if ((*(ptypes[t].update_func))(i,x,y,surround_space))
 					continue;
 			}
-			if (legacy_enable)
+			if (legacy_enable)//if heat sim is off
 				update_legacy_all(i,x,y,surround_space);
 killed:
-			if (parts[i].type == PT_NONE)
+			if (parts[i].type == PT_NONE)//if its dead, skip to next particle
 				continue;
 
-			if (!parts[i].vx&&!parts[i].vy)
+			if (!parts[i].vx&&!parts[i].vy)//if its not moving, skip to next particle, movement code it next
 				continue;
 
 #if defined(WIN32) && !defined(__GNUC__)
@@ -1921,7 +1935,6 @@ killed:
 			else
 			{
 				// liquids and powders
-				// TODO: rewrite to operate better with radial gravity
 				if (try_move(i, x, y, fin_x, fin_y)) {
 					parts[i].x = fin_xf;
 					parts[i].y = fin_yf;
@@ -1942,38 +1955,47 @@ killed:
 					}
 					else
 					{
+						s = 1;
 						r = (rand()%2)*2-1;
-						if (fin_y!=clear_y && try_move(i, x, y, clear_x+r, fin_y))
+						if ((clear_x!=x || clear_y!=y || nt || surround_space) &&
+							(fabsf(parts[i].vx)>0.01f || fabsf(parts[i].vy)>0.01f))
 						{
-							parts[i].x = clear_xf+r;
-							parts[i].y = fin_yf;
-							parts[i].vx *= ptypes[t].collision;
-							parts[i].vy *= ptypes[t].collision;
+							// allow diagonal movement if target position is blocked
+							// but no point trying this if particle is stuck in a block of identical particles
+							dx = parts[i].vx - parts[i].vy*r;
+							dy = parts[i].vy + parts[i].vx*r;
+							if (fabsf(dy)>fabsf(dx)) {
+								dx /= fabsf(dy);
+								dy /= fabsf(dy);
+							} else {
+								dx /= fabsf(dx);
+								dy /= fabsf(dx);
+							}
+							if (try_move(i, x, y, (int)(clear_xf+dx+0.5f), (int)(clear_yf+dy+0.5f)))
+							{
+								parts[i].x = clear_xf+dx;
+								parts[i].y = clear_yf+dy;
+								parts[i].vx *= ptypes[t].collision;
+								parts[i].vy *= ptypes[t].collision;
+								goto movedone;
+							}
+							swappage = dx;
+							dx = dy*r;
+							dy = -swappage*r;
+							if (try_move(i, x, y, (int)(clear_xf+dx+0.5f), (int)(clear_yf+dy+0.5f)))
+							{
+								parts[i].x = clear_xf+dx;
+								parts[i].y = clear_yf+dy;
+								parts[i].vx *= ptypes[t].collision;
+								parts[i].vy *= ptypes[t].collision;
+								goto movedone;
+							}
 						}
-						else if (fin_y!=clear_y && try_move(i, x, y, clear_x-r, fin_y))
+						if (ptypes[t].falldown>1 && (parts[i].vy>fabsf(parts[i].vx) || gravityMode==2))
 						{
-							parts[i].x = clear_xf-r;
-							parts[i].y = fin_yf;
-							parts[i].vx *= ptypes[t].collision;
-							parts[i].vy *= ptypes[t].collision;
-						}
-						else if (fin_x!=clear_x && try_move(i, x, y, fin_x, clear_y+r))
-						{
-							parts[i].x = fin_xf;
-							parts[i].y = clear_yf+r;
-							parts[i].vx *= ptypes[t].collision;
-							parts[i].vy *= ptypes[t].collision;
-						}
-						else if (fin_x!=clear_x && try_move(i, x, y, fin_x, clear_y-r))
-						{
-							parts[i].x = fin_xf;
-							parts[i].y = clear_yf-r;
-							parts[i].vx *= ptypes[t].collision;
-							parts[i].vy *= ptypes[t].collision;
-						}
-						else if (ptypes[t].falldown>1 && (parts[i].vy>fabs(parts[i].vx) || gravityMode==2))
-						{
+							// TODO: rewrite to operate better with radial gravity
 							s = 0;
+							// rt is true if FLAG_STAGNANT was set for this particle in previous frame
 							if (!rt || nt) //nt is if there is an something else besides the current particle type, around the particle
 								rt = 30;//slight less water lag, although it changes how it moves a lot
 							else
@@ -2044,13 +2066,14 @@ killed:
 					}
 				}
 			}
+movedone:
 			nx = (int)(parts[i].x+0.5f);
 			ny = (int)(parts[i].y+0.5f);
 			if (ny!=y || nx!=x)
 			{
 				if ((pmap[y][x]>>8)==i) pmap[y][x] = 0;
 				else if ((photons[y][x]>>8)==i) photons[y][x] = 0;
-				if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)
+				if (nx<CELL || nx>=XRES-CELL || ny<CELL || ny>=YRES-CELL)//kill_part if particle is out of bounds
 				{
 					kill_part(i);
 					continue;
@@ -2067,7 +2090,7 @@ killed:
 	}
 }
 
-void update_particles(pixel *vid)
+void update_particles(pixel *vid)//doesn't update the particles themselves, but some other things
 {
 	int i, j, x, y, t, nx, ny, r, cr,cg,cb, l = -1;
 	float lx, ly;
@@ -2082,7 +2105,7 @@ void update_particles(pixel *vid)
 	memset(photons, 0, sizeof(photons));
 	r = rand()%2;
 	NUM_PARTS = 0;
-	for (j=0; j<NPART; j++)
+	for (j=0; j<NPART; j++)//the particle loop that resets the pmap/photon maps every frame, to update them.
 	{
 		i = r ? (NPART-1-j) : j;
 		if (parts[i].type)
@@ -2106,7 +2129,7 @@ void update_particles(pixel *vid)
 		}
 	}
 	pfree=l;
-	if (cmode==CM_BLOB)
+	if (cmode==CM_BLOB)//draw walls in BLOB mode differently, this should be moved elsewhere
 	{
 		for (y=0; y<YRES/CELL; y++)
 		{
@@ -2359,7 +2382,7 @@ void update_particles(pixel *vid)
 			}
 		}
 	}
-	else
+	else //draw walls in other modes, this should be elsewhere
 	{
 		for (y=0; y<YRES/CELL; y++)
 		{
@@ -2699,9 +2722,9 @@ int flood_parts(int x, int y, int c, int cm, int bm)
 	// fill span
 	for (x=x1; x<=x2; x++)
 	{
-		if(cm==PT_INST&&co==PT_SPRK)
+		if (cm==PT_INST&&co==PT_SPRK)
 		{
-			if(create_part(-1,x, y, co)==-1)
+			if (create_part(-1,x, y, co)==-1)
 				return 0;
 		}
 		else if (!create_parts(x, y, 0, 0, co))
@@ -2757,6 +2780,7 @@ int flood_parts(int x, int y, int c, int cm, int bm)
 		return 1;
 }
 
+//this creates particles from a brush, don't use if you want to create one particle
 int create_parts(int x, int y, int rx, int ry, int c)
 {
 	int i, j, r, f = 0, u, v, oy, ox, b = 0, dw = 0, stemp = 0;//n;
@@ -2799,7 +2823,7 @@ int create_parts(int x, int y, int rx, int ry, int c)
 				{
 					i = ox;
 					j = oy;
-					if (((sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT))|| sdl_mod & (KMOD_CAPS) ))
+					if (((sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT))|| ((sdl_mod & (KMOD_CAPS)) && b!=WL_FANHELPER) ))
 					{
 						if (bmap[j][i]==SLALT-100)
 							b = 0;
@@ -2831,6 +2855,7 @@ int create_parts(int x, int y, int rx, int ry, int c)
 		return 1;
 	}
 
+	//if SHIFT+ALT or CAPSLOCK is on, specific delete
 	if (((sdl_mod & (KMOD_LALT) && sdl_mod & (KMOD_SHIFT))|| sdl_mod & (KMOD_CAPS) )&& !REPLACE_MODE)
 	{
 		if (rx==0&&ry==0)
@@ -2845,6 +2870,7 @@ int create_parts(int x, int y, int rx, int ry, int c)
 		return 1;
 	}
 
+	//why do these need a special if
 	if (c == SPC_AIR || c == SPC_HEAT || c == SPC_COOL || c == SPC_VACUUM)
 	{
 		if (rx==0&&ry==0)
@@ -2856,7 +2882,7 @@ int create_parts(int x, int y, int rx, int ry, int c)
 				for (i=-rx; i<=rx; i++)
 					if ((CURRENT_BRUSH==CIRCLE_BRUSH && (pow(i,2))/(pow(rx,2))+(pow(j,2))/(pow(ry,2))<=1)||(CURRENT_BRUSH==SQUARE_BRUSH&&i*j<=ry*rx))
 					{
-						if( x+i<0 || y+j<0 || x+i>=XRES || y+j>=YRES)
+						if ( x+i<0 || y+j<0 || x+i>=XRES || y+j>=YRES)
 							continue;
 						if (!REPLACE_MODE)
 							create_part(-2, x+i, y+j, c);
@@ -2866,10 +2892,11 @@ int create_parts(int x, int y, int rx, int ry, int c)
 		return 1;
 	}
 
+	//eraser
 	if (c == 0 && !REPLACE_MODE)
 	{
 		stemp = SLALT;
-		SLALT = 0;
+		SLALT = 0;//temporarily clear specific deletion element
 		if (rx==0&&ry==0)
 		{
 			delete_part(x, y);
@@ -2901,7 +2928,7 @@ int create_parts(int x, int y, int rx, int ry, int c)
 				for (i=-rx; i<=rx; i++)
 					if ((CURRENT_BRUSH==CIRCLE_BRUSH && (pow(i,2))/(pow(rx,2))+(pow(j,2))/(pow(ry,2))<=1)||(CURRENT_BRUSH==SQUARE_BRUSH&&i*j<=ry*rx))
 					{
-						if( x+i<0 || y+j<0 || x+i>=XRES || y+j>=YRES)
+						if ( x+i<0 || y+j<0 || x+i>=XRES || y+j>=YRES)
 							continue;
 						if ((pmap[y+j][x+i]&0xFF)!=SLALT&&SLALT!=0)
 							continue;
@@ -2915,6 +2942,7 @@ int create_parts(int x, int y, int rx, int ry, int c)
 		return 1;
 
 	}
+	//else, no special modes, draw element like normal.
 	if (rx==0&&ry==0)//workaround for 1pixel brush/floodfill crashing. todo: find a better fix later.
 	{
 		if (create_part(-2, x, y, c)==-1)
@@ -2985,28 +3013,30 @@ void create_line(int x1, int y1, int x2, int y2, int rx, int ry, int c)
 void *transform_save(void *odata, int *size, matrix2d transform, vector2d translate)
 {
 	void *ndata;
-	unsigned char bmapo[YRES/CELL][XRES/CELL], bmapn[YRES/CELL][XRES/CELL];
-	particle *partst;
-	sign signst[MAXSIGNS];
-	unsigned pmapt[YRES][XRES];
-	float fvxo[YRES/CELL][XRES/CELL], fvyo[YRES/CELL][XRES/CELL];
-	float fvxn[YRES/CELL][XRES/CELL], fvyn[YRES/CELL][XRES/CELL];
+	unsigned char (*bmapo)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(unsigned char));
+	unsigned char (*bmapn)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(unsigned char));
+	particle *partst = calloc(sizeof(particle), NPART);
+	sign *signst = calloc(MAXSIGNS, sizeof(sign));
+	unsigned (*pmapt)[XRES] = calloc(YRES*XRES, sizeof(unsigned));
+	float (*fvxo)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*fvyo)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*fvxn)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
+	float (*fvyn)[XRES/CELL] = calloc((YRES/CELL)*(XRES/CELL), sizeof(float));
 	int i, x, y, nx, ny, w, h, nw, nh;
 	vector2d pos, tmp, ctl, cbr;
 	vector2d cornerso[4];
 	unsigned char *odatac = odata;
-	memset(bmapo, 0, sizeof(bmapo));
-	memset(bmapn, 0, sizeof(bmapn));
-	memset(signst, 0, sizeof(signst));
-	memset(pmapt, 0, sizeof(pmapt));
-	memset(fvxo, 0, sizeof(fvxo));
-	memset(fvxn, 0, sizeof(fvxn));
-	memset(fvyo, 0, sizeof(fvyo));
-	memset(fvyn, 0, sizeof(fvyn));
-	partst = calloc(sizeof(particle), NPART);
 	if (parse_save(odata, *size, 0, 0, 0, bmapo, fvxo, fvyo, signst, partst, pmapt))
 	{
+		free(bmapo);
+		free(bmapn);
 		free(partst);
+		free(signst);
+		free(pmapt);
+		free(fvxo);
+		free(fvyo);
+		free(fvxn);
+		free(fvyn);
 		return odata;
 	}
 	w = odatac[6]*CELL;
@@ -3016,7 +3046,7 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 	cornerso[1] = v2d_new(w-1,0);
 	cornerso[2] = v2d_new(0,h-1);
 	cornerso[3] = v2d_new(w-1,h-1);
-	for (i=0;i<4;i++)
+	for (i=0; i<4; i++)
 	{
 		tmp = m2d_multiply_v2d(transform,cornerso[i]);
 		if (i==0) ctl = cbr = tmp; // top left, bottom right corner
@@ -3063,8 +3093,8 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 		partst[i].x = nx;
 		partst[i].y = ny;
 	}
-	for (y=0;y<YRES/CELL;y++)
-		for (x=0;x<XRES/CELL;x++)
+	for (y=0; y<YRES/CELL; y++)
+		for (x=0; x<XRES/CELL; x++)
 		{
 			pos = v2d_new(x*CELL+CELL*0.4f, y*CELL+CELL*0.4f);
 			pos = v2d_add(m2d_multiply_v2d(transform,pos),translate);
@@ -3083,7 +3113,15 @@ void *transform_save(void *odata, int *size, matrix2d transform, vector2d transl
 			}
 		}
 	ndata = build_save(size,0,0,nw,nh,bmapn,fvxn,fvyn,signst,partst);
+	free(bmapo);
+	free(bmapn);
 	free(partst);
+	free(signst);
+	free(pmapt);
+	free(fvxo);
+	free(fvyo);
+	free(fvxn);
+	free(fvyn);
 	return ndata;
 }
 
@@ -3097,7 +3135,7 @@ inline void orbitalparts_get(int block1, int block2, int resblock1[], int resblo
 	resblock1[1] = (block1&0x0000FF00)>>8;
 	resblock1[2] = (block1&0x00FF0000)>>16;
 	resblock1[3] = (block1&0xFF000000)>>24;
-	
+
 	resblock2[0] = (block2&0x000000FF);
 	resblock2[1] = (block2&0x0000FF00)>>8;
 	resblock2[2] = (block2&0x00FF0000)>>16;
@@ -3112,17 +3150,17 @@ inline void orbitalparts_set(int *block1, int *block2, int resblock1[], int resb
 {
 	int block1tmp = 0;
 	int block2tmp = 0;
-	
+
 	block1tmp = (resblock1[0]&0xFF);
 	block1tmp |= (resblock1[1]&0xFF)<<8;
 	block1tmp |= (resblock1[2]&0xFF)<<16;
 	block1tmp |= (resblock1[3]&0xFF)<<24;
-	
+
 	block2tmp = (resblock2[0]&0xFF);
 	block2tmp |= (resblock2[1]&0xFF)<<8;
 	block2tmp |= (resblock2[2]&0xFF)<<16;
 	block2tmp |= (resblock2[3]&0xFF)<<24;
-	
+
 	*block1 = block1tmp;
 	*block2 = block2tmp;
 }
