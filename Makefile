@@ -23,8 +23,8 @@ MFLAGS_SSE2 := -march=native -DX86 -DX86_SSE2 -msse2
 MFLAGS_SSE := -march=native -DX86 -DX86_SSE
 FLAGS_DBUG := -Wall -std=c99 -D_POSIX_C_SOURCE=200112L -pg -DX86 -DX86_SSE3 -msse3 -g
 COMPILER := gcc
-WIN_COMPILER := gcc
-WIN_RES := windres
+WIN_COMPILER := i486-mingw32-gcc
+WIN_RES := i486-mingw32-windres
 LINUX_TARG := powder-64-sse2 powder-sse powder-sse2
 WIN32_TARG := powder-sse.exe powder-sse2.exe
 

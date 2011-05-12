@@ -8,9 +8,9 @@
 #endif
 
 
-#define ANTB_VERSION 7 //AntB Edit -- Bwahahahaaah!
-#define SAVE_VERSION 47
-#define MINOR_VERSION 11 //Start at 10 to prevent "New Version" update
+#define ANTB_VERSION 8 //AntB Edit -- Bwahahahaaah!
+#define SAVE_VERSION 48
+#define MINOR_VERSION 10 //Start at 10 to prevent "New Version" update
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter. (Or don't because of save borkage)
 //#define BETA
 

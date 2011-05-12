@@ -695,7 +695,8 @@ static part_transition ptransitions[PT_NUM] =
 	/* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* GOL  */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* WIND */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT}, 
-	/* H2   */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
+    /* H2   */ {IPL,    NT,			IPH,	NT,			ITL,	NT,			10.0f,	PT_LH2},
+//	/* H2   */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITH,	NT},
 	/* SOAP */ {IPL,	NT,			IPH,	NT,			ITL,	NT,			ITL,	NT},
 #include "mod/ab-elemStates.h"
 };

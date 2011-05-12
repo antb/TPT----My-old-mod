@@ -412,8 +412,8 @@ void *build_save(int *size, int x0, int y0, int w, int h, unsigned char bmap[YRE
 			d[p++] = (tttmp&0x00FF);
 		}
 	}
-//Ant save stuff
-    for (j=0; j<w*hl j++)
+//Ant save stuff 
+    for (j=0; j<w*h; j++)
     {
         i = m[j];
         if(i)
@@ -435,7 +435,7 @@ void *build_save(int *size, int x0, int y0, int w, int h, unsigned char bmap[YRE
 			d[p++] = (tttmp2&0x00FF);
 		}
 	}
-//End
+//End 
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
@@ -2997,6 +2997,8 @@ int main(int argc, char *argv[])
 			pastFPS = currentTime;
 		}
 
+		if (hud_enable)
+		{
             //I don't have beta/non-beta releases, so 1 line is all I need			
     		sprintf(uitext, "AntB's Fork v%d.%d - Based on v%d\n%d Elements added by AntB (%d total)\nParts: %d FPS:%d GoL Gen:%d\n",ANTB_VERSION,(MINOR_VERSION-10),SAVE_VERSION,(PT_NUM-BEC),PT_NUM,NUM_PARTS,FPSB,GENERATION);  //AntB Edit
 			if (REPLACE_MODE)

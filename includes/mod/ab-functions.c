@@ -12,5 +12,5 @@ void change_particle(int from, int to, int r, int reverse, int chance) //Saves a
 	if(reverse)
     	if(((r&0xFF)==to) && chance>(rand()/(RAND_MAX/100)))
     		parts[r>>8].type = from;
+    return 0;
 }
-

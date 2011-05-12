@@ -87,8 +87,7 @@ int eval_move(int pt, int nx, int ny, unsigned *rr)
 	if (pt==PT_SPRK)//spark shouldn't move
 		return 0;
 
-    if ((pt==PT_PHOT||pt==PT_MUPT)&&(       //AntB
-                (r&0xFF)==PT_MUPT ||        //Edit
+    if ((pt==PT_PHOT)&&(
 	            (r&0xFF)==PT_GLAS || (r&0xFF)==PT_PHOT ||
 	            (r&0xFF)==PT_CLNE || (r&0xFF)==PT_PCLN ||
 	            (r&0xFF)==PT_GLOW || (r&0xFF)==PT_WATR ||
@@ -1370,7 +1369,7 @@ void update_particles_i(pixel *vid, int start, int inc)
 			//printf("parts[%d].type: %d\n", i, parts[i].type);
 
 			//this if is whether or not life goes down automatically.
-			if (parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_GOL && t!=PT_SPNG && t!=PT_DEUT && t!=PT_PRTO && t!=PT_PRTI &&t!=PT_SDUT && t!=PT_GDUT && t!=PT_RADI && t!=PT_DBTY && t!=PT_NP2 && t!=PT_VIRU && t!=PT_CPT1 && t!=PT_CPT2)
+			if (parts[i].life && t!=PT_ACID  && t!=PT_COAL && t!=PT_WOOD && t!=PT_STKM && t!=PT_STKM2 && t!=PT_FUSE && t!=PT_FSEP && t!=PT_BCOL && t!=PT_GOL && t!=PT_SPNG && t!=PT_DEUT && t!=PT_PRTO && t!=PT_PRTI && t!=PT_RADI && t!=PT_DBTY && t!=PT_NP2 && t!=PT_VIRU && t!=PT_CPT1 && t!=PT_CPT2)
 			{
 				//this if is for stopping life loss when at a certain life value
 				if (!(parts[i].life==10&&(t==PT_SWCH||t==PT_LCRY||t==PT_PCLN||t==PT_HSWC||t==PT_PUMP||t==PT_RNEO||t==PT_GNEO||t==PT_BNEO||t==PT_CNEO||t==PT_MNEO||t==PT_YNEO||t==PT_SBTY)))
