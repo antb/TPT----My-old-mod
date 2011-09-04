@@ -7,14 +7,15 @@
 #define PATH_SEP "/"
 #endif
 
-
-#define ANTB_VERSION 8 //AntB Edit -- Bwahahahaaah!
-#define SAVE_VERSION 48
+#define ANTB_VERSION 9 //AntB Edit -- Bwahahahaaah!
+#define SAVE_VERSION 53
 #define MINOR_VERSION 10 //Start at 10 to prevent "New Version" update
 #define IDENT_VERSION "G" //Change this if you're not Simon! It should be a single letter. (Or don't because of save borkage)
-//#define BETA
+#define BETA
 
 #define SERVER "powdertoy.co.uk"
+
+#define LOCAL_SAVE_DIR "Saves"
 
 #define THUMB_CACHE_SIZE 256
 
@@ -71,16 +72,25 @@ extern unsigned char ZSIZE;
 #define GRID_S 6
 #define GRID_Z 3
 
+#define CATALOGUE_X 4
+#define CATALOGUE_Y 3
+#define CATALOGUE_S 6
+#define CATALOGUE_Z 3
+
 #define STAMP_X 4
 #define STAMP_Y 4
 #define STAMP_MAX 240
 
 #define NGOL 28 //AntB Edit
+#define NGOLALT 24 //NGOL should be 24, but use this var until I find out why
 
 #define CIRCLE_BRUSH 0
 #define SQUARE_BRUSH 1
-#define BRUSH_NUM 2
+#define TRI_BRUSH 2
+#define BRUSH_NUM 3
 
+
+#define LUACONSOLE
 //#define PYCONSOLE
 //#define PYEXT
 //no longer needed
@@ -106,8 +116,15 @@ typedef unsigned int pixel;
 #ifdef WIN32
 #define strcasecmp stricmp
 #endif
+#if defined(WIN32) && !defined(__GNUC__)
+#define fmin min
+#define fminf min
+#define fmax max
+#define fmaxf max
+#endif
 
 #define SDEUT
+//#define REALHEAT
 
 typedef unsigned char uint8;
 
@@ -128,12 +145,16 @@ extern int legacy_enable;
 extern int ngrav_enable; //Newtonian gravity
 extern int sound_enable;
 extern int kiosk_enable;
+extern int aheat_enable;
+extern int decorations_enable;
+extern int hud_enable;
+
+extern int active_menu;
 
 extern int sys_pause;
 extern int framerender;
 
 extern int mousex, mousey;
-extern int death;
 
 struct sign
 {
@@ -161,8 +182,8 @@ int ISWIRE;
 int GSPEED;
 int love[XRES/9][YRES/9];
 int lolz[XRES/9][YRES/9];
-int gol[XRES][YRES];
-int gol2[XRES][YRES][NGOL+1];
+unsigned char gol[XRES][YRES];
+unsigned char gol2[XRES][YRES][NGOL+1];
 int SEC;
 int SEC2;
 int console_mode;
@@ -172,10 +193,6 @@ int GRID_MODE;
 int VINE_MODE;
 int DEBUG_MODE;
 int GENERATION;
-int isplayer2;
-int playerspawn;
-int player2spawn;
-int death2;
 int ISSPAWN1;
 int ISSPAWN2;
 extern sign signs[MAXSIGNS];
@@ -188,7 +205,7 @@ extern int do_open;
 extern int sys_pause;
 extern int sys_shortcuts;
 extern int legacy_enable; //Used to disable new features such as heat, will be set by commandline or save.
-extern int death, death2, framerender;
+extern int framerender;
 extern pixel *vid_buf;
 
 extern unsigned char last_major, last_minor, update_flag;
@@ -206,4 +223,7 @@ void clear_sim(void);
 void del_stamp(int d);
 void sdl_seticon(void);
 void play_sound(char *file);
+void start_grav_async(void);
+void stop_grav_async(void);
+int set_scale(int scale, int kiosk);
 #endif

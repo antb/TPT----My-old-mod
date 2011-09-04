@@ -1,31 +1,22 @@
 #include <element.h>
 
-int update_PCLN(UPDATE_FUNC_ARGS) {
+int update_PBCN(UPDATE_FUNC_ARGS) {
 	int r, rx, ry;
 	if (parts[i].life>0 && parts[i].life!=10)
 		parts[i].life--;
-	for (rx=-2; rx<3; rx++)
-		for (ry=-2; ry<3; ry++)
-			if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
-			{
-				r = pmap[y+ry][x+rx];
-				if ((r>>8)>=NPART || !r)
-					continue;
-				if ((r&0xFF)==PT_SPRK)
-				{
-					if (parts[r>>8].ctype==PT_PSCN)
-						parts[i].life = 10;
-					else if (parts[r>>8].ctype==PT_NSCN)
-						parts[i].life = 9;
-				}
-				if ((r&0xFF)==PT_PCLN)
-				{
-					if (parts[i].life==10&&parts[r>>8].life<10&&parts[r>>8].life>0)
-						parts[i].life = 9;
-					else if (parts[i].life==0&&parts[r>>8].life==10)
-						parts[i].life = 10;
-				}
-			}
+	if (!parts[i].tmp2 && pv[y/CELL][x/CELL]>4.0f)
+		parts[i].tmp2 = rand()%40+80;
+	if (parts[i].tmp2)
+	{
+		float advection = 0.1f;
+		parts[i].vx += advection*vx[y/CELL][x/CELL];
+		parts[i].vy += advection*vy[y/CELL][x/CELL];
+		parts[i].tmp2--;
+		if(!parts[i].tmp2){
+			kill_part(i);
+			return 1;
+		}
+	}
 	if (parts[i].ctype<=0 || parts[i].ctype>=PT_NUM || (parts[i].ctype==PT_LIFE && (parts[i].tmp<0 || parts[i].tmp>=NGOLALT)))
 		for (rx=-1; rx<2; rx++)
 			for (ry=-1; ry<2; ry++)
@@ -47,6 +38,25 @@ int update_PCLN(UPDATE_FUNC_ARGS) {
 							parts[i].tmp = parts[r>>8].ctype;
 					}
 				}
+	if (parts[i].life==10)
+	{
+		
+		for (rx=-2; rx<3; rx++)
+			for (ry=-2; ry<3; ry++)
+				if (x+rx>=0 && y+ry>0 && x+rx<XRES && y+ry<YRES && (rx || ry))
+				{
+					r = pmap[y+ry][x+rx];
+					if ((r>>8)>=NPART || !r)
+						continue;
+					if ((r&0xFF)==PT_PBCN)
+					{
+						if (parts[r>>8].life<10&&parts[r>>8].life>0)
+							parts[i].life = 9;
+						else if (parts[r>>8].life==0)
+							parts[r>>8].life = 10;
+					}
+				}
+	}
 	if (parts[i].ctype>0 && parts[i].ctype<PT_NUM && parts[i].life==10) {
 		if (parts[i].ctype==PT_PHOT) {//create photons a different way
 			for (rx=-1; rx<2; rx++) {

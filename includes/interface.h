@@ -1,6 +1,9 @@
 #ifndef INTERFACE_H
 #define INTERFACE_H
 #include <SDL/SDL.h>
+#if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+#include <SDL/SDL_syswm.h>
+#endif
 #include "graphics.h"
 
 struct menu_section
@@ -19,45 +22,25 @@ struct menu_wall
 };
 typedef struct menu_wall menu_wall;
 
-static menu_wall mwalls[] =
-{
-	{PIXPACK(0xC0C0C0), "Wall. Indestructible. Blocks everything. Conductive."},
-	{PIXPACK(0x808080), "E-Wall. Becomes transparent when electricity is connected."},
-	{PIXPACK(0xFF8080), "Detector. Generates electricity when a particle is inside."},
-	{PIXPACK(0x808080), "Streamline. Set start point of a streamline."},
-	{PIXPACK(0x808080), "Sign. Click on a sign to edit it or anywhere else to place a new one."},
-	{PIXPACK(0x8080FF), "Fan. Accelerates air. Use line tool to set direction and strength."},
-	{PIXPACK(0xC0C0C0), "Wall. Blocks most particles but lets liquids through. Conductive."},
-	{PIXPACK(0x808080), "Wall. Absorbs particles but lets air currents through."},
-	{PIXPACK(0x808080), "Erases walls."},
-	{PIXPACK(0x808080), "Wall. Indestructible. Blocks everything."},
-	{PIXPACK(0x3C3C3C), "Wall. Indestructible. Blocks particles, allows air"},
-	{PIXPACK(0x575757), "Wall. Indestructible. Blocks liquids and gasses, allows solids"},
-	{PIXPACK(0xFFFF22), "Conductor, allows particles, conducts electricity"},
-	{PIXPACK(0x242424), "E-Hole, absorbs particles, release them when powered"},
-	{PIXPACK(0xFFFFFF), "Air, creates airflow and pressure"},
-	{PIXPACK(0xFFBB00), "Heats the targetted element."},
-	{PIXPACK(0x00BBFF), "Cools the targetted element."},
-	{PIXPACK(0x303030), "Vacuum, reduces air pressure."},
-	{PIXPACK(0x579777), "Wall. Indestructible. Blocks liquids and solids, allows gasses"},
-};
-
 #define SC_WALL 0
-#define SC_SPECIAL 8
-#define SC_POWDERS 5
-#define SC_SOLIDS 6
 #define SC_ELEC 1
-#define SC_EXPLOSIVE 2
-#define SC_GAS 3
-#define SC_LIQUID 4
-#define SC_NUCLEAR 7
-#define SC_LIFE 9
-#define SC_CUSTOM 10
-#define SC_CELEC 11
-#define SC_NEON 12
-#define SC_TOTAL 13
-#define SC_CRACKER 14
-#define SC_CRACKER2 15
+
+#define SC_POWERED 2
+#define SC_EXPLOSIVE 3
+#define SC_GAS 4
+#define SC_LIQUID 5
+#define SC_POWDERS 6
+#define SC_SOLIDS 7
+#define SC_NUCLEAR 8
+#define SC_SPECIAL 9
+#define SC_LIFE 10
+#define SC_CUSTOM 11
+#define SC_CELEC 12
+#define SC_NEON 13
+#define SC_TOTAL 14
+#define SC_CRACKER 15
+#define SC_CRACKER2 16
+
 
 static menu_section msections[] = //itemcount and doshow do not do anything currently.
 {
@@ -71,12 +54,30 @@ static menu_section msections[] = //itemcount and doshow do not do anything curr
     {"\xC6", "Radioactive", 0, 1},
     {"\xCC", "Special", 0, 1},
     {"\xD2", "Life", 0, 1},
+	{"\xD2", "More Life", 0, 1},
 	{"\x97", "AntB's Mod", 0, 1},
     {"\xC2", "AntB's Electrics", 0, 1},  
 	{"\xC5", "Neon Lights", 0, 1},
 	{"\xC8", "", 0, 0},
     {"\xC8", "Cracker!", 0, 0},
     {"\xC8", "Cracker!", 0, 0},
+};
+
+static menu_section colorsections[] = //doshow does not do anything currently.
+{
+	{"\xD1", "Colors", 7, 1},
+	{"\xC5", "Tools", 0, 1},
+};
+
+static menu_wall colorlist[] =
+{
+	{PIXPACK(0xFF0000), "Red"},
+	{PIXPACK(0x00FF00), "Green"},
+	{PIXPACK(0x0000FF), "Blue"},
+	{PIXPACK(0xFFFF00), "Yellow"},
+	{PIXPACK(0xFF00FF), "Pink"},
+	{PIXPACK(0x00FFFF), "Cyan"},
+	{PIXPACK(0xFFFFFF), "White"},
 };
 
 struct ui_edit
@@ -107,6 +108,7 @@ struct save_info
 	int votedown;
 	int vote;
 	int myvote;
+	int downloadcount;
 	int myfav;
 	char *tags;
 	int comment_count;
@@ -122,11 +124,30 @@ struct ui_checkbox
 };
 typedef struct ui_checkbox ui_checkbox;
 
+struct ui_richtext
+{
+	int x, y;
+	char str[512];
+	char printstr[512];
+	int regionss[6];
+	int regionsf[6];
+	char action[6];
+	char actiondata[6][256];
+	char actiontext[6][256];
+};
+typedef struct ui_richtext ui_richtext;
+
 int SLALT;
 extern SDLMod sdl_mod;
 extern int sdl_key, sdl_wheel, sdl_caps, sdl_ascii, sdl_zoom_trig;
+#if (defined(LIN32) || defined(LIN64)) && defined(SDL_VIDEO_DRIVER_X11)
+extern SDL_SysWMinfo sdl_wminfo;
+extern Atom XA_CLIPBOARD, XA_TARGETS;
+#endif
+
 extern char *shift_0;
 extern char *shift_1;
+extern int svf_messages;
 extern int svf_login;
 extern int svf_admin;
 extern int svf_mod;
@@ -135,6 +156,9 @@ extern char svf_pass[64];
 extern char svf_user_id[64];
 extern char svf_session_id[64];
 
+
+extern char svf_filename[255];
+extern int svf_fileopen;
 extern int svf_open;
 extern int svf_own;
 extern int svf_myvote;
@@ -170,6 +194,8 @@ extern int zoom_en;
 extern int zoom_x, zoom_y;
 extern int zoom_wx, zoom_wy;
 
+extern int drawgrav_enable;
+
 void menu_count(void);
 
 void get_sign_pos(int i, int *x0, int *y0, int *w, int *h);
@@ -188,7 +214,13 @@ void ui_copytext_draw(pixel *vid_buf, ui_copytext *ed);
 
 void ui_copytext_process(int mx, int my, int mb, int mbq, ui_copytext *ed);
 
-void draw_svf_ui(pixel *vid_buf);
+void ui_richtext_draw(pixel *vid_buf, ui_richtext *ed);
+
+void ui_richtext_settext(char *text, ui_richtext *ed);
+
+void ui_richtext_process(int mx, int my, int mb, int mbq, ui_richtext *ed);
+
+void draw_svf_ui(pixel *vid_buf, int alternate);
 
 void error_ui(pixel *vid_buf, int err, char *txt);
 
@@ -197,6 +229,8 @@ void info_ui(pixel *vid_buf, char *top, char *txt);
 void copytext_ui(pixel *vid_buf, char *top, char *txt, char *copytxt);
 
 void info_box(pixel *vid_buf, char *msg);
+
+char *input_ui(pixel *vid_buf, char *title, char *prompt, char *text, char *shadow);
 
 int confirm_ui(pixel *vid_buf, char *top, char *msg, char *btn);
 
@@ -208,9 +242,13 @@ void tag_list_ui(pixel *vid_buf);
 
 int save_name_ui(pixel *vid_buf);
 
+int save_filename_ui(pixel *vid_buf);
+
 void menu_ui(pixel *vid_buf, int i, int *sl, int *sr);
 
 void menu_ui_v3(pixel *vid_buf, int i, int *sl, int *sr, int *dae, int b, int bq, int mx, int my);
+
+int color_menu_ui(pixel *vid_buf, int i, int *cr, int *cg, int *cb, int b, int bq, int mx, int my);
 
 int sdl_poll(void);
 
@@ -221,6 +259,8 @@ char *download_ui(pixel *vid_buf, char *uri, int *len);
 int search_ui(pixel *vid_buf);
 
 int open_ui(pixel *vid_buf, char *save_id, char *save_date);
+
+void catalogue_ui(pixel * vid_buf);
 
 int info_parse(char *info_data, save_info *info);
 
@@ -238,6 +278,8 @@ void execute_submit(pixel *vid_buf, char *id, char *message);
 
 void execute_fav(pixel *vid_buf, char *id);
 
+void execute_unfav(pixel *vid_buf, char *id);
+
 int execute_vote(pixel *vid_buf, char *id, char *action);
 
 void open_link(char *uri);
@@ -248,6 +290,6 @@ char *console_ui(pixel *vid_buf, char error[255],char console_more);
 
 void simulation_ui(pixel *vid_buf);
 
-void decorations_ui(pixel *vid_buf, pixel *decorations, int *bsx, int *bsy);
+unsigned int decorations_ui(pixel *vid_buf, int *bsx, int *bsy, unsigned int savedColor);
 #endif
 

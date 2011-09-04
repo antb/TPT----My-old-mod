@@ -58,6 +58,9 @@
 #ifdef PYCONSOLE
 #include "pyconsole.h"
 #endif
+#ifdef LUACONSOLE
+#include "luaconsole.h"
+#endif
 
 pixel *vid_buf;
 
@@ -165,14 +168,19 @@ typedef struct
 static const char *old_ver_msg_beta = "A new beta is available - click here!";
 #endif
 static const char *old_ver_msg = "A new version is available - click here!";
+char new_message_msg[255];
 float mheat = 0.0f;
 
 int do_open = 0;
 int sys_pause = 0;
 int sys_shortcuts = 1;
 int legacy_enable = 0; //Used to disable new features such as heat, will be set by save.
-int ngrav_enable = 1; //Newtonian gravity, will be set by save TODO: Make this actually do something
-int death = 0, framerender = 0;
+int ngrav_enable = 0; //Newtonian gravity, will be set by save
+int aheat_enable; //Ambient heat
+int decorations_enable = 1;
+int hud_enable = 1;
+int active_menu = 0;
+int framerender = 0;
 int amd = 1;
 int FPSB = 0;
 int MSIGN =-1;
@@ -188,7 +196,9 @@ int numCores = 4;
 
 pthread_t gravthread;
 pthread_mutex_t gravmutex;
+pthread_cond_t gravcv;
 int grav_ready = 0;
+int gravthread_done = 0;
 
 int core_count()
 {
@@ -317,7 +327,7 @@ void *build_thumb(int *size, int bzip2)
 //the saving function
 void *build_save(int *size, int x0, int y0, int w, int h, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr)
 {
-	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*11+MAXSIGNS*262), *c;
+	unsigned char *d=calloc(1,3*(XRES/CELL)*(YRES/CELL)+(XRES*YRES)*15+MAXSIGNS*262), *c;
 	int i,j,x,y,p=0,*m=calloc(XRES*YRES, sizeof(int));
 	int bx0=x0/CELL, by0=y0/CELL, bw=(w+CELL-1)/CELL, bh=(h+CELL-1)/CELL;
 	particle *parts = partsptr;
@@ -439,6 +449,46 @@ void *build_save(int *size, int x0, int y0, int w, int h, unsigned char bmap[YRE
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
+		if (i && (parts[i-1].type==PT_PBCN)) {
+			//Save tmp2
+			d[p++] = parts[i-1].tmp2;
+		}
+	}
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i) {
+			//Save colour (ALPHA)
+			d[p++] = (parts[i-1].dcolour&0xFF000000)>>24;
+		}
+	}
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i) {
+			//Save colour (RED)
+			d[p++] = (parts[i-1].dcolour&0x00FF0000)>>16;
+		}
+	}
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i) {
+			//Save colour (GREEN)
+			d[p++] = (parts[i-1].dcolour&0x0000FF00)>>8;
+		}
+	}
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i) {
+			//Save colour (BLUE)
+			d[p++] = (parts[i-1].dcolour&0x000000FF);
+		}
+	}
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
 		if (i)
 		{
 			//New Temperature saving uses a 16bit unsigned int for temperatures, giving a precision of 1 degree versus 36 for the old format
@@ -450,7 +500,7 @@ void *build_save(int *size, int x0, int y0, int w, int h, unsigned char bmap[YRE
 	for (j=0; j<w*h; j++)
 	{
 		i = m[j];
-		if (i && (parts[i-1].type==PT_CLNE || parts[i-1].type==PT_PCLN || parts[i-1].type==PT_BCLN || parts[i-1].type==PT_SPRK || parts[i-1].type==PT_LAVA || parts[i-1].type==PT_PIPE))
+		if (i && (parts[i-1].type==PT_CLNE || parts[i-1].type==PT_PCLN || parts[i-1].type==PT_BCLN || parts[i-1].type==PT_SPRK || parts[i-1].type==PT_LAVA || parts[i-1].type==PT_PIPE || parts[i-1].type==PT_LIFE || parts[i-1].type==PT_PBCN))
 			d[p++] = parts[i-1].ctype;
 	}
 
@@ -486,7 +536,7 @@ void *build_save(int *size, int x0, int y0, int w, int h, unsigned char bmap[YRE
 	c[0] = 0x50;	//0x66;
 	c[1] = 0x53;	//0x75;
 	c[2] = 0x76;	//0x43;
-	c[3] = legacy_enable|((sys_pause<<1)&0x02)|((gravityMode<<2)&0x0C)|((airMode<<4)&0x70);
+	c[3] = legacy_enable|((sys_pause<<1)&0x02)|((gravityMode<<2)&0x0C)|((airMode<<4)&0x70)|((ngrav_enable<<7)&0x80);
 	c[4] = SAVE_VERSION;
 	c[5] = CELL;
 	c[6] = bw;
@@ -515,10 +565,11 @@ void *build_save(int *size, int x0, int y0, int w, int h, unsigned char bmap[YRE
 int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char bmap[YRES/CELL][XRES/CELL], float fvx[YRES/CELL][XRES/CELL], float fvy[YRES/CELL][XRES/CELL], sign signs[MAXSIGNS], void* partsptr, unsigned pmap[YRES][XRES])
 {
 	unsigned char *d=NULL,*c=save;
-	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0;
+	int q,i,j,k,x,y,p=0,*m=NULL, ver, pty, ty, legacy_beta=0, tempGrav = 0;
 	int bx0=x0/CELL, by0=y0/CELL, bw, bh, w, h;
-	int fp[NPART], nf=0, new_format = 0, ttv = 0;
+	int nf=0, new_format = 0, ttv = 0;
 	particle *parts = partsptr;
+	int *fp = malloc(NPART*sizeof(int));
 
 	//New file header uses PSv, replacing fuC. This is to detect if the client uses a new save format for temperatures
 	//This creates a problem for old clients, that display and "corrupt" error instead of a "newer version" error
@@ -548,6 +599,9 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 			if (ver>=46 && replace) {
 				gravityMode = ((c[3]>>2)&0x03);// | ((c[3]>>2)&0x01);
 				airMode = ((c[3]>>4)&0x07);// | ((c[3]>>4)&0x02) | ((c[3]>>4)&0x01);
+			}
+			if (ver>=49 && replace) {
+				tempGrav = ((c[3]>>7)&0x01);		
 			}
 		} else {
 			if (c[3]==1||c[3]==0) {
@@ -682,7 +736,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 				j = PT_DUST;//goto corrupt;
 			}
 			gol[x][y]=0;
-			if (j)// && !(isplayer == 1 && j==PT_STKM))
+			if (j)// && !(player[27] == 1 && j==PT_STKM))
 			{
 				if (pmap[y][x] && (pmap[y][x]>>8)<NPART)
 				{
@@ -708,7 +762,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 					if (j == PT_PHOT)
 						parts[fp[i]].ctype = 0x3fffffff;
 					if (j == PT_SOAP)
-						parts[k].ctype = 0;
+						parts[fp[i]].ctype = 0;
 					parts[fp[i]].x = (float)x;
 					parts[fp[i]].y = (float)y;
 					m[(x-x0)+(y-y0)*w] = fp[i]+1;
@@ -756,6 +810,8 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 					player[17] = parts[i].x+3;
 					player[18] = parts[i].y+12;
 
+					player[27] = 1;
+
 				}
 				if (parts[i].type == PT_STKM2)
 				{
@@ -781,6 +837,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 					player2[17] = parts[i].x+3;
 					player2[18] = parts[i].y+12;
 
+					player2[27] = 1;
 				}
 			}
 			else
@@ -826,13 +883,106 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 					ttv = (d[p++])<<8;
 					ttv |= (d[p++]);
 					parts[i-1].tmp = ttv;
-					if (ptypes[parts[i-1].type].properties&PROP_LIFE && !parts[i-1].tmp)
-						for (q = 1; q<=NGOL ; q++) {
+					if (ver<53 && !parts[i-1].tmp)
+						for (q = 1; q<=NGOLALT; q++) {
 							if (parts[i-1].type==goltype[q-1] && grule[q][9]==2)
 								parts[i-1].tmp = grule[q][9]-1;
 						}
+					if (ver>=51 && ver<53 && parts[i-1].type==PT_PBCN)
+					{
+						parts[i-1].tmp2 = parts[i-1].tmp;
+						parts[i-1].tmp = 0;
+					}
 				} else {
 					p+=2;
+				}
+			}
+		}
+	}
+	if (ver>=53) {
+		for (j=0; j<w*h; j++)
+		{
+			i = m[j];
+			ty = d[pty+j];
+			if (i && ty==PT_PBCN)
+			{
+				if (p >= size)
+					goto corrupt;
+				if (i <= NPART)
+					parts[i-1].tmp2 = d[p++];
+				else
+					p++;
+			}
+		}
+	}
+	//Read ALPHA component
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i)
+		{
+			if (ver>=49) {
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (i <= NPART) {
+					parts[i-1].dcolour = d[p++]<<24;
+				} else {
+					p++;
+				}
+			}
+		}
+	}
+	//Read RED component
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i)
+		{
+			if (ver>=49) {
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (i <= NPART) {
+					parts[i-1].dcolour |= d[p++]<<16;
+				} else {
+					p++;
+				}
+			}
+		}
+	}
+	//Read GREEN component
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i)
+		{
+			if (ver>=49) {
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (i <= NPART) {
+					parts[i-1].dcolour |= d[p++]<<8;
+				} else {
+					p++;
+				}
+			}
+		}
+	}
+	//Read BLUE component
+	for (j=0; j<w*h; j++)
+	{
+		i = m[j];
+		if (i)
+		{
+			if (ver>=49) {
+				if (p >= size) {
+					goto corrupt;
+				}
+				if (i <= NPART) {
+					parts[i-1].dcolour |= d[p++];
+				} else {
+					p++;
 				}
 			}
 		}
@@ -880,12 +1030,13 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 				parts[i-1].temp = ptypes[parts[i-1].type].heat;
 			}
 		}
-	}
+	} 
 	for (j=0; j<w*h; j++)
 	{
+		int gnum = 0;
 		i = m[j];
 		ty = d[pty+j];
-		if (i && (ty==PT_CLNE || (ty==PT_PCLN && ver>=43) || (ty==PT_BCLN && ver>=44) || (ty==PT_SPRK && ver>=21) || (ty==PT_LAVA && ver>=34) || (ty==PT_PIPE && ver>=43)))
+		if (i && (ty==PT_CLNE || (ty==PT_PCLN && ver>=43) || (ty==PT_BCLN && ver>=44) || (ty==PT_SPRK && ver>=21) || (ty==PT_LAVA && ver>=34) || (ty==PT_PIPE && ver>=43) || (ty==PT_LIFE && ver>=51) || (ty==PT_PBCN && ver>=52)))
 		{
 			if (p >= size)
 				goto corrupt;
@@ -894,7 +1045,51 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 			else
 				p++;
 		}
+		// no more particle properties to load, so we can change type here without messing up loading
+		if (i && i<=NPART)
+		{
+			if (ver<48 && (ty==OLD_PT_WIND || (ty==PT_BRAY&&parts[i-1].life==0)))
+			{
+				// Replace invisible particles with something sensible and add decoration to hide it
+				x = (int)(parts[i-1].x+0.5f);
+				y = (int)(parts[i-1].y+0.5f);
+				parts[i-1].dcolour = 0xFF000000;
+				parts[i-1].type = PT_DMND;
+			}
+			if(ver<51 && ((ty>=78 && ty<=89) || (ty>=134 && ty<=146 && ty!=141))){
+				//Replace old GOL
+				parts[i-1].type = PT_LIFE;
+				for (gnum = 0; gnum<NGOLALT; gnum++){
+					if (ty==goltype[gnum])
+						parts[i-1].ctype = gnum;
+				}
+				ty = PT_LIFE;
+			}
+			if(ver<52 && (ty==PT_CLNE || ty==PT_PCLN || ty==PT_BCLN)){
+				//Replace old GOL ctypes in clone
+				for (gnum = 0; gnum<NGOLALT; gnum++){
+					if (parts[i-1].ctype==goltype[gnum])
+					{
+						parts[i-1].ctype = PT_LIFE;
+						parts[i-1].tmp = gnum;
+					}
+				}
+			}
+			if (!ptypes[parts[i-1].type].enabled)
+				parts[i-1].type = PT_NONE;
+		}
 	}
+
+	//Change the gravity state
+	if(ngrav_enable != tempGrav && replace)
+	{
+		if(tempGrav)
+			start_grav_async();
+		else
+			stop_grav_async();
+	}
+	
+	gravity_mask();
 
 	if (p >= size)
 		goto version1;
@@ -924,6 +1119,7 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 		{
 			memcpy(signs[k].text, d+p, x);
 			signs[k].text[x] = 0;
+			clean_text(signs[k].text, 158-14 /* Current max sign length */);
 		}
 		p += x;
 	}
@@ -931,12 +1127,14 @@ int parse_save(void *save, int size, int replace, int x0, int y0, unsigned char 
 version1:
 	if (m) free(m);
 	if (d) free(d);
+	if (fp) free(fp);
 
 	return 0;
 
 corrupt:
 	if (m) free(m);
 	if (d) free(d);
+	if (fp) free(fp);
 	if (replace)
 	{
 		legacy_enable = 0;
@@ -947,10 +1145,12 @@ corrupt:
 
 void clear_sim(void)
 {
+	int x, y;
 	memset(bmap, 0, sizeof(bmap));
 	memset(emap, 0, sizeof(emap));
 	memset(signs, 0, sizeof(signs));
 	memset(parts, 0, sizeof(particle)*NPART);
+	pfree = -1;
 	memset(pmap, 0, sizeof(pmap));
 	memset(pv, 0, sizeof(pv));
 	memset(vx, 0, sizeof(vx));
@@ -961,12 +1161,23 @@ void clear_sim(void)
 	memset(wireless, 0, sizeof(wireless));
 	memset(gol2, 0, sizeof(gol2));
 	memset(portalp, 0, sizeof(portalp));
-	death = death2 = ISSPAWN1 = ISSPAWN2 = 0;
+	ISSPAWN1 = ISSPAWN2 = 0;
+	player[27] = 0;
+	player2[27] = 0;
 	memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 	memset(fire_bg, 0, XRES*YRES*PIXELSIZE);
 	memset(fire_r, 0, sizeof(fire_r));
 	memset(fire_g, 0, sizeof(fire_g));
 	memset(fire_b, 0, sizeof(fire_b));
+	memset(gravmask, 0xFF, sizeof(gravmask));
+	memset(gravy, 0, sizeof(gravy));
+	memset(gravx, 0, sizeof(gravx));
+	for(x = 0; x < XRES/CELL; x++){
+		for(y = 0; y < YRES/CELL; y++){
+			hv[y][x] = 273.15f+22.0f; //Set to room temperature
+		}
+	}
+	gravity_mask();
 }
 
 // stamps library
@@ -1239,21 +1450,76 @@ char my_uri[] = "http://" SERVER "/Update.api?Action=Download&Architecture="
 #endif
                 ;
 
-void update_grav_async()
+int set_scale(int scale, int kiosk){
+	int old_scale = sdl_scale, old_kiosk = kiosk_enable;
+	sdl_scale = scale;
+	kiosk_enable = kiosk;
+	if (!sdl_open())
+	{
+		sdl_scale = old_scale;
+		kiosk_enable = old_kiosk;
+		sdl_open();
+		return 0;
+	}
+	return 1;
+}
+				
+void* update_grav_async(void* unused)
 {
 	int done = 0;
-	while(1){
+	int thread_done = 0;
+	memset(th_ogravmap, 0, sizeof(th_ogravmap));
+	memset(th_gravmap, 0, sizeof(th_gravmap));
+	memset(th_gravy, 0, sizeof(th_gravy));
+	memset(th_gravx, 0, sizeof(th_gravx));
+	while(!thread_done){
 		if(!done){
 			update_grav();
 			done = 1;
 			pthread_mutex_lock(&gravmutex);
+			
 			grav_ready = done;
+			thread_done = gravthread_done;
+			
 			pthread_mutex_unlock(&gravmutex);
 		} else {
 			pthread_mutex_lock(&gravmutex);
-		    done = grav_ready;
+			pthread_cond_wait(&gravcv, &gravmutex);
+		    
+			done = grav_ready;
+			thread_done = gravthread_done;
+			
 			pthread_mutex_unlock(&gravmutex);
 		}
+	}
+	pthread_exit(NULL);
+}
+
+void start_grav_async()
+{
+	if(!ngrav_enable){
+		/*pthread_mutexattr_t gma; //I do not know why this is here
+		pthread_mutexattr_init(&gma);*/
+		gravthread_done = 0;
+		pthread_mutex_init (&gravmutex, NULL);
+		pthread_cond_init(&gravcv, NULL);
+		pthread_create(&gravthread, NULL, update_grav_async, NULL); //Start asynchronous gravity simulation
+		ngrav_enable = 1;
+	}
+}
+
+void stop_grav_async()
+{
+	if(ngrav_enable){
+		pthread_mutex_lock(&gravmutex);
+		gravthread_done = 1;
+		pthread_cond_signal(&gravcv);
+		pthread_mutex_unlock(&gravmutex);
+		pthread_join(gravthread, NULL);
+		pthread_mutex_destroy(&gravmutex); //Destroy the mutex
+		memset(gravy, 0, sizeof(gravy)); //Clear the grav velocities
+		memset(gravx, 0, sizeof(gravx)); //Clear the grav velocities
+		ngrav_enable = 0;
 	}
 }
 
@@ -1264,6 +1530,7 @@ int main(int argc, char *argv[])
 	int load_size, i=0, j=0;
 	void *load_data = file_load(argv[1], &load_size);
 	unsigned char c[3];
+	char ppmfilename[256], ptifilename[256], ptismallfilename[256];
 	FILE *f;
 	
 	cmode = CM_FIRE;
@@ -1273,11 +1540,16 @@ int main(int argc, char *argv[])
 		parts[i].life = i+1;
 	parts[NPART-1].life = -1;
 	pfree = 0;
-	
+
 	pers_bg = calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
 	fire_bg = calloc(XRES*YRES, PIXELSIZE);
 	
 	prepare_alpha();
+	player[2] = player2[2] = PT_DUST;
+
+	sprintf(ppmfilename, "%s.ppm", argv[2]);
+	sprintf(ptifilename, "%s.pti", argv[2]);
+	sprintf(ptismallfilename, "%s-small.pti", argv[2]);
 	
 	if(load_data && load_size){
 		int parsestate = 0;
@@ -1286,6 +1558,7 @@ int main(int argc, char *argv[])
 		
 		for(i=0; i<30; i++){
 			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
+			draw_walls(vid_buf);
 			update_particles(vid_buf);
 			draw_parts(vid_buf);
 			render_fire(vid_buf);
@@ -1297,8 +1570,30 @@ int main(int argc, char *argv[])
 			//return 0;
 			info_box(vid_buf, "Save file invalid or from newer version");
 		}
-		
-		f=fopen(argv[2],"wb");
+
+		//Save PTi images
+		char * datares = NULL, *scaled_buf;
+		int res = 0, sw, sh;
+		datares = ptif_pack(vid_buf, XRES, YRES, &res);
+		if(datares!=NULL){
+			f=fopen(ptifilename, "wb");
+			fwrite(datares, res, 1, f);
+			fclose(f);
+			free(datares);
+			datares = NULL;
+		}
+		scaled_buf = resample_img(vid_buf, XRES, YRES, XRES/GRID_Z, YRES/GRID_Z);
+		datares = ptif_pack(scaled_buf, XRES/GRID_Z, YRES/GRID_Z, &res);
+		if(datares!=NULL){
+			f=fopen(ptismallfilename, "wb");
+			fwrite(datares, res, 1, f);
+			fclose(f);
+			free(datares);
+			datares = NULL;
+		}
+		free(scaled_buf);
+		//Save PPM image
+		f=fopen(ppmfilename, "wb");
 		fprintf(f,"P6\n%d %d\n255\n",XRES,YRES);
 		for (j=0; j<YRES; j++)
 		{
@@ -1321,8 +1616,8 @@ int main(int argc, char *argv[])
 #else
 int main(int argc, char *argv[])
 {
-	int hud_enable = 1;
-	int active_menu = 0;
+	pixel *part_vbuf; //Extra video buffer
+	pixel *part_vbuf_store;
 #ifdef BETA
 	int is_beta = 0;
 #endif
@@ -1334,27 +1629,42 @@ int main(int argc, char *argv[])
 	void *http_ver_check, *http_session_check = NULL;
 	char *ver_data=NULL, *check_data=NULL, *tmp;
 	//char console_error[255] = "";
-	int result, i, j, bq, fire_fc=0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, major, minor, old_ver_len;
+	int result, i, j, bq, fire_fc=0, do_check=0, do_s_check=0, old_version=0, http_ret=0,http_s_ret=0, major, minor, old_ver_len, new_message_len=0;
 #ifdef INTERNAL
 	int vs = 0;
 #endif
 	int wavelength_gfx = 0;
-	int x, y, b = 0, sl=1, sr=0, su=0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
+	int x, y, line_x, line_y, b = 0, sl=1, sr=0, su=0, c, lb = 0, lx = 0, ly = 0, lm = 0;//, tx, ty;
 	int da = 0, dae = 0, db = 0, it = 2047, mx, my, bsx = 2, bsy = 2;
 	float nfvx, nfvy;
 	int load_mode=0, load_w=0, load_h=0, load_x=0, load_y=0, load_size=0;
 	void *load_data=NULL;
 	pixel *load_img=NULL;//, *fbi_img=NULL;
 	int save_mode=0, save_x=0, save_y=0, save_w=0, save_h=0, copy_mode=0;
+	unsigned int hsvSave = PIXRGB(0,255,127);//this is hsv format
 	SDL_AudioSpec fmt;
 	int username_flash = 0, username_flash_t = 1;
 #ifdef PYCONSOLE
 	PyObject *pname,*pmodule,*pfunc,*pvalue,*pargs,*pstep,*pkey;
 	PyObject *tpt_console_obj;
 #endif
-	pixel *decorations = calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
+#ifdef PTW32_STATIC_LIB
+    pthread_win32_process_attach_np();
+    pthread_win32_thread_attach_np();
+#endif
 	vid_buf = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE);
+	part_vbuf = calloc((XRES+BARSIZE)*(YRES+MENUSIZE), PIXELSIZE); //Extra video buffer
+	part_vbuf_store = part_vbuf;
 	pers_bg = calloc((XRES+BARSIZE)*YRES, PIXELSIZE);
+
+	//Allocate full size Gravmaps
+	th_gravyf = calloc(XRES*YRES, sizeof(float));
+	th_gravxf = calloc(XRES*YRES, sizeof(float));
+	th_gravpf = calloc(XRES*YRES, sizeof(float));
+	gravyf = calloc(XRES*YRES, sizeof(float));
+	gravxf = calloc(XRES*YRES, sizeof(float));
+	gravpf = calloc(XRES*YRES, sizeof(float));
+
 	GSPEED = 1;
 
 	/* Set 16-bit stereo audio at 22Khz */
@@ -1365,6 +1675,9 @@ int main(int argc, char *argv[])
 	fmt.callback = mixaudio;
 	fmt.userdata = NULL;
 
+#ifdef LUACONSOLE
+	luacon_open();
+#endif
 #ifdef PYCONSOLE
 	//initialise python console
 	Py_Initialize();
@@ -1428,7 +1741,7 @@ int main(int argc, char *argv[])
 		pygood = 0;
 	}
 #else
-	printf("python console disabled at compile time.");
+	printf("python console disabled at compile time.\n");
 #endif
 
 #ifdef MT
@@ -1450,11 +1763,8 @@ int main(int argc, char *argv[])
 	menu_count();
 	parts = calloc(sizeof(particle), NPART);
 	cb_parts = calloc(sizeof(particle), NPART);
-	for (i=0; i<NPART-1; i++)
-		parts[i].life = i+1;
-	parts[NPART-1].life = -1;
-	pfree = 0;
 	fire_bg=calloc(XRES*YRES, PIXELSIZE);
+	init_can_move();
 	clear_sim();
 
 	//fbi_img = render_packed_rgb(fbi, FBI_W, FBI_H, FBI_CMP);
@@ -1520,7 +1830,7 @@ int main(int argc, char *argv[])
 
 	stamp_init();
 
-	sdl_open();
+	if (!sdl_open()) exit(1);
 	http_init(http_proxy_string[0] ? http_proxy_string : NULL);
 
 	if (cpu_check())
@@ -1538,11 +1848,9 @@ int main(int argc, char *argv[])
 		http_session_check = http_async_req_start(NULL, "http://" SERVER "/Login.api?Action=CheckSession", NULL, 0, 0);
 		http_auth_headers(http_session_check, svf_user_id, NULL, svf_session_id);
 	}
-	pthread_mutexattr_t gma;
-
-	pthread_mutexattr_init(&gma);
-	pthread_mutex_init (&gravmutex, NULL);
-	pthread_create(&gravthread, NULL, update_grav_async, NULL); //Asynchronous gravity simulation //(void *) &thread_args[i]);
+#ifdef LUACONSOLE
+	luacon_eval("dofile(\"autorun.lua\")"); //Autorun lua script
+#endif
 	while (!sdl_poll()) //the main loop
 	{
 		frameidx++;
@@ -1550,22 +1858,39 @@ int main(int argc, char *argv[])
 		if (!sys_pause||framerender) //only update air if not paused
 		{
 			update_air();
+			if(aheat_enable)
+				update_airh();
 		}
 #ifdef OpenGL
 		ClearScreen();
 #else
-		if (cmode==CM_VEL || cmode==CM_PRESS || cmode==CM_CRACK)//air only gets drawn in these modes
+
+		if(cmode==CM_FANCY)
 		{
-			draw_air(vid_buf);
+			part_vbuf = part_vbuf_store;
+			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
+		} else {
+			part_vbuf = vid_buf;
+		}
+
+		if(gravwl_timeout)
+		{
+			if(gravwl_timeout==1)
+				gravity_mask();
+			gravwl_timeout--;
+		}
+		if (cmode==CM_VEL || cmode==CM_PRESS || cmode==CM_CRACK || (cmode==CM_HEAT && aheat_enable))//air only gets drawn in these modes
+		{
+			draw_air(part_vbuf);
 		}
 		else if (cmode==CM_PERS)//save background for persistent, then clear
 		{
-			memcpy(vid_buf, pers_bg, (XRES+BARSIZE)*YRES*PIXELSIZE);
-			memset(vid_buf+((XRES+BARSIZE)*YRES), 0, ((XRES+BARSIZE)*YRES*PIXELSIZE)-((XRES+BARSIZE)*YRES*PIXELSIZE));
-		}
+			memcpy(part_vbuf, pers_bg, (XRES+BARSIZE)*YRES*PIXELSIZE);
+			memset(part_vbuf+((XRES+BARSIZE)*YRES), 0, ((XRES+BARSIZE)*YRES*PIXELSIZE)-((XRES+BARSIZE)*YRES*PIXELSIZE));
+}
 		else //clear screen every frame
 		{
-			memset(vid_buf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
+			memset(part_vbuf, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 		}
 #endif
 
@@ -1578,25 +1903,57 @@ int main(int argc, char *argv[])
 			bsy = 1180;
 		if (bsy<0)
 			bsy = 0;
+		
+		if(ngrav_enable && drawgrav_enable)
+			draw_grav(vid_buf);
+		draw_walls(part_vbuf);
+		update_particles(part_vbuf); //update everything
+		draw_parts(part_vbuf); //draw particles
+		if(sl == WL_GRAV+100 || sr == WL_GRAV+100)
+			draw_grav_zones(part_vbuf);
+		
+		if(ngrav_enable){
+			pthread_mutex_lock(&gravmutex);
+			result = grav_ready;
+			if(result) //Did the gravity thread finish?
+			{
+				memcpy(th_gravmap, gravmap, sizeof(gravmap)); //Move our current gravmap to be processed other thread
+				memcpy(gravy, th_gravy, sizeof(gravy));	//Hmm, Gravy
+				memcpy(gravx, th_gravx, sizeof(gravx)); //Move the processed velocity maps to be used
+				memcpy(gravp, th_gravp, sizeof(gravp));
 
-		pthread_mutex_lock(&gravmutex);
-		result = grav_ready;
-		if(result) //Did the gravity thread finish?
-		{
-			memcpy(th_gravmap, gravmap, sizeof(gravmap)); //Move our current gravmap to be processed other thread
-			memcpy(gravy, th_gravy, sizeof(gravy));	//Hmm, Gravy
-			memcpy(gravx, th_gravx, sizeof(gravx)); //Move the processed velocity maps to be used
-			if (!sys_pause||framerender) //Only update if not paused
-				grav_ready = 0; //Tell the other thread that we're ready for it to continue
+				if (!sys_pause||framerender){ //Only update if not paused
+					//Switch the full size gravmaps, we don't really need the two above any more
+					float *tmpf;
+					tmpf = gravyf;
+					gravyf = th_gravyf;
+					th_gravyf = tmpf;
+
+					tmpf = gravxf;
+					gravxf = th_gravxf;
+					th_gravxf = tmpf;
+
+					tmpf = gravpf;
+					gravpf = th_gravpf;
+					th_gravpf = tmpf;
+
+					grav_ready = 0; //Tell the other thread that we're ready for it to continue
+					pthread_cond_signal(&gravcv);
+				}
+			}
+			pthread_mutex_unlock(&gravmutex);
+			//Apply the gravity mask
+			membwand(gravy, gravmask, sizeof(gravy), sizeof(gravmask));
+			membwand(gravx, gravmask, sizeof(gravx), sizeof(gravmask));
 		}
-		pthread_mutex_unlock(&gravmutex);
 
 		if (!sys_pause||framerender) //Only update if not paused
 			memset(gravmap, 0, sizeof(gravmap)); //Clear the old gravmap
 
-		draw_grav(vid_buf);
-		update_particles(vid_buf); //update everything
-		draw_parts(vid_buf); //draw particles
+		if (framerender) {
+			framerender = 0;
+			sys_pause = 1;
+		}
 
 		if (cmode==CM_PERS)
 		{
@@ -1611,14 +1968,17 @@ int main(int argc, char *argv[])
 			fire_fc = (fire_fc+1) % 3;
 		}
 		if (cmode==CM_FIRE||cmode==CM_BLOB||cmode==CM_FANCY)
-			render_fire(vid_buf);
+			render_fire(part_vbuf);
 
-		render_signs(vid_buf);
+		render_signs(part_vbuf);
+
+		if(cmode==CM_FANCY)
+			render_gravlensing(part_vbuf, vid_buf);
 
 		memset(vid_buf+((XRES+BARSIZE)*YRES), 0, (PIXELSIZE*(XRES+BARSIZE))*MENUSIZE);//clear menu areas
 		clearrect(vid_buf, XRES-1, 0, BARSIZE+1, YRES);
 
-		draw_svf_ui(vid_buf);
+		draw_svf_ui(vid_buf, sdl_mod & (KMOD_LCTRL|KMOD_RCTRL));
 
 		if (http_ver_check)
 		{
@@ -1660,6 +2020,7 @@ int main(int argc, char *argv[])
 						svf_own = 0;
 						svf_admin = 0;
 						svf_mod = 0;
+						svf_messages = 0;
 					}
 					else if (!strncmp(check_data, "BANNED", 6))
 					{
@@ -1672,6 +2033,7 @@ int main(int argc, char *argv[])
 						svf_own = 0;
 						svf_admin = 0;
 						svf_mod = 0;
+						svf_messages = 0;
 						error_ui(vid_buf, 0, "Unable to log in\nYour account has been suspended, consider reading the rules.");
 					}
 					else if (!strncmp(check_data, "OK", 2))
@@ -1681,13 +2043,20 @@ int main(int argc, char *argv[])
 							//User is elevated
 							if (!strncmp(check_data+3, "ADMIN", 5))
 							{
+								//Check for messages
+								svf_messages = atoi(check_data+9);
 								svf_admin = 1;
 								svf_mod = 0;
 							}
 							else if (!strncmp(check_data+3, "MOD", 3))
 							{
+								//Check for messages
+								svf_messages = atoi(check_data+7);
 								svf_admin = 0;
 								svf_mod = 1;
+							} else {
+								//Check for messages
+								svf_messages = atoi(check_data+3);
 							}
 						}
 					}
@@ -1702,6 +2071,7 @@ int main(int argc, char *argv[])
 						svf_own = 0;
 						svf_admin = 0;
 						svf_mod = 0;
+						svf_messages = 0;
 					}
 					save_presets(0);
 					free(check_data);
@@ -1715,6 +2085,7 @@ int main(int argc, char *argv[])
 					svf_own = 0;
 					svf_admin = 0;
 					svf_mod = 0;
+					svf_messages = 0;
 				}
 				http_session_check = NULL;
 			} else {
@@ -1760,11 +2131,6 @@ int main(int argc, char *argv[])
 					}
 				}
 			}
-			//if(sdl_key=='d' && isplayer)
-			//{
-			//    death = 1;
-			//    //death = !(death);
-			//}
 			if (sdl_key=='f')
 			{
 				framerender = 1;
@@ -1800,7 +2166,7 @@ int main(int argc, char *argv[])
 						free(load_data);
 				}
 			}
-			if (sdl_key=='s' && (sdl_mod & (KMOD_CTRL)) || (sdl_key=='s' && !isplayer2))
+			if (sdl_key=='s' && ((sdl_mod & (KMOD_CTRL)) || !player2[27]))
 			{
 				if (it > 50)
 					it = 50;
@@ -1934,7 +2300,7 @@ int main(int argc, char *argv[])
 						bsy = 0;
 				}
 			}
-			if (sdl_key=='d'&&(sdl_mod & (KMOD_CTRL)) || (sdl_key=='d' && !isplayer2))
+			if (sdl_key=='d' && ((sdl_mod & (KMOD_CTRL)) || !player2[27]))
 				DEBUG_MODE = !DEBUG_MODE;
 			if (sdl_key=='i')
 			{
@@ -1947,9 +2313,7 @@ int main(int argc, char *argv[])
 						vy[ny][nx] = -vy[ny][nx];
 					}
 			}
-			if ((sdl_mod & (KMOD_RCTRL) )&&( sdl_mod & (KMOD_RALT)))
-				active_menu = 11;
-			if (sdl_key==SDLK_INSERT)// || sdl_key==SDLK_BACKQUOTE)
+			if (sdl_key==SDLK_INSERT || sdl_key == SDLK_SEMICOLON)// || sdl_key==SDLK_BACKQUOTE)
 				REPLACE_MODE = !REPLACE_MODE;
 			if (sdl_key==SDLK_BACKQUOTE)
 			{
@@ -1958,15 +2322,33 @@ int main(int argc, char *argv[])
 			}
 			if (sdl_key=='b')
 			{
-				decorations_ui(vid_buf,decorations,&bsx,&bsy);//decoration_mode = !decoration_mode;
-				sys_pause=1;
+				if (sdl_mod & KMOD_CTRL)
+				{
+					decorations_enable = !decorations_enable;
+					itc = 51;
+					if (decorations_enable) strcpy(itc_msg, "Decorations layer: On");
+					else strcpy(itc_msg, "Decorations layer: Off");
+				}
+				else
+				{
+					hsvSave = decorations_ui(vid_buf,&bsx,&bsy,hsvSave);//decoration_mode = !decoration_mode;
+					decorations_enable = 1;
+					sys_pause=1;
+				}
 			}
 			if (sdl_key=='g')
 			{
-				if (sdl_mod & (KMOD_SHIFT))
-					GRID_MODE = (GRID_MODE+9)%10;
+				if(sdl_mod & (KMOD_CTRL))
+				{
+					drawgrav_enable =! drawgrav_enable;
+				}
 				else
-					GRID_MODE = (GRID_MODE+1)%10;
+				{
+					if (sdl_mod & (KMOD_SHIFT))
+						GRID_MODE = (GRID_MODE+9)%10;
+					else
+						GRID_MODE = (GRID_MODE+1)%10;
+				}
 			}
 			if (sdl_key=='m')
 			{
@@ -2002,7 +2384,7 @@ int main(int argc, char *argv[])
 				}
 			}
 
-			if (sdl_key=='w' && (!isplayer2 || (sdl_mod & (KMOD_SHIFT)))) //Gravity, by Moach
+			if (sdl_key=='w' && (!player2[27] || (sdl_mod & (KMOD_SHIFT)))) //Gravity, by Moach
 			{
 				++gravityMode; // cycle gravity mode
 				itc = 51;
@@ -2054,6 +2436,9 @@ int main(int argc, char *argv[])
 				VINE_MODE = !VINE_MODE;
 			if (sdl_key==SDLK_SPACE)
 				sys_pause = !sys_pause;
+			if (sdl_key=='u')
+
+				aheat_enable = !aheat_enable;
 			if (sdl_key=='h')
 				hud_enable = !hud_enable;
 			if (sdl_key=='p')
@@ -2144,11 +2529,15 @@ int main(int argc, char *argv[])
 						vx[cby][cbx] = cb_vx[cby][cbx];
 						vy[cby][cbx] = cb_vy[cby][cbx];
 						pv[cby][cbx] = cb_pv[cby][cbx];
+						hv[cby][cbx] = cb_hv[cby][cbx];
 						bmap[cby][cbx] = cb_bmap[cby][cbx];
 						emap[cby][cbx] = cb_emap[cby][cbx];
 					}
 			}
 		}
+//#ifdef LUACONSOLE
+	//luacon_keypress(sdl_key);
+//#endif
 #ifdef PYCONSOLE
 		if (pyready==1 && pygood==1)
 			if (pkey!=NULL && sdl_key!=NULL)
@@ -2240,6 +2629,11 @@ int main(int argc, char *argv[])
 		bq = b; // bq is previous mouse state
 		b = SDL_GetMouseState(&x, &y); // b is current mouse state
 
+#ifdef LUACONSOLE
+		if(luacon_step(x/sdl_scale, y/sdl_scale, b, bq, sdl_key))
+			b = 0; //Mouse click was handled by Lua step
+#endif
+
 		for (i=0; i<SC_TOTAL; i++)//draw all the menu sections
 		{
 			draw_menu(vid_buf, i, active_menu);
@@ -2253,7 +2647,6 @@ int main(int argc, char *argv[])
 			}
 		}
 		menu_ui_v3(vid_buf, active_menu, &sl, &sr, &dae, b, bq, x, y); //draw the elements in the current menu
-		draw_decorations(vid_buf,decorations);
 		if (zoom_en && x>=sdl_scale*zoom_wx && y>=sdl_scale*zoom_wy //change mouse position while it is in a zoom window
 		        && x<sdl_scale*(zoom_wx+ZFACTOR*ZSIZE)
 		        && y<sdl_scale*(zoom_wy+ZFACTOR*ZSIZE))
@@ -2264,6 +2657,7 @@ int main(int argc, char *argv[])
 		if (y>0 && y<sdl_scale*YRES && x>0 && x<sdl_scale*XRES)
 		{
 			int cr; //cr is particle under mouse, for drawing HUD information
+			char nametext[50];
 			if (photons[y/sdl_scale][x/sdl_scale]) {
 				cr = photons[y/sdl_scale][x/sdl_scale];
 			} else {
@@ -2271,11 +2665,13 @@ int main(int argc, char *argv[])
 			}
 			if (!((cr>>8)>=NPART || !cr))
 			{
-				if (DEBUG_MODE)
+				if ((cr&0xFF)==PT_LIFE && parts[cr>>8].ctype>=0 && parts[cr>>8].ctype<NGOLALT)
+				{
+					sprintf(nametext, "%s (%s)", ptypes[cr&0xFF].name, gmenu[parts[cr>>8].ctype].name);
+				}
+				else if (DEBUG_MODE)
 				{
 					int tctype = parts[cr>>8].ctype;
-					if (tctype>=PT_NUM || tctype<0 || (cr&0xFF)==PT_PHOT)
-						tctype = 0;
 					if ((cr&0xFF)==PT_PIPE)
 					{
 						if (parts[cr>>8].tmp<PT_NUM) tctype = parts[cr>>8].tmp;
@@ -2299,8 +2695,14 @@ int main(int argc, char *argv[])
 			}
 		}
 
+
 		mx = x;
 		my = y;
+		if (b && !bq && x>=(XRES-19-new_message_len)*sdl_scale &&
+		        x<=(XRES-14)*sdl_scale && y>=(YRES-37)*sdl_scale && y<=(YRES-24)*sdl_scale && svf_messages)
+		{
+			open_link("http://" SERVER "/Conversations.html");
+		}
 		if (update_flag)
 		{
 			info_box(vid_buf, "Finalizing update...");
@@ -2393,13 +2795,22 @@ int main(int argc, char *argv[])
 				if (da < 51)
 					da ++;
 			}
-			else if (x>=37*sdl_scale && x<=187*sdl_scale && svf_login)
+			else if (x>=37*sdl_scale && x<=187*sdl_scale)
 			{
-				db = 259;
-				if (svf_open && svf_own && x<=55*sdl_scale)
-					db = 258;
-				if (da < 51)
-					da ++;
+				if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+				{
+					db = 277;
+					if (da < 51)
+						da ++;
+				}
+				else if(svf_login)
+				{
+					db = 259;
+					if (svf_open && svf_own && x<=55*sdl_scale)
+						db = 258;
+					if (da < 51)
+						da ++;
+				}
 			}
 			else if (x>=((XRES+BARSIZE-(510-385))*sdl_scale) && x<=((XRES+BARSIZE-(510-476))*sdl_scale))
 			{
@@ -2417,7 +2828,10 @@ int main(int argc, char *argv[])
 			}
 			else if (x>=sdl_scale && x<=17*sdl_scale)
 			{
-				db = 262;
+				if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
+					db = 276;
+				else
+					db = 262;
 				if (da < 51)
 					da ++;
 			}
@@ -2584,6 +2998,8 @@ int main(int argc, char *argv[])
 						pfree = 0;
 
 						legacy_enable = 0;
+						svf_filename[0] = 0;
+						svf_fileopen = 0;
 						svf_myvote = 0;
 						svf_open = 0;
 						svf_publish = 0;
@@ -2594,14 +3010,6 @@ int main(int argc, char *argv[])
 						svf_description[0] = 0;
 						gravityMode = 0;
 						airMode = 0;
-
-						death = death2 = 0;
-						isplayer2 = 0;
-						isplayer = 0;
-						ISSPAWN1 = 0;
-						ISSPAWN2 = 0;
-
-						memset(decorations, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
 					}
 					if (x>=(XRES+BARSIZE-(510-385)) && x<=(XRES+BARSIZE-(510-476)))
 					{
@@ -2611,34 +3019,47 @@ int main(int argc, char *argv[])
 							http_session_check = NULL;
 						}
 					}
-					if (x>=37 && x<=187 && svf_login)
+					if(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL))
 					{
-						if (!svf_open || !svf_own || x>51)
+						if (x>=37 && x<=187)
 						{
-							if (save_name_ui(vid_buf)) {
-								execute_save(vid_buf);
-								if (svf_id[0]) {
-									copytext_ui(vid_buf, "Save ID", "Saved successfully!", svf_id);
+							save_filename_ui(vid_buf);
+									
+						}
+						if (x>=1 && x<=17)
+						{
+							catalogue_ui(vid_buf);
+						}
+					} else {
+						if (x>=37 && x<=187 && svf_login)
+						{
+							if (!svf_open || !svf_own || x>51)
+							{
+								if (save_name_ui(vid_buf)) {
+									execute_save(vid_buf);
+									if (svf_id[0]) {
+										copytext_ui(vid_buf, "Save ID", "Saved successfully!", svf_id);
+									}
 								}
 							}
+							else
+								execute_save(vid_buf);
+							while (!sdl_poll())
+								if (!SDL_GetMouseState(&x, &y))
+									break;
+							b = bq = 0;
 						}
-						else
-							execute_save(vid_buf);
-						while (!sdl_poll())
-							if (!SDL_GetMouseState(&x, &y))
-								break;
-						b = bq = 0;
+						if (x>=1 && x<=17)
+						{
+							search_ui(vid_buf);
+							memset(fire_bg, 0, XRES*YRES*PIXELSIZE);
+							memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
+							memset(fire_r, 0, sizeof(fire_r));
+							memset(fire_g, 0, sizeof(fire_g));
+							memset(fire_b, 0, sizeof(fire_b));
+						}
 					}
-					if (x>=1 && x<=17)
-					{
-						search_ui(vid_buf);
-						memset(fire_bg, 0, XRES*YRES*PIXELSIZE);
-						memset(pers_bg, 0, (XRES+BARSIZE)*YRES*PIXELSIZE);
-						memset(fire_r, 0, sizeof(fire_r));
-						memset(fire_g, 0, sizeof(fire_g));
-						memset(fire_b, 0, sizeof(fire_b));
-					}
-					if (x>=19 && x<=35 && svf_last && svf_open && !bq) {
+					if (x>=19 && x<=35 && svf_last && (svf_open || svf_fileopen) && !bq) {
 						//int tpval = sys_pause;
 						parse_save(svf_last, svf_lsize, 1, 0, 0, bmap, fvx, fvy, signs, parts, pmap);
 						//sys_pause = tpval;
@@ -2702,11 +3123,23 @@ int main(int argc, char *argv[])
 				{
 					if (lm == 1)//line tool
 					{
-						xor_line(lx, ly, x, y, vid_buf);
+						if (sdl_mod & KMOD_ALT)
+						{
+							float snap_angle = floor(atan2(y-ly, x-lx)/(M_PI*0.25)+0.5)*M_PI*0.25;
+							float line_mag = sqrtf(pow(x-lx,2)+pow(y-ly,2));
+							line_x = (int)(line_mag*cos(snap_angle)+lx+0.5f);
+							line_y = (int)(line_mag*sin(snap_angle)+ly+0.5f);
+						}
+						else
+						{
+							line_x = x;
+							line_y = y;
+						}
+						xor_line(lx, ly, line_x, line_y, vid_buf);
 						if (c==WL_FAN+100 && lx>=0 && ly>=0 && lx<XRES && ly<YRES && bmap[ly/CELL][lx/CELL]==WL_FAN)
 						{
-							nfvx = (x-lx)*0.005f;
-							nfvy = (y-ly)*0.005f;
+							nfvx = (line_x-lx)*0.005f;
+							nfvy = (line_y-ly)*0.005f;
 							flood_parts(lx, ly, WL_FANHELPER, -1, WL_FAN);
 							for (j=0; j<YRES/CELL; j++)
 								for (i=0; i<XRES/CELL; i++)
@@ -2717,14 +3150,14 @@ int main(int argc, char *argv[])
 										bmap[j][i] = WL_FAN;
 									}
 						}
-						if (c == PT_WIND)
+						if (c == SPC_WIND)
 						{
 							for (j=-bsy; j<=bsy; j++)
 								for (i=-bsx; i<=bsx; i++)
-									if (x+i>0 && y+j>0 && x+i<XRES && y+j<YRES && ((CURRENT_BRUSH==CIRCLE_BRUSH && (pow(i,2))/(pow(bsx,2))+(pow(j,2))/(pow(bsy,2))<=1)||(CURRENT_BRUSH==SQUARE_BRUSH&&i*j<=bsy*bsx)))
+									if (lx+i>0 && ly+j>0 && lx+i<XRES && ly+j<YRES && InCurrentBrush(i,j,bsx,bsy))
 									{
-										vx[(ly+j)/CELL][(lx+i)/CELL] += (x-lx)*0.002f;
-										vy[(ly+j)/CELL][(lx+i)/CELL] += (y-ly)*0.002f;
+										vx[(ly+j)/CELL][(lx+i)/CELL] += (line_x-lx)*0.002f;
+										vy[(ly+j)/CELL][(lx+i)/CELL] += (line_y-ly)*0.002f;
 									}
 						}
 					}
@@ -2737,11 +3170,11 @@ int main(int argc, char *argv[])
 					}
 					else//while mouse is held down, it draws lines between previous and current positions
 					{
-						if (c == PT_WIND)
+						if (c == SPC_WIND)
 						{
 							for (j=-bsy; j<=bsy; j++)
 								for (i=-bsx; i<=bsx; i++)
-									if (x+i>0 && y+j>0 && x+i<XRES && y+j<YRES && ((CURRENT_BRUSH==CIRCLE_BRUSH && (pow(i,2))/(pow(bsx,2))+(pow(j,2))/(pow(bsy,2))<=1)||(CURRENT_BRUSH==SQUARE_BRUSH&&i*j<=bsy*bsx)))
+									if (x+i>0 && y+j>0 && x+i<XRES && y+j<YRES && InCurrentBrush(i,j,bsx,bsy))
 									{
 										vx[(y+j)/CELL][(x+i)/CELL] += (x-lx)*0.01f;
 										vy[(y+j)/CELL][(x+i)/CELL] += (y-ly)*0.01f;
@@ -2758,7 +3191,7 @@ int main(int argc, char *argv[])
 				else //it is the first click
 				{
 					//start line tool
-					if ((sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)) && !(sdl_mod & (KMOD_LCTRL|KMOD_RCTRL|KMOD_LALT)))
+					if ((sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_CTRL)))
 					{
 						lx = x;
 						ly = y;
@@ -2766,7 +3199,7 @@ int main(int argc, char *argv[])
 						lm = 1;//line
 					}
 					//start box tool
-					else if ((sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)) && !(sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)))
+					else if ((sdl_mod & (KMOD_CTRL)) && !(sdl_mod & (KMOD_SHIFT|KMOD_ALT)))
 					{
 						lx = x;
 						ly = y;
@@ -2774,11 +3207,11 @@ int main(int argc, char *argv[])
 						lm = 2;//box
 					}
 					//flood fill
-					else if ((sdl_mod & (KMOD_LCTRL|KMOD_RCTRL)) && (sdl_mod & (KMOD_LSHIFT|KMOD_RSHIFT)) && !(sdl_mod & (KMOD_LALT)))
+					else if ((sdl_mod & (KMOD_CTRL)) && (sdl_mod & (KMOD_SHIFT)) && !(sdl_mod & (KMOD_ALT)))
 					{
 						if (sdl_mod & (KMOD_CAPS))
 							c = 0;
-						if (c!=WL_STREAM+100&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM&&!REPLACE_MODE&&c!=PT_WIND)
+						if (c!=WL_STREAM+100&&c!=SPC_AIR&&c!=SPC_HEAT&&c!=SPC_COOL&&c!=SPC_VACUUM&&!REPLACE_MODE&&c!=SPC_WIND)
 							flood_parts(x, y, c, -1, -1);
 						if (c==SPC_HEAT || c==SPC_COOL)
 							create_parts(x, y, bsx, bsy, c);
@@ -2788,7 +3221,7 @@ int main(int argc, char *argv[])
 						lm = 0;
 					}
 					//sample
-					else if (((sdl_mod & (KMOD_LALT|KMOD_RALT)) && !(sdl_mod & (KMOD_SHIFT))) || b==SDL_BUTTON_MIDDLE)
+					else if (((sdl_mod & (KMOD_ALT)) && !(sdl_mod & (KMOD_SHIFT|KMOD_CTRL))) || b==SDL_BUTTON_MIDDLE)
 					{
 						if (y>=0 && y<YRES && x>=0 && x<XRES)
 						{
@@ -2799,6 +3232,8 @@ int main(int argc, char *argv[])
 							if (!((cr>>8)>=NPART || !cr))
 							{
 								c = sl = cr&0xFF;
+								if (c==PT_LIFE)
+									c = sl = (parts[cr>>8].ctype << 8) | c;
 							}
 							else
 							{
@@ -2828,6 +3263,7 @@ int main(int argc, char *argv[])
 								cb_vx[cby][cbx] = vx[cby][cbx];
 								cb_vy[cby][cbx] = vy[cby][cbx];
 								cb_pv[cby][cbx] = pv[cby][cbx];
+								cb_hv[cby][cbx] = hv[cby][cbx];
 								cb_bmap[cby][cbx] = bmap[cby][cbx];
 								cb_emap[cby][cbx] = emap[cby][cbx];
 							}
@@ -2851,7 +3287,7 @@ int main(int argc, char *argv[])
 				if (lm == 1)//line
 				{
 					if (c!=WL_FAN+100 || lx<0 || ly<0 || lx>=XRES || ly>=YRES || bmap[ly/CELL][lx/CELL]!=WL_FAN)
-						create_line(lx, ly, x, y, bsx, bsy, c);
+						create_line(lx, ly, line_x, line_y, bsx, bsy, c);
 				}
 				else//box
 					create_box(lx, ly, x, y, c);
@@ -2929,7 +3365,7 @@ int main(int argc, char *argv[])
 				drawtext(vid_buf, 16, YRES-24, "Click-and-drag to specify a rectangle to copy (right click = cancel).", 255, 216, 32, da*5);
 				break;
 			case 270:
-				drawtext(vid_buf, 16, YRES-24, "Enable or disable compatibility mode (disables heat simulation).", 255, 255, 255, da*5);
+				drawtext(vid_buf, 16, YRES-24, "Simulation options", 255, 255, 255, da*5);
 				break;
 			case 271:
 				drawtext(vid_buf, 16, YRES-24, "You're a moderator", 255, 255, 255, da*5);
@@ -2945,6 +3381,12 @@ int main(int argc, char *argv[])
 				break;
 			case 275:
 				drawtext(vid_buf, 16, YRES-24, "You cannot vote on your own save.", 255, 255, 255, da*5);
+				break;
+			case 276:
+				drawtext(vid_buf, 16, YRES-24, "Open a simulation from your hard drive.", 255, 255, 255, da*5);
+				break;
+			case 277:
+				drawtext(vid_buf, 16, YRES-24, "Save the simulation to your hard drive.", 255, 255, 255, da*5);
 				break;
 			default:
 				drawtext(vid_buf, 16, YRES-24, (char *)ptypes[db].descs, 255, 255, 255, da*5);
@@ -2976,6 +3418,16 @@ int main(int argc, char *argv[])
 			drawtext(vid_buf, XRES-16-old_ver_len, YRES-19, old_ver_msg, 255, 216, 32, 255);
 #endif
 			drawrect(vid_buf, XRES-19-old_ver_len, YRES-22, old_ver_len+5, 13, 255, 216, 32, 255);
+		}
+		
+		if (svf_messages)
+		{
+			sprintf(new_message_msg, "You have %d new message%s, Click to view", svf_messages, (svf_messages>1)?"s":"");
+			new_message_len = textwidth(new_message_msg);
+			
+			clearrect(vid_buf, XRES-21-new_message_len, YRES-39, new_message_len+9, 17);
+			drawtext(vid_buf, XRES-16-new_message_len, YRES-34, new_message_msg, 255, 186, 32, 255);
+			drawrect(vid_buf, XRES-19-new_message_len, YRES-37, new_message_len+5, 13, 255, 186, 32, 255);
 		}
 
 		FPS++;
@@ -3093,6 +3545,20 @@ int main(int argc, char *argv[])
 				if (!console_mode)
 					hud_enable = 1;
 			}
+#elif defined LUACONSOLE
+			char *console;
+			sys_pause = 1;
+			console = console_ui(vid_buf, console_error, console_more);
+			console = mystrdup(console);
+			strcpy(console_error,"");
+			if (process_command_lua(vid_buf, console, console_error)==-1)
+			{
+				free(console);
+				break;
+			}
+			free(console);
+			if (!console_mode)
+				hud_enable = 1;
 #else
 			char *console;
 			sys_pause = 1;
@@ -3129,16 +3595,16 @@ int main(int argc, char *argv[])
 		sdl_blit(0, 0, XRES+BARSIZE, YRES+MENUSIZE, vid_buf, XRES+BARSIZE);
 
 		//Setting an element for the stick man
-		if (isplayer==0)
+		if (player[27]==0)
 		{
-			if (ptypes[sr].falldown>0 || sr == PT_NEUT || sr == PT_PHOT)
+			if ((sr<PT_NUM && ptypes[sr].falldown>0) || sr==SPC_AIR || sr == PT_NEUT || sr == PT_PHOT)
 				player[2] = sr;
 			else
 				player[2] = PT_DUST;
 		}
-		if (isplayer2==0)
+		if (player2[27]==0)
 		{
-			if (ptypes[sr].falldown>0 || sr == PT_NEUT || sr == PT_PHOT)
+			if ((sr<PT_NUM && ptypes[sr].falldown>0) || sr==SPC_AIR || sr == PT_NEUT || sr == PT_PHOT)
 				player2[2] = sr;
 			else
 				player2[2] = PT_DUST;
@@ -3146,7 +3612,9 @@ int main(int argc, char *argv[])
 	}
 	SDL_CloseAudio();
 	http_done();
-
+#ifdef LUACONSOLE
+	luacon_close();
+#endif
 #ifdef PYCONSOLE
 
 	PyRun_SimpleString("import os,tempfile,os.path\ntry:\n    os.remove(os.path.join(tempfile.gettempdir(),'tpt_console.py'))\nexcept:\n    pass");
@@ -3154,6 +3622,10 @@ int main(int argc, char *argv[])
 	PyRun_SimpleString("import os,tempfile,os.path\ntry:\n    os.remove(os.path.join(tempfile.gettempdir(),'tpt_console.pyc'))\nexcept:\n    pass");
 
 	Py_Finalize();//cleanup any python stuff.
+#endif
+#ifdef PTW32_STATIC_LIB
+    pthread_win32_thread_detach_np();
+    pthread_win32_process_detach_np();
 #endif
 	return 0;
 }

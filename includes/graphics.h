@@ -48,7 +48,19 @@ extern unsigned int fire_alpha[CELL*3][CELL*3];
 extern pixel *fire_bg;
 extern pixel *pers_bg;
 
+void draw_rgba_image(pixel *vid, unsigned char *data, int x, int y, float a);
+
+void *ptif_pack(pixel *src, int w, int h, int *result_size);
+
+pixel *ptif_unpack(void *datain, int size, int *w, int *h);
+
+pixel *resample_img_nn(pixel *src, int sw, int sh, int rw, int rh);
+
+pixel *resample_img(pixel *src, int sw, int sh, int rw, int rh);
+
 pixel *rescale_img(pixel *src, int sw, int sh, int *qw, int *qh, int f);
+
+void render_gravlensing(pixel *src, pixel * dst);
 
 void sdl_blit_1(int x, int y, int w, int h, pixel *src, int pitch);
 
@@ -100,6 +112,8 @@ void draw_icon(pixel *vid_buf, int x, int y, char ch, int flag);
 
 void draw_air(pixel *vid);
 
+void draw_grav_zones(pixel *vid);
+
 void draw_grav(pixel *vid);
 
 void draw_line(pixel *vid, int x1, int y1, int x2, int y2, int r, int g, int b, int a);
@@ -114,7 +128,13 @@ void xor_rect(pixel *vid, int x, int y, int w, int h);
 
 void draw_parts(pixel *vid);
 
-void draw_decorations(pixel *vid_buf,pixel *decorations);
+void draw_walls(pixel *vid);
+
+void create_decorations(int x, int y, int rx, int ry, int r, int g, int b, int click);
+
+void line_decorations(int x1, int y1, int x2, int y2, int rx, int ry, int r, int g, int b, int click);
+
+void box_decorations(int x1, int y1, int x2, int y2, int r, int g, int b, int click);
 
 void draw_wavelengths(pixel *vid, int x, int y, int h, int wl);
 
@@ -138,7 +158,7 @@ int render_thumb(void *thumb, int size, int bzip2, pixel *vid_buf, int px, int p
 
 void render_cursor(pixel *vid, int x, int y, int t, int rx, int ry);
 
-void sdl_open(void);
+int sdl_open(void);
 
 #ifdef OpenGL
 void Enable2D ();

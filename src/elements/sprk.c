@@ -8,9 +8,10 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 	{
 		if (ct==PT_WATR||ct==PT_SLTW||ct==PT_PSCN||ct==PT_NSCN||ct==PT_ETRD||ct==PT_INWR)
 			parts[i].temp = R_TEMP + 273.15f;
-		if (!ct)
+		if (ct<=0 || ct>=PT_NUM)
 			ct = PT_METL;
 		part_change_type(i,x,y,ct);
+		parts[i].ctype = PT_NONE;
 		parts[i].life = 4;
 		if (ct == PT_WATR)
 			parts[i].life = 64;
@@ -94,7 +95,7 @@ int update_SPRK(UPDATE_FUNC_ARGS) {
 						parts[r>>8].life = 9;
 					}
 				}
-				else if ((ct==PT_PSCN||ct==PT_NSCN) && (rt==PT_PUMP||rt==PT_HSWC||(rt==PT_LCRY&&abs(rx)<2&&abs(ry)<2)))
+				else if ((ct==PT_PSCN||ct==PT_NSCN) && (rt==PT_PUMP||rt==PT_GPMP||rt==PT_HSWC||rt==PT_PBCN||(rt==PT_LCRY&&abs(rx)<2&&abs(ry)<2))) // PROP_PTOGGLE, Maybe? We seem to use 2 different methods for handling actived elements, this one seems better. Yes, use this one for new elements, PCLN is different for compatibility with existing saves
 				{
 					if (ct==PT_PSCN) parts[r>>8].life = 10;
 					else if (ct==PT_NSCN && parts[r>>8].life>=10) parts[r>>8].life = 9;
